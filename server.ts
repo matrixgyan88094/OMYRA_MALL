@@ -12,7 +12,8 @@ import { DatabaseService } from './server/database-service.js';
 import { OmyraAuthClient } from '@omyra/server';
 import { omyraAuthMiddleware, requireOmyraSession } from '@omyra/express';
 
-const app = express();
+export const app = express();
+export default app;
 const PORT = 3000;
 const BUCKET_SECURE = process.env.R2_SECURE_BUCKET || process.env.R2_USER_BUCKET || 'omyra-secure-documents';
 
@@ -1602,4 +1603,6 @@ async function startServer() {
   });
 }
 
-startServer();
+if (!process.env.VERCEL) {
+  startServer();
+}
