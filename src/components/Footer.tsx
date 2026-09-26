@@ -88,20 +88,6 @@ export const Footer: React.FC = () => {
                   Creator Studio Management
                 </button>
               </li>
-              <li className="pt-1">
-                <a
-                  href="/md1620"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    window.history.pushState({}, '', '/md1620');
-                    window.dispatchEvent(new PopStateEvent('popstate'));
-                  }}
-                  className="inline-flex items-center gap-1.5 font-semibold text-orange-600 hover:text-orange-700"
-                >
-                  <span className="w-1.5 h-1.5 rounded-full bg-orange-600" />
-                  Admin Gateway (/md1620)
-                </a>
-              </li>
             </ul>
           </div>
         </div>

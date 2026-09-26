@@ -36,7 +36,14 @@ export const AdminLogin: React.FC<AdminLoginProps> = ({ onSuccess, onGoHome, cur
         body: JSON.stringify({ email, password })
       });
 
-      const data = await res.json();
+      const text = await res.text();
+      let data: any = {};
+      try {
+        data = JSON.parse(text);
+      } catch {
+        throw new Error(text || `Server returned error (${res.status})`);
+      }
+
       if (!res.ok) {
         throw new Error(data.error || 'Authentication failed');
       }
@@ -66,7 +73,14 @@ export const AdminLogin: React.FC<AdminLoginProps> = ({ onSuccess, onGoHome, cur
         headers: { 'Content-Type': 'application/json' }
       });
 
-      const optData = await optRes.json();
+      const optText = await optRes.text();
+      let optData: any = {};
+      try {
+        optData = JSON.parse(optText);
+      } catch {
+        throw new Error(optText || `Server returned error (${optRes.status})`);
+      }
+
       if (!optRes.ok) {
         throw new Error(optData.error || 'No fingerprint passkey registered yet. Please log in with password to set up your passkey in Security.');
       }
@@ -111,7 +125,14 @@ export const AdminLogin: React.FC<AdminLoginProps> = ({ onSuccess, onGoHome, cur
         })
       });
 
-      const verifyData = await verifyRes.json();
+      const verifyText = await verifyRes.text();
+      let verifyData: any = {};
+      try {
+        verifyData = JSON.parse(verifyText);
+      } catch {
+        throw new Error(verifyText || `Server returned error (${verifyRes.status})`);
+      }
+
       if (!verifyRes.ok) {
         throw new Error(verifyData.error || 'Fingerprint verification failed');
       }
