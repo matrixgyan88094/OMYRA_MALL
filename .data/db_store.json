@@ -1,0 +1,147 @@
+{
+  "admin": {
+    "id": "admin_primary",
+    "email": "developer995500@gmail.com",
+    "password_hash": "f34722cfaf4e48ff517e9ed4805185c6e3d479b699826e3f2b5fba1970253966",
+    "access_alias": "md1620",
+    "resend_api_key": "",
+    "resend_from_email": "orders@omyra.org",
+    "resend_domain": "omyra.org",
+    "resend_sender_name": "Kroma Studio",
+    "updated_at": "2026-09-26T17:04:51.065Z"
+  },
+  "passkeys": [],
+  "products": [
+    {
+      "id": "kroma-ui-core",
+      "title": "Kroma UI Design System v4",
+      "subtitle": "Enterprise-grade Figma library with 1,200+ production components",
+      "description": "A complete, highly structured design system built on Figma Auto-Layout 5.0, Variables, responsive breakpoints, and WCAG AAA compliance. Includes dark, light, and high-contrast color palettes with automated design tokens ready for Tailwind CSS v4.",
+      "category": "UI & Figma",
+      "price": 89,
+      "formats": [
+        ".fig",
+        ".tokens.json",
+        ".css"
+      ],
+      "tags": [
+        "Figma",
+        "Design System",
+        "Tokens",
+        "Tailwind"
+      ],
+      "features": [
+        "1,200+ Figma components",
+        "Auto Layout 5.0 + Variables",
+        "Tailwind CSS v4 token export",
+        "Commercial project rights"
+      ],
+      "thumbnail": "/src/assets/images/product_figma_system_1790434781926.jpg",
+      "rating": 4.98,
+      "reviews_count": 248,
+      "sales_count": 1420,
+      "status": "published",
+      "file_url": "https://downloads.kroma.studio/releases/kroma-ui-core-v4.zip",
+      "created_at": "2026-09-26T16:50:36.698Z"
+    },
+    {
+      "id": "kroma-next15-starter",
+      "title": "Next.js 15 Fullstack SaaS Starter",
+      "subtitle": "Ship production apps in days with TypeScript, React 19, and Neon DB",
+      "description": "Battle-tested Next.js 15 App Router boilerplate with server components, Postgres connection pooling, modern authentication, Resend transactional emails, and Stripe checkout integration.",
+      "category": "Dev Kits",
+      "price": 129,
+      "formats": [
+        ".tsx",
+        ".sql",
+        ".dockerfile"
+      ],
+      "tags": [
+        "Next.js 15",
+        "TypeScript",
+        "React 19",
+        "Neon DB"
+      ],
+      "features": [
+        "Next.js 15 App Router architecture",
+        "TypeScript strict mode & Zod schemas",
+        "Neon Postgres database integration",
+        "Resend transactional email templates"
+      ],
+      "thumbnail": "/src/assets/images/product_dev_boilerplate_1790434806396.jpg",
+      "rating": 4.95,
+      "reviews_count": 182,
+      "sales_count": 980,
+      "status": "published",
+      "file_url": "https://downloads.kroma.studio/releases/kroma-next15-starter-v2.zip",
+      "created_at": "2026-09-26T16:50:36.698Z"
+    },
+    {
+      "id": "kroma-spatial-3d",
+      "title": "Spatial Geometry 3D Assets Pack",
+      "subtitle": "60+ pristine matte & frosted 3D objects rendered for digital products",
+      "description": "Ultra-high resolution 3D models and pre-rendered transparent assets engineered specifically for modern UI cards, hero sections, and marketing landing pages. Includes Blender master files.",
+      "category": "3D & Spatial",
+      "price": 69,
+      "formats": [
+        ".blend",
+        ".glb",
+        ".png (8K)"
+      ],
+      "tags": [
+        "3D Asset",
+        "Blender",
+        "GLB",
+        "Abstract UI"
+      ],
+      "features": [
+        "60+ unique 3D compositions",
+        "Full Blender setup with octane shaders",
+        "8K transparent PNG exports",
+        "Optimized GLB files for Three.js"
+      ],
+      "thumbnail": "/src/assets/images/product_3d_assets_1790434793362.jpg",
+      "rating": 4.92,
+      "reviews_count": 114,
+      "sales_count": 650,
+      "status": "published",
+      "file_url": "https://downloads.kroma.studio/releases/kroma-spatial-3d-v1.zip",
+      "created_at": "2026-09-26T16:50:36.698Z"
+    },
+    {
+      "id": "kroma-micro-motion",
+      "title": "Kinetic Motion & Audio Soundscape",
+      "subtitle": "45+ clean micro-interactions and tactile Web Audio sound bites",
+      "description": "Subtle, hyper-responsive UI micro-animations and crisp acoustic UI audio tokens (clicks, confirmations, errors, and ambient hums) optimized for web and mobile touch apps.",
+      "category": "Motion & Audio",
+      "price": 49,
+      "formats": [
+        ".json (Lottie)",
+        ".wav (24-bit)",
+        ".mp3"
+      ],
+      "tags": [
+        "Audio UI",
+        "Lottie",
+        "Haptics",
+        "Motion"
+      ],
+      "features": [
+        "45+ tactile sound design assets",
+        "Lightweight Lottie animation files",
+        "Web Audio API code recipes",
+        "Instant zero-delay buffer loading"
+      ],
+      "thumbnail": "/src/assets/images/hero_white_orange_1790435384152.jpg",
+      "rating": 4.96,
+      "reviews_count": 89,
+      "sales_count": 412,
+      "status": "published",
+      "file_url": "https://downloads.kroma.studio/releases/kroma-micro-motion-v1.zip",
+      "created_at": "2026-09-26T16:50:36.698Z"
+    }
+  ],
+  "orders": [],
+  "email_logs": [],
+  "active_challenges": {}
+}

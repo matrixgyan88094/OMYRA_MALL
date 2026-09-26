@@ -1,0 +1,6 @@
+{
+  "name": "Kroma — Digital Goods & Design Systems",
+  "description": "A premier single-vendor digital marketplace featuring UI kits, developer boilerplates, 3D assets, and design resources with instant licensing.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
