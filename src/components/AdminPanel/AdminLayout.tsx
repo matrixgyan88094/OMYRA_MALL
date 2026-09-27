@@ -11,12 +11,14 @@ import {
   ChevronLeft, 
   ChevronRight,
   Database,
-  ShieldCheck
+  ShieldCheck,
+  Cloud
 } from 'lucide-react';
 
 import { OverviewTab } from './OverviewTab';
 import { ProductsTab } from './ProductsTab';
 import { OrdersTab } from './OrdersTab';
+import { StorageTab } from './StorageTab';
 import { ResendTab } from './ResendTab';
 import { SecurityTab } from './SecurityTab';
 import { SettingsTab } from './SettingsTab';
@@ -54,8 +56,9 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({
     { id: 'overview', label: 'Overview', icon: LayoutDashboard },
     { id: 'products', label: 'Products & Inventory', icon: Package },
     { id: 'orders', label: 'Orders & Licenses', icon: ShoppingBag },
+    { id: 'storage', label: 'Cloudflare R2 Storage', icon: Cloud },
     { id: 'resend', label: 'Resend.com Email', icon: Mail },
-    { id: 'security', label: 'Security & Passkeys', icon: Fingerprint, badge: 'FIDO2' },
+    { id: 'security', label: 'Security & Passkeys', icon: Fingerprint },
     { id: 'settings', label: 'Routing & Database', icon: Settings },
   ];
 
@@ -190,6 +193,7 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({
         )}
         {activeTab === 'products' && <ProductsTab token={token} />}
         {activeTab === 'orders' && <OrdersTab token={token} />}
+        {activeTab === 'storage' && <StorageTab token={token} />}
         {activeTab === 'resend' && <ResendTab token={token} />}
         {activeTab === 'security' && (
           <SecurityTab

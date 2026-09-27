@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { Package, Plus, Edit2, Trash2, CheckCircle2, AlertCircle, Eye, EyeOff, Loader2, DollarSign, Tag, ExternalLink } from 'lucide-react';
+import React, { useState, useEffect, useRef } from 'react';
+import { Package, Plus, Edit2, Trash2, CheckCircle2, AlertCircle, Eye, EyeOff, Loader2, DollarSign, Tag, ExternalLink, UploadCloud, Lock, Cloud } from 'lucide-react';
 
 interface ProductItem {
   id: string;
@@ -43,6 +43,70 @@ export const ProductsTab: React.FC<ProductsTabProps> = ({ token }) => {
   const [status, setStatus] = useState<'published' | 'draft'>('published');
   const [saving, setSaving] = useState(false);
   const [notice, setNotice] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
+
+  // R2 Direct Upload states
+  const [uploadingR2Thumb, setUploadingR2Thumb] = useState(false);
+  const [uploadingR2Zip, setUploadingR2Zip] = useState(false);
+  const thumbInputRef = useRef<HTMLInputElement>(null);
+  const zipInputRef = useRef<HTMLInputElement>(null);
+
+  const handleR2ThumbUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUploadingR2Thumb(true);
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('userId', 'admin_primary');
+    formData.append('folderType', 'thumbnails');
+
+    try {
+      const res = await fetch('/api/admin/r2/upload', {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${token}` },
+        body: formData
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Thumbnail upload failed');
+      if (data.publicUrl) {
+        setThumbnail(data.publicUrl);
+      } else {
+        setThumbnail(`r2://${data.key}`);
+      }
+      setNotice({ type: 'success', message: `Thumbnail stored in Cloudflare R2: ${data.key}` });
+    } catch (err: any) {
+      setNotice({ type: 'error', message: err.message });
+    } finally {
+      setUploadingR2Thumb(false);
+      if (thumbInputRef.current) thumbInputRef.current.value = '';
+    }
+  };
+
+  const handleR2ZipUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUploadingR2Zip(true);
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('userId', 'admin_primary');
+    formData.append('folderType', 'secure-products');
+
+    try {
+      const res = await fetch('/api/admin/r2/upload', {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${token}` },
+        body: formData
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Zip upload failed');
+      setFileUrl(`r2://${data.key}`);
+      setNotice({ type: 'success', message: `Protected package stored in Cloudflare R2: ${data.key}` });
+    } catch (err: any) {
+      setNotice({ type: 'error', message: err.message });
+    } finally {
+      setUploadingR2Zip(false);
+      if (zipInputRef.current) zipInputRef.current.value = '';
+    }
+  };
 
   useEffect(() => {
     fetchProducts();
@@ -373,15 +437,66 @@ export const ProductsTab: React.FC<ProductsTabProps> = ({ token }) => {
                 </div>
               </div>
 
+              {/* Product Cover Thumbnail */}
               <div>
-                <label className="block font-semibold text-slate-700 mb-1">Digital Package Download URL</label>
+                <div className="flex items-center justify-between mb-1">
+                  <label className="block font-semibold text-slate-700">Product Thumbnail (Cover Art)</label>
+                  <button
+                    type="button"
+                    onClick={() => thumbInputRef.current?.click()}
+                    disabled={uploadingR2Thumb}
+                    className="inline-flex items-center gap-1 text-[11px] font-semibold text-orange-600 hover:text-orange-700"
+                  >
+                    <UploadCloud className="w-3.5 h-3.5" />
+                    <span>{uploadingR2Thumb ? 'Uploading...' : 'Upload to R2 (Thumbnails)'}</span>
+                  </button>
+                  <input
+                    type="file"
+                    ref={thumbInputRef}
+                    onChange={handleR2ThumbUpload}
+                    accept="image/*"
+                    className="hidden"
+                  />
+                </div>
+                <input
+                  type="text"
+                  value={thumbnail}
+                  onChange={(e) => setThumbnail(e.target.value)}
+                  placeholder="https://assets.omyra.org/admin_primary/public/thumbnails/cover.webp"
+                  className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 text-slate-900 font-mono text-[11px]"
+                />
+              </div>
+
+              {/* Digital Package Download URL */}
+              <div>
+                <div className="flex items-center justify-between mb-1">
+                  <label className="block font-semibold text-slate-700">Digital Package Download (ZIP / Release)</label>
+                  <button
+                    type="button"
+                    onClick={() => zipInputRef.current?.click()}
+                    disabled={uploadingR2Zip}
+                    className="inline-flex items-center gap-1 text-[11px] font-semibold text-orange-600 hover:text-orange-700"
+                  >
+                    <Lock className="w-3.5 h-3.5" />
+                    <span>{uploadingR2Zip ? 'Uploading to R2...' : 'Upload Protected ZIP to R2'}</span>
+                  </button>
+                  <input
+                    type="file"
+                    ref={zipInputRef}
+                    onChange={handleR2ZipUpload}
+                    className="hidden"
+                  />
+                </div>
                 <input
                   type="text"
                   value={fileUrl}
                   onChange={(e) => setFileUrl(e.target.value)}
-                  placeholder="https://downloads.kroma.studio/releases/package.zip"
+                  placeholder="r2://admin_primary/private/secure-products/starter_v2.zip or https://..."
                   className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 text-slate-900 font-mono text-[11px]"
                 />
+                <span className="text-[10px] text-slate-400 mt-1 block">
+                  Files with <code className="text-slate-600 font-bold">r2://</code> prefix are stored in <code className="text-slate-600">private/secure-products/</code> with zero public direct access. Download requires short-lived SigV4 signed authorization.
+                </span>
               </div>
 
               <div>

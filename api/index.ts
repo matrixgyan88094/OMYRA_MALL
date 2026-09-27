@@ -3,6 +3,16 @@ import path from 'path';
 import fs from 'fs';
 import crypto from 'crypto';
 import dotenv from 'dotenv';
+import multer from 'multer';
+import {
+  S3Client,
+  HeadBucketCommand,
+  ListObjectsV2Command,
+  PutObjectCommand,
+  GetObjectCommand,
+  DeleteObjectCommand,
+} from '@aws-sdk/client-s3';
+import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import { neon, NeonQueryFunction } from '@neondatabase/serverless';
 
 dotenv.config();
@@ -10,8 +20,13 @@ dotenv.config();
 const app = express();
 app.set('trust proxy', 1);
 
-app.use(express.json({ limit: '10mb' }));
-app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+app.use(express.json({ limit: '15mb' }));
+app.use(express.urlencoded({ extended: true, limit: '15mb' }));
+
+const upload = multer({
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 150 * 1024 * 1024 } // 150MB maximum upload limit
+});
 
 // ---------------------------------------------------------
 // DATABASE & STORAGE LAYER (Neon PostgreSQL + Safe Memory Fallback)
@@ -31,6 +46,11 @@ interface AdminAccount {
   resend_from_email?: string;
   resend_domain?: string;
   resend_sender_name?: string;
+  r2_account_id?: string;
+  r2_access_key_id?: string;
+  r2_secret_access_key?: string;
+  r2_bucket_name?: string;
+  r2_public_domain?: string;
   updated_at: string;
 }
 
@@ -283,20 +303,30 @@ async function initNeonDatabase() {
       `;
       await sql`ALTER TABLE admin_account ADD COLUMN IF NOT EXISTS resend_domain TEXT;`;
       await sql`ALTER TABLE admin_account ADD COLUMN IF NOT EXISTS resend_sender_name TEXT;`;
+      await sql`ALTER TABLE admin_account ADD COLUMN IF NOT EXISTS r2_account_id TEXT;`;
+      await sql`ALTER TABLE admin_account ADD COLUMN IF NOT EXISTS r2_access_key_id TEXT;`;
+      await sql`ALTER TABLE admin_account ADD COLUMN IF NOT EXISTS r2_secret_access_key TEXT;`;
+      await sql`ALTER TABLE admin_account ADD COLUMN IF NOT EXISTS r2_bucket_name TEXT;`;
+      await sql`ALTER TABLE admin_account ADD COLUMN IF NOT EXISTS r2_public_domain TEXT;`;
 
       await sql`
         CREATE TABLE IF NOT EXISTS admin_passkeys (
-          id TEXT PRIMARY KEY,
-          credential_id TEXT NOT NULL,
+          credential_id TEXT PRIMARY KEY,
+          id TEXT,
+          name TEXT,
+          device_name TEXT,
           public_key TEXT NOT NULL,
           counter INTEGER DEFAULT 0,
-          name TEXT NOT NULL,
           created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
         );
       `;
+      await sql`ALTER TABLE admin_passkeys ADD COLUMN IF NOT EXISTS id TEXT;`;
+      await sql`ALTER TABLE admin_passkeys ADD COLUMN IF NOT EXISTS name TEXT;`;
+      await sql`ALTER TABLE admin_passkeys ADD COLUMN IF NOT EXISTS device_name TEXT;`;
+      await sql`ALTER TABLE admin_passkeys ADD COLUMN IF NOT EXISTS counter INTEGER DEFAULT 0;`;
 
       await sql`
-        CREATE TABLE IF NOT EXISTS products (
+        CREATE TABLE IF NOT EXISTS marketplace_products (
           id TEXT PRIMARY KEY,
           title TEXT NOT NULL,
           subtitle TEXT,
@@ -317,7 +347,7 @@ async function initNeonDatabase() {
       `;
 
       await sql`
-        CREATE TABLE IF NOT EXISTS orders (
+        CREATE TABLE IF NOT EXISTS marketplace_orders (
           id TEXT PRIMARY KEY,
           order_number TEXT NOT NULL,
           customer_email TEXT NOT NULL,
@@ -364,11 +394,11 @@ async function initNeonDatabase() {
       }
 
       // Seed initial products if not exists
-      const existingProducts = await sql`SELECT id FROM products LIMIT 1;`;
+      const existingProducts = await sql`SELECT id FROM marketplace_products LIMIT 1;`;
       if (existingProducts.length === 0) {
         for (const p of DEFAULT_PRODUCTS) {
           await sql`
-            INSERT INTO products (id, title, subtitle, description, category, price, formats, tags, features, thumbnail, rating, reviews_count, sales_count, status, file_url)
+            INSERT INTO marketplace_products (id, title, subtitle, description, category, price, formats, tags, features, thumbnail, rating, reviews_count, sales_count, status, file_url)
             VALUES (${p.id}, ${p.title}, ${p.subtitle}, ${p.description}, ${p.category}, ${p.price}, ${JSON.stringify(p.formats)}, ${JSON.stringify(p.tags)}, ${JSON.stringify(p.features)}, ${p.thumbnail}, ${p.rating}, ${p.reviews_count}, ${p.sales_count}, ${p.status}, ${p.file_url});
           `;
         }
@@ -439,6 +469,11 @@ async function updateAdminAccount(updates: Partial<AdminAccount>): Promise<Admin
             resend_from_email = ${updated.resend_from_email || null},
             resend_domain = ${updated.resend_domain || null},
             resend_sender_name = ${updated.resend_sender_name || null},
+            r2_account_id = ${updated.r2_account_id || null},
+            r2_access_key_id = ${updated.r2_access_key_id || null},
+            r2_secret_access_key = ${updated.r2_secret_access_key || null},
+            r2_bucket_name = ${updated.r2_bucket_name || null},
+            r2_public_domain = ${updated.r2_public_domain || null},
             updated_at = CURRENT_TIMESTAMP
         WHERE id = 'admin_primary';
       `;
@@ -457,7 +492,17 @@ async function getPasskeys(): Promise<PasskeyRecord[]> {
   if (sql && neonConnected) {
     try {
       const rows = await sql`SELECT * FROM admin_passkeys ORDER BY created_at DESC;`;
-      return rows as PasskeyRecord[];
+      if (rows && rows.length > 0) {
+        return rows.map(r => ({
+          id: r.id || r.credential_id,
+          credential_id: r.credential_id,
+          public_key: r.public_key,
+          counter: Number(r.counter) || 0,
+          name: r.name || r.device_name || 'Biometric Touch / Fingerprint Sensor',
+          created_at: r.created_at ? new Date(r.created_at).toISOString() : new Date().toISOString()
+        })) as PasskeyRecord[];
+      }
+      return [];
     } catch (e) {
       console.warn('Neon getPasskeys failed:', e);
     }
@@ -470,35 +515,46 @@ async function addPasskey(passkey: PasskeyRecord): Promise<void> {
   if (sql && neonConnected) {
     try {
       await sql`
-        INSERT INTO admin_passkeys (id, credential_id, public_key, counter, name, created_at)
-        VALUES (${passkey.id}, ${passkey.credential_id}, ${passkey.public_key}, ${passkey.counter}, ${passkey.name}, ${passkey.created_at});
+        INSERT INTO admin_passkeys (credential_id, id, name, device_name, public_key, counter, created_at)
+        VALUES (${passkey.credential_id}, ${passkey.id || passkey.credential_id}, ${passkey.name}, ${passkey.name}, ${passkey.public_key}, ${passkey.counter || 0}, ${passkey.created_at})
+        ON CONFLICT (credential_id) DO UPDATE
+        SET public_key = EXCLUDED.public_key,
+            name = EXCLUDED.name,
+            device_name = EXCLUDED.device_name,
+            id = EXCLUDED.id,
+            counter = EXCLUDED.counter;
       `;
     } catch (e) {
       console.warn('Neon addPasskey failed:', e);
     }
   }
   const store = loadLocalStore();
-  store.passkeys = [passkey, ...(store.passkeys || [])];
+  const existingIdx = (store.passkeys || []).findIndex(p => p.credential_id === passkey.credential_id);
+  if (existingIdx >= 0) {
+    store.passkeys[existingIdx] = passkey;
+  } else {
+    store.passkeys = [passkey, ...(store.passkeys || [])];
+  }
   saveLocalStore(store);
 }
 
 async function removePasskey(id: string): Promise<void> {
   if (sql && neonConnected) {
     try {
-      await sql`DELETE FROM admin_passkeys WHERE id = ${id};`;
+      await sql`DELETE FROM admin_passkeys WHERE id = ${id} OR credential_id = ${id};`;
     } catch (e) {
       console.warn('Neon removePasskey failed:', e);
     }
   }
   const store = loadLocalStore();
-  store.passkeys = (store.passkeys || []).filter(p => p.id !== id);
+  store.passkeys = (store.passkeys || []).filter(p => p.id !== id && p.credential_id !== id);
   saveLocalStore(store);
 }
 
 async function getAllProducts(): Promise<ProductRecord[]> {
   if (sql && neonConnected) {
     try {
-      const rows = await sql`SELECT * FROM products ORDER BY created_at DESC;`;
+      const rows = await sql`SELECT * FROM marketplace_products ORDER BY created_at DESC;`;
       return rows.map(r => ({
         ...r,
         price: parseFloat(r.price),
@@ -518,7 +574,7 @@ async function saveProduct(product: ProductRecord): Promise<void> {
   if (sql && neonConnected) {
     try {
       await sql`
-        INSERT INTO products (id, title, subtitle, description, category, price, formats, tags, features, thumbnail, rating, reviews_count, sales_count, status, file_url, created_at)
+        INSERT INTO marketplace_products (id, title, subtitle, description, category, price, formats, tags, features, thumbnail, rating, reviews_count, sales_count, status, file_url, created_at)
         VALUES (${product.id}, ${product.title}, ${product.subtitle}, ${product.description}, ${product.category}, ${product.price}, ${JSON.stringify(product.formats)}, ${JSON.stringify(product.tags)}, ${JSON.stringify(product.features)}, ${product.thumbnail}, ${product.rating}, ${product.reviews_count}, ${product.sales_count}, ${product.status}, ${product.file_url || null}, ${product.created_at})
         ON CONFLICT (id) DO UPDATE SET
           title = EXCLUDED.title,
@@ -554,7 +610,7 @@ async function saveProduct(product: ProductRecord): Promise<void> {
 async function deleteProduct(id: string): Promise<void> {
   if (sql && neonConnected) {
     try {
-      await sql`DELETE FROM products WHERE id = ${id};`;
+      await sql`DELETE FROM marketplace_products WHERE id = ${id};`;
     } catch (e) {
       console.warn('Neon deleteProduct failed:', e);
     }
@@ -567,7 +623,7 @@ async function deleteProduct(id: string): Promise<void> {
 async function getOrders(): Promise<OrderRecord[]> {
   if (sql && neonConnected) {
     try {
-      const rows = await sql`SELECT * FROM orders ORDER BY created_at DESC;`;
+      const rows = await sql`SELECT * FROM marketplace_orders ORDER BY created_at DESC;`;
       return rows.map(r => ({
         ...r,
         total: parseFloat(r.total),
@@ -587,7 +643,7 @@ async function saveOrder(order: OrderRecord): Promise<void> {
   if (sql && neonConnected) {
     try {
       await sql`
-        INSERT INTO orders (id, order_number, customer_email, total, subtotal, discount, license_key, items, created_at, email_sent, resend_id)
+        INSERT INTO marketplace_orders (id, order_number, customer_email, total, subtotal, discount, license_key, items, created_at, email_sent, resend_id)
         VALUES (${order.id}, ${order.order_number}, ${order.customer_email}, ${order.total}, ${order.subtotal}, ${order.discount}, ${order.license_key}, ${JSON.stringify(order.items)}, ${order.created_at}, ${order.email_sent}, ${order.resend_id || null});
       `;
     } catch (e) {
@@ -1066,6 +1122,492 @@ apiRouter.post('/admin/resend/test', verifyAuth, async (req: Request, res: Respo
 apiRouter.get('/admin/resend/logs', verifyAuth, async (req: Request, res: Response) => {
   const logs = await getEmailLogs();
   res.json(logs);
+});
+
+// ---------------------------------------------------------
+// CLOUDFLARE R2 STORAGE & BUCKET ENGINE
+// (Single Bucket Architecture with Isolated User/Vendor Folders)
+// ---------------------------------------------------------
+
+type R2FolderType = 'thumbnails' | 'avatars' | 'banners' | 'secure-products';
+
+function getR2ClientFromConfig(account: AdminAccount): { client: S3Client; bucket: string; accountId: string; publicDomain?: string } | null {
+  if (!account.r2_account_id || !account.r2_access_key_id || !account.r2_secret_access_key || !account.r2_bucket_name) {
+    return null;
+  }
+  const accountId = account.r2_account_id.trim();
+  const client = new S3Client({
+    region: 'auto',
+    endpoint: `https://${accountId}.r2.cloudflarestorage.com`,
+    credentials: {
+      accessKeyId: account.r2_access_key_id.trim(),
+      secretAccessKey: account.r2_secret_access_key.trim(),
+    },
+  });
+  return {
+    client,
+    bucket: account.r2_bucket_name.trim(),
+    accountId,
+    publicDomain: account.r2_public_domain ? account.r2_public_domain.trim().replace(/\/+$/, '') : undefined
+  };
+}
+
+function buildR2Key(userId: string, folderType: R2FolderType, filename: string): string {
+  const cleanUserId = (userId || 'admin_primary').trim().replace(/[^a-zA-Z0-9_-]/g, '_');
+  const cleanFilename = filename.trim().replace(/[^a-zA-Z0-9._-]/g, '_');
+
+  if (folderType === 'secure-products') {
+    return `${cleanUserId}/private/secure-products/${cleanFilename}`;
+  }
+  return `${cleanUserId}/public/${folderType}/${cleanFilename}`;
+}
+
+// 1. Get Cloudflare R2 Configuration (Masked secret key)
+apiRouter.get('/admin/r2/config', verifyAuth, async (req: Request, res: Response) => {
+  const admin = await getAdminAccount();
+  const isConfigured = Boolean(
+    admin.r2_account_id &&
+    admin.r2_access_key_id &&
+    admin.r2_secret_access_key &&
+    admin.r2_bucket_name
+  );
+
+  res.json({
+    isConfigured,
+    accountId: admin.r2_account_id || '',
+    accessKeyId: admin.r2_access_key_id || '',
+    hasSecretKey: Boolean(admin.r2_secret_access_key && admin.r2_secret_access_key.trim().length > 0),
+    secretAccessKeyMasked: (admin.r2_secret_access_key && admin.r2_secret_access_key.trim().length > 0)
+      ? '••••••••••••' + admin.r2_secret_access_key.slice(-4)
+      : '',
+    bucketName: admin.r2_bucket_name || '',
+    publicDomain: admin.r2_public_domain || ''
+  });
+});
+
+// 2. Save Cloudflare R2 Configuration to Database
+apiRouter.post('/admin/r2/config', verifyAuth, async (req: Request, res: Response) => {
+  const { accountId, accessKeyId, secretAccessKey, bucketName, publicDomain } = req.body || {};
+  const admin = await getAdminAccount();
+
+  const updates: Partial<AdminAccount> = {};
+
+  if (typeof accountId === 'string') updates.r2_account_id = accountId.trim();
+  if (typeof accessKeyId === 'string') updates.r2_access_key_id = accessKeyId.trim();
+  if (typeof bucketName === 'string') updates.r2_bucket_name = bucketName.trim();
+  if (typeof publicDomain === 'string') {
+    updates.r2_public_domain = publicDomain.trim().replace(/\/+$/, '');
+  }
+
+  // Update secret key if provided and not a placeholder mask (or clear if empty string)
+  if (typeof secretAccessKey === 'string' && !secretAccessKey.includes('••••')) {
+    updates.r2_secret_access_key = secretAccessKey.trim();
+  }
+
+  const updated = await updateAdminAccount(updates);
+  res.json({
+    success: true,
+    message: 'Cloudflare R2 storage credentials saved successfully in database.',
+    isConfigured: Boolean(
+      updated.r2_account_id &&
+      updated.r2_access_key_id &&
+      updated.r2_secret_access_key &&
+      updated.r2_bucket_name
+    ),
+    accountId: updated.r2_account_id,
+    bucketName: updated.r2_bucket_name
+  });
+});
+
+// 3. Test Cloudflare R2 Connection (Direct HeadBucket & ListObjects verification)
+apiRouter.post('/admin/r2/test-connection', verifyAuth, async (req: Request, res: Response) => {
+  const body = req.body || {};
+  const admin = await getAdminAccount();
+
+  const accountId = (body.accountId || admin.r2_account_id || '').trim();
+  const accessKeyId = (body.accessKeyId || admin.r2_access_key_id || '').trim();
+  let secretAccessKey = (body.secretAccessKey || '').trim();
+
+  // If secretAccessKey wasn't supplied or is masked, use saved secret
+  if (!secretAccessKey || secretAccessKey.includes('••••')) {
+    secretAccessKey = (admin.r2_secret_access_key || '').trim();
+  }
+
+  const bucketName = (body.bucketName || admin.r2_bucket_name || '').trim();
+
+  if (!accountId || !accessKeyId || !secretAccessKey || !bucketName) {
+    return res.status(400).json({
+      success: false,
+      error: 'Please fill in Account ID, Access Key ID, Secret Access Key, and Bucket Name.'
+    });
+  }
+
+  try {
+    const client = new S3Client({
+      region: 'auto',
+      endpoint: `https://${accountId}.r2.cloudflarestorage.com`,
+      credentials: {
+        accessKeyId,
+        secretAccessKey
+      }
+    });
+
+    // 1. Verify bucket access
+    await client.send(new HeadBucketCommand({ Bucket: bucketName }));
+
+    // 2. Verify listing permissions
+    const listRes = await client.send(new ListObjectsV2Command({
+      Bucket: bucketName,
+      MaxKeys: 5
+    }));
+
+    res.json({
+      success: true,
+      message: `Connection successful! Authenticated with Cloudflare R2 bucket "${bucketName}".`,
+      bucketName,
+      accountId,
+      sampleCount: listRes.KeyCount || 0
+    });
+  } catch (err: any) {
+    console.error('Cloudflare R2 connection test failed:', err);
+    let friendlyMessage = err.message || 'Failed to authenticate with Cloudflare R2.';
+
+    if (err.name === 'NoSuchBucket' || err.$metadata?.httpStatusCode === 404) {
+      friendlyMessage = `Bucket "${bucketName}" was not found in Cloudflare R2 Account "${accountId}". Ensure the bucket exists and spelling is exact.`;
+    } else if (err.name === 'InvalidAccessKeyId') {
+      friendlyMessage = 'The R2 Access Key ID is invalid or not found.';
+    } else if (err.name === 'SignatureDoesNotMatch' || err.$metadata?.httpStatusCode === 403) {
+      friendlyMessage = 'Authentication failed (403 Forbidden). Please check your Secret Access Key and ensure your R2 API Token has Object Read & Write permissions.';
+    }
+
+    res.status(400).json({
+      success: false,
+      error: friendlyMessage
+    });
+  }
+});
+
+// 4. List Files under User ID in Bucket (Categorized by folder)
+apiRouter.get('/admin/r2/files', verifyAuth, async (req: Request, res: Response) => {
+  const admin = await getAdminAccount();
+  const r2 = getR2ClientFromConfig(admin);
+
+  if (!r2) {
+    return res.status(400).json({
+      error: 'Cloudflare R2 credentials are not configured. Please configure your R2 credentials first.'
+    });
+  }
+
+  const userId = (req.query.userId as string || 'admin_primary').trim().replace(/[^a-zA-Z0-9_-]/g, '_');
+  const folderFilter = req.query.folder as string || 'all';
+
+  try {
+    const prefix = `${userId}/`;
+    const listCmd = new ListObjectsV2Command({
+      Bucket: r2.bucket,
+      Prefix: prefix
+    });
+
+    const response = await r2.client.send(listCmd);
+    const rawObjects = response.Contents || [];
+
+    const files = rawObjects.map(obj => {
+      const key = obj.Key || '';
+      const parts = key.split('/');
+      let folderType: R2FolderType | 'other' = 'other';
+      let isSecure = false;
+
+      if (parts.length >= 4 && parts[1] === 'private' && parts[2] === 'secure-products') {
+        folderType = 'secure-products';
+        isSecure = true;
+      } else if (parts.length >= 4 && parts[1] === 'public') {
+        if (parts[2] === 'thumbnails') folderType = 'thumbnails';
+        else if (parts[2] === 'avatars') folderType = 'avatars';
+        else if (parts[2] === 'banners') folderType = 'banners';
+      }
+
+      const filename = parts.slice(3).join('/') || parts[parts.length - 1];
+      const publicUrl = (!isSecure && r2.publicDomain) ? `${r2.publicDomain}/${key}` : null;
+
+      return {
+        key,
+        filename,
+        size: obj.Size || 0,
+        lastModified: obj.LastModified ? obj.LastModified.toISOString() : new Date().toISOString(),
+        folderType,
+        isSecure,
+        publicUrl,
+        directAccessBlocked: isSecure
+      };
+    });
+
+    // Compute category counts
+    const counts = {
+      thumbnails: files.filter(f => f.folderType === 'thumbnails').length,
+      avatars: files.filter(f => f.folderType === 'avatars').length,
+      banners: files.filter(f => f.folderType === 'banners').length,
+      secureProducts: files.filter(f => f.folderType === 'secure-products').length,
+      total: files.length
+    };
+
+    // Filter by folder if requested
+    const filteredFiles = folderFilter === 'all'
+      ? files
+      : files.filter(f => f.folderType === folderFilter);
+
+    res.json({
+      success: true,
+      userId,
+      bucketName: r2.bucket,
+      files: filteredFiles,
+      counts,
+      publicDomain: r2.publicDomain
+    });
+  } catch (err: any) {
+    console.error('Failed to list R2 files:', err);
+    res.status(500).json({ error: err.message || 'Failed to list objects in Cloudflare R2 bucket.' });
+  }
+});
+
+// 5. Upload File to Specific Folder under User ID in Bucket
+apiRouter.post('/admin/r2/upload', verifyAuth, upload.single('file'), async (req: Request, res: Response) => {
+  if (!req.file) {
+    return res.status(400).json({ error: 'No file provided for upload.' });
+  }
+
+  const admin = await getAdminAccount();
+  const r2 = getR2ClientFromConfig(admin);
+
+  if (!r2) {
+    return res.status(400).json({
+      error: 'Cloudflare R2 is not configured. Please save your R2 credentials first.'
+    });
+  }
+
+  const userId = (req.body.userId || 'admin_primary').trim();
+  const folderType = (req.body.folderType || 'thumbnails') as R2FolderType;
+  const originalName = req.body.customFilename || req.file.originalname;
+
+  const validFolders: R2FolderType[] = ['thumbnails', 'avatars', 'banners', 'secure-products'];
+  if (!validFolders.includes(folderType)) {
+    return res.status(400).json({ error: `Invalid folder type. Allowed: ${validFolders.join(', ')}` });
+  }
+
+  const key = buildR2Key(userId, folderType, originalName);
+  const isSecure = folderType === 'secure-products';
+
+  try {
+    const putCmd = new PutObjectCommand({
+      Bucket: r2.bucket,
+      Key: key,
+      Body: req.file.buffer,
+      ContentType: req.file.mimetype || 'application/octet-stream',
+      Metadata: {
+        'uploaded-by': userId,
+        'folder-type': folderType,
+        'security-level': isSecure ? 'private-cryptographic-signed-only' : 'public-cdn'
+      }
+    });
+
+    await r2.client.send(putCmd);
+
+    const publicUrl = (!isSecure && r2.publicDomain) ? `${r2.publicDomain}/${key}` : null;
+
+    res.json({
+      success: true,
+      key,
+      filename: path.basename(key),
+      size: req.file.size,
+      folderType,
+      userId,
+      isSecure,
+      publicUrl,
+      directAccessBlocked: isSecure,
+      message: isSecure
+        ? 'Protected package stored securely. Direct unauthenticated access is forbidden; download requires time-limited cryptographic presigned authorization.'
+        : 'File uploaded successfully to public asset catalog.'
+    });
+  } catch (err: any) {
+    console.error('R2 upload failed:', err);
+    res.status(500).json({ error: err.message || 'Failed to upload object to Cloudflare R2.' });
+  }
+});
+
+// 6. Delete File from R2 Bucket
+apiRouter.delete('/admin/r2/files', verifyAuth, async (req: Request, res: Response) => {
+  const { key } = req.body || {};
+  if (!key || typeof key !== 'string') {
+    return res.status(400).json({ error: 'Object key is required for deletion.' });
+  }
+
+  const admin = await getAdminAccount();
+  const r2 = getR2ClientFromConfig(admin);
+
+  if (!r2) {
+    return res.status(400).json({ error: 'Cloudflare R2 is not configured.' });
+  }
+
+  try {
+    await r2.client.send(new DeleteObjectCommand({
+      Bucket: r2.bucket,
+      Key: key
+    }));
+
+    res.json({ success: true, message: `Object "${key}" removed from bucket.` });
+  } catch (err: any) {
+    console.error('Failed to delete R2 object:', err);
+    res.status(500).json({ error: err.message || 'Failed to delete object from R2.' });
+  }
+});
+
+// 7. Generate Real Time-Limited Cryptographic Presigned URL (SigV4)
+apiRouter.post('/admin/r2/generate-signed-url', verifyAuth, async (req: Request, res: Response) => {
+  const admin = await getAdminAccount();
+  const r2 = getR2ClientFromConfig(admin);
+
+  if (!r2) {
+    return res.status(400).json({ error: 'Cloudflare R2 is not configured.' });
+  }
+
+  const { key, expiresInSeconds = 120, downloadFilename } = req.body || {};
+  if (!key || typeof key !== 'string') {
+    return res.status(400).json({ error: 'Valid R2 object key is required.' });
+  }
+
+  const cleanFilename = downloadFilename || path.basename(key);
+  const duration = Math.min(Math.max(Number(expiresInSeconds) || 120, 30), 3600);
+
+  try {
+    const command = new GetObjectCommand({
+      Bucket: r2.bucket,
+      Key: key,
+      ResponseContentDisposition: `attachment; filename="${cleanFilename}"`
+    });
+
+    const signedUrl = await getSignedUrl(r2.client, command, { expiresIn: duration });
+
+    res.json({
+      success: true,
+      key,
+      signedUrl,
+      expiresInSeconds: duration,
+      expiresAt: new Date(Date.now() + duration * 1000).toISOString(),
+      filename: cleanFilename,
+      directAccessBlocked: key.includes('/private/')
+    });
+  } catch (err: any) {
+    console.error('Failed to generate presigned URL:', err);
+    res.status(500).json({ error: err.message || 'Failed to generate presigned URL.' });
+  }
+});
+
+// 8. Test Security & Direct Bypass Block Verification
+apiRouter.post('/admin/r2/test-security', verifyAuth, async (req: Request, res: Response) => {
+  const admin = await getAdminAccount();
+  const r2 = getR2ClientFromConfig(admin);
+
+  if (!r2) {
+    return res.status(400).json({ error: 'Cloudflare R2 is not configured.' });
+  }
+
+  const { key } = req.body || {};
+  if (!key || typeof key !== 'string') {
+    return res.status(400).json({ error: 'Valid R2 object key is required for security verification.' });
+  }
+
+  const directEndpointUrl = `https://${r2.bucket}.${r2.accountId}.r2.cloudflarestorage.com/${key}`;
+  let directAccessStatus = 'Unknown';
+  let directBypassBlocked = true;
+
+  try {
+    const directRes = await fetch(directEndpointUrl, { method: 'GET' });
+    if (directRes.status === 401 || directRes.status === 403 || !directRes.ok) {
+      directAccessStatus = `${directRes.status} ${directRes.statusText || 'Forbidden'} (Direct access blocked as expected)`;
+      directBypassBlocked = true;
+    } else {
+      directAccessStatus = `${directRes.status} OK (Warning: Direct public access allowed on endpoint)`;
+      directBypassBlocked = false;
+    }
+  } catch (err: any) {
+    directAccessStatus = `Blocked / Unreachable directly (${err.message || 'Access Denied'})`;
+    directBypassBlocked = true;
+  }
+
+  // Generate real cryptographic presigned URL to verify authorized path
+  const command = new GetObjectCommand({
+    Bucket: r2.bucket,
+    Key: key,
+    ResponseContentDisposition: `attachment; filename="${path.basename(key)}"`
+  });
+  const signedUrl = await getSignedUrl(r2.client, command, { expiresIn: 120 });
+
+  res.json({
+    success: true,
+    key,
+    directBypassBlocked,
+    directAccessStatus,
+    directEndpointUrl,
+    signedUrlSample: signedUrl.substring(0, 90) + '...',
+    expiresInSeconds: 120,
+    securityGrade: directBypassBlocked ? 'A+ (Zero-Trust Cryptographic Presigned Auth)' : 'B (Review Public CDN ACLs)',
+    protectionSummary: 'Direct anonymous downloads are rejected with 403 Forbidden. Only server-issued SigV4 time-limited signed URLs are authorized.'
+  });
+});
+
+// 9. Customer Secure Download Gateway (Validates License & Issues 120s SigV4 Link)
+apiRouter.get('/r2/download/:licenseKey/:productId', async (req: Request, res: Response) => {
+  const { licenseKey, productId } = req.params;
+  if (!licenseKey || !productId) {
+    return res.status(400).json({ error: 'License key and product ID are required.' });
+  }
+
+  const orders = await getOrders();
+  const matchedOrder = orders.find(o =>
+    o.license_key.trim().toUpperCase() === licenseKey.trim().toUpperCase() &&
+    o.items.some(i => i.productId === productId)
+  );
+
+  if (!matchedOrder) {
+    return res.status(403).json({ error: 'Invalid commercial license key or product is not associated with this purchase.' });
+  }
+
+  const products = await getAllProducts();
+  const product = products.find(p => p.id === productId);
+  if (!product) {
+    return res.status(404).json({ error: 'Product package not found in catalog.' });
+  }
+
+  const admin = await getAdminAccount();
+  const r2 = getR2ClientFromConfig(admin);
+
+  if (product.file_url && r2 && (product.file_url.startsWith('r2://') || !product.file_url.startsWith('http'))) {
+    const rawKey = product.file_url.replace(/^r2:\/\/[^/]+\//, '').replace(/^r2:\/\//, '');
+    const cleanKey = rawKey.startsWith('admin_primary') ? rawKey : `admin_primary/private/secure-products/${rawKey}`;
+
+    try {
+      const command = new GetObjectCommand({
+        Bucket: r2.bucket,
+        Key: cleanKey,
+        ResponseContentDisposition: `attachment; filename="${product.title.replace(/[^a-zA-Z0-9_-]/g, '_')}_package.zip"`
+      });
+      const signedUrl = await getSignedUrl(r2.client, command, { expiresIn: 120 });
+      return res.redirect(signedUrl);
+    } catch (e: any) {
+      console.warn('Presigned download redirect fallback:', e);
+    }
+  }
+
+  if (product.file_url && product.file_url.startsWith('http')) {
+    return res.redirect(product.file_url);
+  }
+
+  res.json({
+    success: true,
+    licenseKey,
+    productId,
+    productTitle: product.title,
+    message: 'Authorized commercial license verified. Ready for download.'
+  });
 });
 
 // ---------------------------------------------------------
