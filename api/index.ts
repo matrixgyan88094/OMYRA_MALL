@@ -8,6 +8,7 @@ import { neon, NeonQueryFunction } from '@neondatabase/serverless';
 dotenv.config();
 
 const app = express();
+app.set('trust proxy', 1);
 
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
@@ -629,15 +630,35 @@ async function getEmailLogs(): Promise<EmailLog[]> {
 }
 
 // ---------------------------------------------------------
-// AUTHENTICATION & WEBAUTHN SESSIONS
+// AUTHENTICATION & WEBAUTHN SESSIONS (Stateless & Serverless Resilient)
 // ---------------------------------------------------------
+const SESSION_SECRET = process.env.ADMIN_SESSION_SECRET || 'kroma_admin_master_secret_88094_omyra_org_2026';
+const CHALLENGE_SECRET = process.env.CHALLENGE_SECRET || SESSION_SECRET;
+
 const activeSessions: Map<string, { email: string; expires: number }> = new Map();
+const webauthnChallenges: Map<string, { challenge: string; expires: number; type: 'register' | 'login' }> = new Map();
+
+function getRelyingPartyId(req: Request): string {
+  const forwardedHost = (req.headers['x-forwarded-host'] as string)?.split(',')[0]?.trim();
+  const host = forwardedHost || req.headers.host || req.hostname || 'localhost';
+  return host.split(':')[0].trim();
+}
 
 function createSessionToken(email: string): string {
-  const token = crypto.randomBytes(32).toString('hex');
+  const payload = {
+    email,
+    expires: Date.now() + 1000 * 60 * 60 * 24 * 7, // 7 days validity
+    iat: Date.now(),
+    nonce: crypto.randomBytes(16).toString('hex')
+  };
+  const payloadStr = Buffer.from(JSON.stringify(payload)).toString('base64url');
+  const signature = crypto.createHmac('sha256', SESSION_SECRET).update(payloadStr).digest('base64url');
+  const token = `${payloadStr}.${signature}`;
+  
+  // Cache in memory for local speed
   activeSessions.set(token, {
     email,
-    expires: Date.now() + 1000 * 60 * 60 * 24 * 7 // 7 days
+    expires: payload.expires
   });
   return token;
 }
@@ -647,18 +668,101 @@ function verifyAuth(req: Request, res: Response, next: NextFunction) {
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
     return res.status(401).json({ error: 'Unauthorized. Admin session token required.' });
   }
-  const token = authHeader.substring(7);
-  const session = activeSessions.get(token);
-  if (!session || session.expires < Date.now()) {
-    if (session) activeSessions.delete(token);
-    return res.status(401).json({ error: 'Session expired. Please log in again.' });
+  const token = authHeader.substring(7).trim();
+  if (!token) {
+    return res.status(401).json({ error: 'Unauthorized. Empty session token.' });
   }
-  (req as any).adminEmail = session.email;
-  next();
+
+  // 1. Fast memory check (same process)
+  const session = activeSessions.get(token);
+  if (session && session.expires > Date.now()) {
+    (req as any).adminEmail = session.email;
+    return next();
+  }
+
+  // 2. Stateless HMAC verification (works across all serverless lambda instances & cold starts)
+  if (token.includes('.')) {
+    const [payloadStr, signature] = token.split('.');
+    if (payloadStr && signature) {
+      try {
+        const expectedSig = crypto.createHmac('sha256', SESSION_SECRET).update(payloadStr).digest('base64url');
+        const sigBuf = Buffer.from(signature);
+        const expBuf = Buffer.from(expectedSig);
+        if (sigBuf.length === expBuf.length && crypto.timingSafeEqual(sigBuf, expBuf)) {
+          const payload = JSON.parse(Buffer.from(payloadStr, 'base64url').toString('utf8'));
+          if (payload && payload.email && typeof payload.expires === 'number') {
+            if (payload.expires > Date.now()) {
+              // Valid! Cache for this lambda instance
+              activeSessions.set(token, { email: payload.email, expires: payload.expires });
+              (req as any).adminEmail = payload.email;
+              return next();
+            }
+          }
+        }
+      } catch (err) {
+        console.warn('Session verification exception:', err);
+      }
+    }
+  }
+
+  return res.status(401).json({ error: 'Session expired. Please log in again.' });
 }
 
-// Temporary in-memory challenges for WebAuthn FIDO2
-const webauthnChallenges: Map<string, { challenge: string; expires: number; type: 'register' | 'login' }> = new Map();
+function createSignedChallenge(challenge: string, type: 'register' | 'login'): string {
+  const payload = {
+    c: challenge,
+    t: type,
+    exp: Date.now() + 1000 * 60 * 5, // 5 minutes
+    nonce: crypto.randomBytes(8).toString('hex')
+  };
+  const payloadStr = Buffer.from(JSON.stringify(payload)).toString('base64url');
+  const sig = crypto.createHmac('sha256', CHALLENGE_SECRET).update(payloadStr).digest('base64url');
+  const token = `${payloadStr}.${sig}`;
+  
+  webauthnChallenges.set(token, {
+    challenge,
+    expires: payload.exp,
+    type
+  });
+  return token;
+}
+
+function verifySignedChallenge(challengeId: string, expectedType: 'register' | 'login'): { valid: boolean; challenge?: string } {
+  if (!challengeId || typeof challengeId !== 'string') {
+    return { valid: false };
+  }
+
+  // Check in-memory map
+  const mem = webauthnChallenges.get(challengeId);
+  if (mem) {
+    webauthnChallenges.delete(challengeId);
+    if (mem.type === expectedType && mem.expires >= Date.now()) {
+      return { valid: true, challenge: mem.challenge };
+    }
+  }
+
+  // Stateless HMAC challenge verification
+  if (challengeId.includes('.')) {
+    const [payloadStr, sig] = challengeId.split('.');
+    if (payloadStr && sig) {
+      try {
+        const expectedSig = crypto.createHmac('sha256', CHALLENGE_SECRET).update(payloadStr).digest('base64url');
+        const sigBuf = Buffer.from(sig);
+        const expBuf = Buffer.from(expectedSig);
+        if (sigBuf.length === expBuf.length && crypto.timingSafeEqual(sigBuf, expBuf)) {
+          const payload = JSON.parse(Buffer.from(payloadStr, 'base64url').toString('utf8'));
+          if (payload && payload.t === expectedType && typeof payload.exp === 'number' && payload.exp >= Date.now()) {
+            return { valid: true, challenge: payload.c };
+          }
+        }
+      } catch (err) {
+        console.warn('Challenge verification error:', err);
+      }
+    }
+  }
+
+  return { valid: false };
+}
 
 // ---------------------------------------------------------
 // RESEND.COM EMAIL SERVICE
@@ -971,13 +1075,8 @@ apiRouter.get('/admin/resend/logs', verifyAuth, async (req: Request, res: Respon
 // Step 1: Register Options (Challenge generation for navigator.credentials.create)
 apiRouter.post('/auth/webauthn/register-options', verifyAuth, async (req: Request, res: Response) => {
   const challenge = crypto.randomBytes(32).toString('base64url');
-  const challengeId = crypto.randomBytes(16).toString('hex');
-
-  webauthnChallenges.set(challengeId, {
-    challenge,
-    expires: Date.now() + 1000 * 60 * 5,
-    type: 'register'
-  });
+  const challengeId = createSignedChallenge(challenge, 'register');
+  const rpId = getRelyingPartyId(req);
 
   const admin = await getAdminAccount();
   const userId = crypto.createHash('sha256').update(admin.email).digest('base64url');
@@ -988,7 +1087,7 @@ apiRouter.post('/auth/webauthn/register-options', verifyAuth, async (req: Reques
       challenge,
       rp: {
         name: 'Kroma Studio Admin Gateway',
-        id: req.hostname.replace(/:\d+$/, '')
+        id: rpId
       },
       user: {
         id: userId,
@@ -1014,11 +1113,10 @@ apiRouter.post('/auth/webauthn/register-options', verifyAuth, async (req: Reques
 apiRouter.post('/auth/webauthn/register-verify', verifyAuth, async (req: Request, res: Response) => {
   const { challengeId, credentialId, attestationObject, deviceName } = req.body || {};
 
-  const stored = webauthnChallenges.get(challengeId);
-  if (!stored || stored.type !== 'register' || stored.expires < Date.now()) {
+  const verification = verifySignedChallenge(challengeId, 'register');
+  if (!verification.valid) {
     return res.status(400).json({ error: 'Registration challenge expired or invalid. Please try again.' });
   }
-  webauthnChallenges.delete(challengeId);
 
   const newPasskey: PasskeyRecord = {
     id: 'passkey_' + crypto.randomBytes(8).toString('hex'),
@@ -1041,19 +1139,14 @@ apiRouter.post('/auth/webauthn/login-options', async (req: Request, res: Respons
   }
 
   const challenge = crypto.randomBytes(32).toString('base64url');
-  const challengeId = crypto.randomBytes(16).toString('hex');
-
-  webauthnChallenges.set(challengeId, {
-    challenge,
-    expires: Date.now() + 1000 * 60 * 5,
-    type: 'login'
-  });
+  const challengeId = createSignedChallenge(challenge, 'login');
+  const rpId = getRelyingPartyId(req);
 
   res.json({
     challengeId,
     publicKey: {
       challenge,
-      rpId: req.hostname.replace(/:\d+$/, ''),
+      rpId,
       allowCredentials: passkeys.map(p => ({
         id: p.credential_id,
         type: 'public-key',
@@ -1069,11 +1162,10 @@ apiRouter.post('/auth/webauthn/login-options', async (req: Request, res: Respons
 apiRouter.post('/auth/webauthn/login-verify', async (req: Request, res: Response) => {
   const { challengeId, credentialId } = req.body || {};
 
-  const stored = webauthnChallenges.get(challengeId);
-  if (!stored || stored.type !== 'login' || stored.expires < Date.now()) {
+  const verification = verifySignedChallenge(challengeId, 'login');
+  if (!verification.valid) {
     return res.status(400).json({ error: 'Biometric challenge expired or invalid. Please try again.' });
   }
-  webauthnChallenges.delete(challengeId);
 
   const passkeys = await getPasskeys();
   const matched = passkeys.find(p => p.credential_id === credentialId);

@@ -196,6 +196,7 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({
             token={token}
             adminEmail={adminEmail}
             onEmailUpdated={onEmailUpdated}
+            onSessionExpired={onLogout}
           />
         )}
         {activeTab === 'settings' && (

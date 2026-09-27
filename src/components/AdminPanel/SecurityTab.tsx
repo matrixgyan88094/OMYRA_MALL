@@ -12,15 +12,21 @@ interface SecurityTabProps {
   token: string;
   adminEmail: string;
   onEmailUpdated: (newEmail: string) => void;
+  onSessionExpired?: () => void;
 }
 
-export const SecurityTab: React.FC<SecurityTabProps> = ({ token, adminEmail, onEmailUpdated }) => {
+export const SecurityTab: React.FC<SecurityTabProps> = ({ 
+  token, 
+  adminEmail, 
+  onEmailUpdated,
+  onSessionExpired 
+}) => {
   // Passkey enrollment state
   const [passkeys, setPasskeys] = useState<PasskeyItem[]>([]);
   const [loadingPasskeys, setLoadingPasskeys] = useState(true);
   const [enrollingPasskey, setEnrollingPasskey] = useState(false);
   const [passkeyDeviceName, setPasskeyDeviceName] = useState('');
-  const [passkeyNotice, setPasskeyNotice] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
+  const [passkeyNotice, setPasskeyNotice] = useState<{ type: 'success' | 'error'; message: string; isExpired?: boolean } | null>(null);
 
   // Credentials change state
   const [currentPassword, setCurrentPassword] = useState('');
@@ -42,6 +48,12 @@ export const SecurityTab: React.FC<SecurityTabProps> = ({ token, adminEmail, onE
       if (res.ok) {
         const data = await res.json();
         setPasskeys(data);
+      } else if (res.status === 401) {
+        setPasskeyNotice({
+          type: 'error',
+          message: 'Your admin session has expired. Please log in again to manage biometric passkeys.',
+          isExpired: true
+        });
       }
     } catch (e) {
       console.error('Failed to load passkeys', e);
@@ -70,8 +82,23 @@ export const SecurityTab: React.FC<SecurityTabProps> = ({ token, adminEmail, onE
         }
       });
 
-      const optData = await optRes.json();
+      const optText = await optRes.text();
+      let optData: any = {};
+      try {
+        optData = JSON.parse(optText);
+      } catch {
+        optData = { error: optText };
+      }
+
       if (!optRes.ok) {
+        if (optRes.status === 401) {
+          setPasskeyNotice({
+            type: 'error',
+            message: 'Your active admin session has expired. Please re-authenticate with password to refresh your secure session.',
+            isExpired: true
+          });
+          return;
+        }
         throw new Error(optData.error || 'Failed to start passkey registration challenge');
       }
 
@@ -115,8 +142,23 @@ export const SecurityTab: React.FC<SecurityTabProps> = ({ token, adminEmail, onE
         })
       });
 
-      const verifyData = await verifyRes.json();
+      const verifyText = await verifyRes.text();
+      let verifyData: any = {};
+      try {
+        verifyData = JSON.parse(verifyText);
+      } catch {
+        verifyData = { error: verifyText };
+      }
+
       if (!verifyRes.ok) {
+        if (verifyRes.status === 401) {
+          setPasskeyNotice({
+            type: 'error',
+            message: 'Your active admin session has expired. Please re-authenticate with password to refresh your secure session.',
+            isExpired: true
+          });
+          return;
+        }
         throw new Error(verifyData.error || 'Failed to verify passkey registration');
       }
 
@@ -249,18 +291,29 @@ export const SecurityTab: React.FC<SecurityTabProps> = ({ token, adminEmail, onE
 
         {passkeyNotice && (
           <div
-            className={`mt-4 p-4 rounded-xl text-xs flex items-start gap-2.5 ${
+            className={`mt-4 p-4 rounded-xl text-xs flex items-start justify-between gap-3 ${
               passkeyNotice.type === 'success'
                 ? 'bg-emerald-50 border border-emerald-200 text-emerald-800'
                 : 'bg-red-50 border border-red-200 text-red-700'
             }`}
           >
-            {passkeyNotice.type === 'success' ? (
-              <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
-            ) : (
-              <AlertCircle className="w-4 h-4 text-red-600 shrink-0 mt-0.5" />
+            <div className="flex items-start gap-2.5">
+              {passkeyNotice.type === 'success' ? (
+                <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+              ) : (
+                <AlertCircle className="w-4 h-4 text-red-600 shrink-0 mt-0.5" />
+              )}
+              <div className="leading-relaxed">{passkeyNotice.message}</div>
+            </div>
+            {passkeyNotice.isExpired && onSessionExpired && (
+              <button
+                type="button"
+                onClick={onSessionExpired}
+                className="shrink-0 px-3 py-1.5 bg-red-600 hover:bg-red-700 active:scale-[0.98] text-white font-semibold rounded-lg shadow-sm transition-all"
+              >
+                Log In Again
+              </button>
             )}
-            <div className="leading-relaxed">{passkeyNotice.message}</div>
           </div>
         )}
 
