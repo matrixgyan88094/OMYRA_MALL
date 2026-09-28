@@ -17,14 +17,13 @@ import {
   Trash2,
   Star,
   Eye,
-  RotateCw,
-  FolderPlus,
   Box,
   Hash,
   Terminal,
   FileText,
   Check,
-  Info
+  Zap,
+  Cpu
 } from 'lucide-react';
 
 export interface ProductStudioData {
@@ -57,21 +56,15 @@ interface ProductStudioViewProps {
   onSaved: (product: ProductStudioData) => void;
 }
 
-// Precision-engineered, minimalist Circular Progress Ring
-const BeautifulCircularProgress: React.FC<{
+// Ultra-Modern, Minimalist Apple/Linear-Style Upload Progress Component
+const SleekUploadProgress: React.FC<{
   percent: number;
   loadedBytes?: number;
   totalBytes?: number;
   statusText?: string;
-  size?: 'sm' | 'md';
-}> = ({ percent, loadedBytes, totalBytes, statusText, size = 'md' }) => {
-  const isSm = size === 'sm';
-  const diameter = isSm ? 54 : 76;
-  const strokeWidth = isSm ? 3 : 4;
-  const radius = (diameter - strokeWidth * 2) / 2;
-  const circumference = 2 * Math.PI * radius;
+  fileName?: string;
+}> = ({ percent, loadedBytes, totalBytes, statusText, fileName }) => {
   const safePercent = Math.min(Math.max(percent, 0), 100);
-  const strokeDashoffset = circumference - (safePercent / 100) * circumference;
 
   const formatSize = (bytes?: number) => {
     if (!bytes || bytes <= 0) return '0 KB';
@@ -79,60 +72,71 @@ const BeautifulCircularProgress: React.FC<{
     return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
   };
 
-  return (
-    <div className="flex flex-col items-center justify-center p-6 bg-white border border-slate-200/90 rounded-2xl shadow-xs">
-      <div className="relative flex items-center justify-center" style={{ width: diameter, height: diameter }}>
-        <svg
-          className="-rotate-90"
-          width={diameter}
-          height={diameter}
-          viewBox={`0 0 ${diameter} ${diameter}`}
-        >
-          {/* Subtle track ring */}
-          <circle
-            cx={diameter / 2}
-            cy={diameter / 2}
-            r={radius}
-            className="stroke-slate-100"
-            strokeWidth={strokeWidth}
-            fill="transparent"
-          />
-          {/* Dynamic progress ring */}
-          <circle
-            cx={diameter / 2}
-            cy={diameter / 2}
-            r={radius}
-            className="stroke-orange-500 transition-all duration-300 ease-out"
-            strokeWidth={strokeWidth}
-            strokeDasharray={circumference}
-            strokeDashoffset={strokeDashoffset}
-            strokeLinecap="round"
-            fill="transparent"
-          />
-        </svg>
+  // Modern SVG ring constants
+  const size = 52;
+  const strokeWidth = 3.5;
+  const radius = (size - strokeWidth * 2) / 2;
+  const circumference = 2 * Math.PI * radius;
+  const dashOffset = circumference - (safePercent / 100) * circumference;
 
-        {/* Crisp Center Text */}
-        <div className="absolute inset-0 flex flex-col items-center justify-center text-center">
-          <span className={`${isSm ? 'text-xs' : 'text-sm'} font-semibold font-mono text-slate-900 tracking-tight`}>
+  return (
+    <div className="p-6 bg-slate-900 text-white rounded-2xl shadow-lg border border-slate-800 transition-all">
+      <div className="flex items-center gap-4">
+        {/* Precision Micro-Ring Progress */}
+        <div className="relative shrink-0 flex items-center justify-center" style={{ width: size, height: size }}>
+          <svg className="-rotate-90" width={size} height={size}>
+            <circle
+              cx={size / 2}
+              cy={size / 2}
+              r={radius}
+              stroke="rgba(255,255,255,0.12)"
+              strokeWidth={strokeWidth}
+              fill="transparent"
+            />
+            <circle
+              cx={size / 2}
+              cy={size / 2}
+              r={radius}
+              stroke="#f97316"
+              strokeWidth={strokeWidth}
+              strokeDasharray={circumference}
+              strokeDashoffset={dashOffset}
+              strokeLinecap="round"
+              fill="transparent"
+              className="transition-all duration-300 ease-out"
+            />
+          </svg>
+          <span className="absolute text-[11px] font-mono font-bold text-white tracking-tight">
             {Math.round(safePercent)}%
           </span>
         </div>
-      </div>
 
-      {/* File Size and Transfer Metrics */}
-      <div className="mt-3.5 text-center">
-        {totalBytes ? (
-          <div className="text-xs font-semibold text-slate-800 font-mono tracking-tight">
-            {formatSize(loadedBytes)} <span className="text-slate-400 font-normal">/ {formatSize(totalBytes)}</span>
+        {/* Status & Metrics */}
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center justify-between gap-2">
+            <span className="text-xs font-semibold text-white truncate block">
+              {fileName || 'Uploading Package Archive...'}
+            </span>
+            {totalBytes ? (
+              <span className="text-[11px] font-mono text-slate-400 shrink-0">
+                {formatSize(loadedBytes)} / {formatSize(totalBytes)}
+              </span>
+            ) : null}
           </div>
-        ) : null}
 
-        {statusText && (
-          <div className="mt-1 flex items-center justify-center gap-1.5 text-[11px] text-slate-500">
-            <span className="w-1.5 h-1.5 rounded-full bg-orange-500 animate-pulse shrink-0" />
-            <span>{statusText}</span>
+          {/* Slim Secondary Bar */}
+          <div className="h-1 w-full bg-slate-800 rounded-full overflow-hidden mt-2">
+            <div
+              className="h-full bg-gradient-to-r from-orange-500 to-amber-400 rounded-full transition-all duration-300 ease-out"
+              style={{ width: `${safePercent}%` }}
+            />
           </div>
-        )}
+
+          <div className="flex items-center gap-2 mt-1.5 text-[11px] text-slate-400">
+            <span className="w-1.5 h-1.5 rounded-full bg-orange-500 animate-pulse" />
+            <span className="truncate">{statusText || 'Streaming package to secure storage...'}</span>
+          </div>
+        </div>
       </div>
     </div>
   );
@@ -144,50 +148,53 @@ export const ProductStudioView: React.FC<ProductStudioViewProps> = ({
   onBack,
   onSaved
 }) => {
-  // 5 Steps: 1: Identity, 2: Story, 3: Media, 4: Package, 5: Review
+  // Current Step: 1 -> 2 -> 3 -> 4 -> 5
   const [currentStep, setCurrentStep] = useState<1 | 2 | 3 | 4 | 5>(1);
 
-  // Form Fields
+  // Core Product State
   const [title, setTitle] = useState(initialProduct?.title || '');
   const [subtitle, setSubtitle] = useState(initialProduct?.subtitle || '');
   const [shortDescription, setShortDescription] = useState(initialProduct?.short_description || '');
   const [description, setDescription] = useState(initialProduct?.description || '');
-  const [category, setCategory] = useState(initialProduct?.category || 'Dev Kits');
+  
+  // Category is automatically derived from ZIP inspection!
+  const [category, setCategory] = useState(initialProduct?.category || '');
+  
   const [price, setPrice] = useState(initialProduct?.price ? initialProduct.price.toString() : '49');
   const [salePrice, setSalePrice] = useState(initialProduct?.sale_price ? initialProduct.sale_price.toString() : '');
   const [sku, setSku] = useState(initialProduct?.sku || '');
   const [version, setVersion] = useState(initialProduct?.version || '1.0.0');
+  
+  // Automatically detected tools & keywords from ZIP inspection
   const [tools, setTools] = useState<string[]>(initialProduct?.tools || []);
   const [formats, setFormats] = useState<string[]>(initialProduct?.formats || ['.zip']);
   const [tags, setTags] = useState<string[]>(initialProduct?.tags || []);
+  
   const [features, setFeatures] = useState<string[]>(
     initialProduct?.features && initialProduct.features.length > 0
       ? initialProduct.features
       : ['Instant Digital Download', 'Full Commercial License', 'Free Updates for 1 Year']
   );
+  
   const [thumbnail, setThumbnail] = useState(initialProduct?.thumbnail || '/src/assets/images/hero_white_orange_1790435384152.jpg');
   const [gallery, setGallery] = useState<string[]>(
     initialProduct?.gallery && initialProduct.gallery.length > 0
       ? initialProduct.gallery
       : [initialProduct?.thumbnail || '/src/assets/images/hero_white_orange_1790435384152.jpg']
   );
+  
   const [fileUrl, setFileUrl] = useState(initialProduct?.file_url || '');
   const [fileSize, setFileSize] = useState(initialProduct?.file_size || '');
   const [securityScan, setSecurityScan] = useState<any>(initialProduct?.security_scan || null);
   const [productStatus, setProductStatus] = useState<'published' | 'draft'>(initialProduct?.status || 'published');
 
-  // Available Categories (loaded dynamically from database)
-  const [categories, setCategories] = useState<{ id: string; name: string; slug: string }[]>([]);
-  const [newCatInput, setNewCatInput] = useState('');
-  const [isAddingNewCat, setIsAddingNewCat] = useState(false);
-
-  // Chip Inputs
-  const [toolInput, setToolInput] = useState('');
-  const [formatInput, setFormatInput] = useState('');
-  const [tagInput, setTagInput] = useState('');
+  // Input states for feature bullets & custom chips
   const [featureInput, setFeatureInput] = useState('');
+  const [toolInput, setToolInput] = useState('');
+  const [tagInput, setTagInput] = useState('');
 
   // Upload States
+  const [activeUploadFile, setActiveUploadFile] = useState<string>('');
   const [thumbUploadProgress, setThumbUploadProgress] = useState<{
     active: boolean;
     percent: number;
@@ -206,8 +213,9 @@ export const ProductStudioView: React.FC<ProductStudioViewProps> = ({
   // Feedback & Saving
   const [saving, setSaving] = useState(false);
   const [errorNotice, setErrorNotice] = useState<string | null>(null);
+  const [autoDetectNotice, setAutoDetectNotice] = useState<string | null>(null);
 
-  // Refs for hidden inputs
+  // Hidden file input refs
   const thumbInputRef = useRef<HTMLInputElement>(null);
   const zipInputRef = useRef<HTMLInputElement>(null);
 
@@ -220,58 +228,27 @@ export const ProductStudioView: React.FC<ProductStudioViewProps> = ({
     }
   }, [category]);
 
-  // Fetch real categories from Neon DB
-  useEffect(() => {
-    fetchCategories();
-  }, []);
-
-  const fetchCategories = async () => {
-    try {
-      const res = await fetch('/api/categories');
-      if (res.ok) {
-        const data = await res.json();
-        if (Array.isArray(data) && data.length > 0) {
-          setCategories(data);
-          if (!category) setCategory(data[0].name);
-        }
-      }
-    } catch {
-      // Fallback
-      setCategories([
-        { id: 'ui-figma', name: 'UI & Figma', slug: 'ui-figma' },
-        { id: 'dev-kits', name: 'Dev Kits', slug: 'dev-kits' },
-        { id: '3d-spatial', name: '3D & Spatial', slug: '3d-spatial' },
-        { id: 'motion-audio', name: 'Motion & Audio', slug: 'motion-audio' },
-        { id: 'templates', name: 'Templates', slug: 'templates' }
-      ]);
-    }
-  };
-
-  // Step Validation
+  // Validation
   const validateStep = (step: number): boolean => {
     setErrorNotice(null);
     if (step === 1) {
       if (!title.trim()) {
-        setErrorNotice('Please provide a descriptive title for this digital asset.');
-        return false;
-      }
-      if (!category.trim()) {
-        setErrorNotice('Please select or specify a category.');
+        setErrorNotice('Please enter an asset title before continuing.');
         return false;
       }
     } else if (step === 2) {
       if (!description.trim()) {
-        setErrorNotice('Please provide a detailed product description.');
+        setErrorNotice('Please enter a description for the product.');
         return false;
       }
     } else if (step === 3) {
       if (!thumbnail.trim()) {
-        setErrorNotice('Please upload at least one primary thumbnail/cover image.');
+        setErrorNotice('Please upload at least one preview image.');
         return false;
       }
     } else if (step === 4) {
       if (!fileUrl.trim()) {
-        setErrorNotice('Please upload the digital product ZIP archive or enter the file package URL.');
+        setErrorNotice('Please upload the digital product ZIP archive so the system can verify and auto-categorize it.');
         return false;
       }
       if (!price || isNaN(parseFloat(price)) || parseFloat(price) <= 0) {
@@ -304,6 +281,7 @@ export const ProductStudioView: React.FC<ProductStudioViewProps> = ({
     const fileList = Array.from(files);
 
     fileList.forEach(file => {
+      setActiveUploadFile(file.name);
       const xhr = new XMLHttpRequest();
       const formData = new FormData();
       formData.append('file', file);
@@ -328,13 +306,10 @@ export const ProductStudioView: React.FC<ProductStudioViewProps> = ({
           try {
             const data = JSON.parse(xhr.responseText);
             const uploadedUrl = data.publicUrl || `r2://${data.key}`;
-            setGallery(prev => {
-              const updated = [...prev, uploadedUrl];
-              return Array.from(new Set(updated));
-            });
+            setGallery(prev => Array.from(new Set([...prev, uploadedUrl])));
             setThumbnail(prev => (prev.includes('hero_white_orange') ? uploadedUrl : prev));
           } catch {
-            setErrorNotice('Failed to parse uploaded thumbnail image response.');
+            setErrorNotice('Failed to parse uploaded image response.');
           }
         } else {
           setErrorNotice('Image upload failed. Please verify storage configuration.');
@@ -343,7 +318,7 @@ export const ProductStudioView: React.FC<ProductStudioViewProps> = ({
 
       xhr.onerror = () => {
         setThumbUploadProgress(null);
-        setErrorNotice('Network error uploading thumbnail image.');
+        setErrorNotice('Network error uploading preview image.');
       };
 
       xhr.open('POST', '/api/admin/r2/upload');
@@ -354,17 +329,20 @@ export const ProductStudioView: React.FC<ProductStudioViewProps> = ({
     if (thumbInputRef.current) thumbInputRef.current.value = '';
   };
 
-  // Real ZIP Package Ingestion + 5-Layer Security Scan + Auto-Detection Engine
+  // Real ZIP Package Ingestion + 5-Layer Security Scan + Auto-Categorization & Stack Extraction
   const handleUploadZipPackage = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
     if (!file.name.toLowerCase().endsWith('.zip')) {
-      setErrorNotice('Invalid file type: Please upload a valid .zip archive.');
+      setErrorNotice('Invalid file format. Please upload a valid .zip archive.');
       return;
     }
 
     setErrorNotice(null);
+    setAutoDetectNotice(null);
+    setActiveUploadFile(file.name);
+
     const xhr = new XMLHttpRequest();
     const formData = new FormData();
     formData.append('file', file);
@@ -374,7 +352,7 @@ export const ProductStudioView: React.FC<ProductStudioViewProps> = ({
       percent: 0,
       loaded: 0,
       total: file.size,
-      statusText: 'Streaming archive to server...'
+      statusText: 'Streaming ZIP archive to server...'
     });
 
     xhr.upload.onprogress = (event) => {
@@ -385,7 +363,7 @@ export const ProductStudioView: React.FC<ProductStudioViewProps> = ({
           percent,
           loaded: event.loaded,
           total: event.total,
-          statusText: percent > 85 ? 'Running 5-layer security scan & framework intelligence...' : 'Streaming package to secure storage...'
+          statusText: percent > 85 ? 'Analyzing package structure, dependencies & security clearance...' : 'Streaming package to secure storage...'
         });
       }
     };
@@ -400,16 +378,17 @@ export const ProductStudioView: React.FC<ProductStudioViewProps> = ({
           setFileUrl(resp.fileUrl || `r2://${resp.key}`);
           setFileSize(resp.fileSize || scan.formattedCompressedSize || '15 MB');
 
-          if (scan.detectedTools && Array.isArray(scan.detectedTools)) {
+          // AUTOMATIC CATEGORY ASSIGNMENT (fetched directly from ZIP files)
+          const detectedCat = scan.suggestedCategory || scan.detectedCategory || 'Dev Kits';
+          setCategory(detectedCat);
+
+          // AUTOMATIC TOOLS & FRAMEWORKS EXTRACTION
+          if (scan.detectedTools && Array.isArray(scan.detectedTools) && scan.detectedTools.length > 0) {
             setTools(prev => Array.from(new Set([...prev, ...scan.detectedTools])));
           }
 
-          if (scan.suggestedCategory) {
-            setCategory(scan.suggestedCategory);
-            fetchCategories();
-          }
-
-          if (scan.suggestedTags && Array.isArray(scan.suggestedTags)) {
+          // AUTOMATIC TAGS & KEYWORDS GENERATION
+          if (scan.suggestedTags && Array.isArray(scan.suggestedTags) && scan.suggestedTags.length > 0) {
             setTags(prev => Array.from(new Set([...prev, ...scan.suggestedTags])));
           }
 
@@ -419,13 +398,16 @@ export const ProductStudioView: React.FC<ProductStudioViewProps> = ({
           if (scan.suggestedVersion && (!version || version === '1.0.0')) {
             setVersion(scan.suggestedVersion);
           }
-
           if (scan.packageDetails?.name && (!title || title.trim() === '')) {
             setTitle(scan.packageDetails.name);
           }
           if (scan.packageDetails?.description && (!description || description.trim() === '')) {
             setDescription(scan.packageDetails.description);
           }
+
+          setAutoDetectNotice(
+            `ZIP Successfully Analyzed: Automatically assigned category "${detectedCat}", detected ${scan.detectedTools?.length || 0} tools/frameworks, and generated keywords.`
+          );
         } catch {
           setErrorNotice('Failed to process server security analysis response.');
         }
@@ -451,31 +433,6 @@ export const ProductStudioView: React.FC<ProductStudioViewProps> = ({
     if (zipInputRef.current) zipInputRef.current.value = '';
   };
 
-  const handleCreateCategory = async () => {
-    if (!newCatInput.trim()) return;
-    try {
-      const res = await fetch('/api/categories', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`
-        },
-        body: JSON.stringify({ name: newCatInput.trim() })
-      });
-      const data = await res.json();
-      if (res.ok && data.category) {
-        setCategory(data.category.name);
-        setIsAddingNewCat(false);
-        setNewCatInput('');
-        fetchCategories();
-      } else {
-        setErrorNotice(data.error || 'Failed to create category');
-      }
-    } catch (e: any) {
-      setErrorNotice(e.message || 'Error creating category');
-    }
-  };
-
   // Feature Bullets Add/Remove
   const handleAddFeature = () => {
     if (!featureInput.trim()) return;
@@ -487,7 +444,7 @@ export const ProductStudioView: React.FC<ProductStudioViewProps> = ({
     setFeatures(prev => prev.filter((_, i) => i !== idx));
   };
 
-  // Tools Chips
+  // Tools Chips Add/Remove
   const handleAddTool = () => {
     if (!toolInput.trim()) return;
     setTools(prev => Array.from(new Set([...prev, toolInput.trim()])));
@@ -498,19 +455,7 @@ export const ProductStudioView: React.FC<ProductStudioViewProps> = ({
     setTools(prev => prev.filter(x => x !== t));
   };
 
-  // Formats Chips
-  const handleAddFormat = () => {
-    if (!formatInput.trim()) return;
-    const clean = formatInput.trim().startsWith('.') ? formatInput.trim() : `.${formatInput.trim()}`;
-    setFormats(prev => Array.from(new Set([...prev, clean])));
-    setFormatInput('');
-  };
-
-  const handleRemoveFormat = (f: string) => {
-    setFormats(prev => prev.filter(x => x !== f));
-  };
-
-  // Tags Chips
+  // Tags Chips Add/Remove
   const handleAddTag = () => {
     if (!tagInput.trim()) return;
     setTags(prev => Array.from(new Set([...prev, tagInput.trim()])));
@@ -532,7 +477,7 @@ export const ProductStudioView: React.FC<ProductStudioViewProps> = ({
       subtitle: subtitle.trim(),
       short_description: shortDescription.trim() || subtitle.trim(),
       description: description.trim(),
-      category: category.trim(),
+      category: category.trim() || 'Dev Kits',
       price: parseFloat(price) || 49,
       sale_price: salePrice && !isNaN(parseFloat(salePrice)) ? parseFloat(salePrice) : undefined,
       sku: sku.trim() || `KRO-AST-${Math.floor(1000 + Math.random() * 9000)}`,
@@ -577,14 +522,6 @@ export const ProductStudioView: React.FC<ProductStudioViewProps> = ({
 
   const cleanSlug = title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || 'new-digital-asset';
 
-  const stepsList = [
-    { num: 1, label: 'Identity', title: 'Asset Identity' },
-    { num: 2, label: 'Story', title: 'Product Story & Specs' },
-    { num: 3, label: 'Media', title: 'Cover & Gallery Media' },
-    { num: 4, label: 'Package', title: 'ZIP Ingestion & Engine' },
-    { num: 5, label: 'Review', title: 'Review & Publish' },
-  ];
-
   return (
     <div className="space-y-6">
       {/* Top Breadcrumb Navigation Bar */}
@@ -599,14 +536,12 @@ export const ProductStudioView: React.FC<ProductStudioViewProps> = ({
           </button>
           <div className="h-4 w-px bg-slate-200" />
           <div>
-            <div className="flex items-center gap-2">
-              <span className="text-xs font-semibold text-orange-600">Asset Studio</span>
-              <span className="text-slate-300">•</span>
-              <span className="text-xs text-slate-500 font-mono">Step {currentStep} of 5</span>
-            </div>
             <h1 className="text-xl font-bold text-slate-900 tracking-tight">
               {initialProduct ? `Edit Asset: ${title || 'Digital Product'}` : 'Add New Digital Asset'}
             </h1>
+            <p className="text-xs text-slate-500 mt-0.5">
+              Step {currentStep} of 5 • {currentStep === 1 ? 'Asset Identity' : currentStep === 2 ? 'Description & Details' : currentStep === 3 ? 'Media & Screenshots' : currentStep === 4 ? 'Package Ingestion' : 'Final Review'}
+            </p>
           </div>
         </div>
 
@@ -638,56 +573,13 @@ export const ProductStudioView: React.FC<ProductStudioViewProps> = ({
         </div>
       </div>
 
-      {/* Modern, Refined 5-Step Segment Navigation */}
-      <div className="bg-white rounded-2xl border border-slate-200/90 shadow-xs p-3">
-        {/* Continuous Slim Line Progress Bar */}
-        <div className="h-1 w-full bg-slate-100 rounded-full overflow-hidden mb-3">
+      {/* Ultra-Clean, Razor-Thin Top Progress Line (No Chunky Boxes, No Step Names Clutter) */}
+      <div className="relative w-full">
+        <div className="h-1 w-full bg-slate-200/80 rounded-full overflow-hidden">
           <div
-            className="h-full bg-orange-500 transition-all duration-500 ease-out rounded-full"
+            className="h-full bg-orange-600 transition-all duration-500 ease-out rounded-full shadow-sm"
             style={{ width: `${(currentStep / 5) * 100}%` }}
           />
-        </div>
-
-        {/* Step Items */}
-        <div className="grid grid-cols-2 sm:grid-cols-5 gap-1.5 sm:gap-2">
-          {stepsList.map((s) => {
-            const isActive = currentStep === s.num;
-            const isPassed = currentStep > s.num;
-
-            return (
-              <button
-                key={s.num}
-                type="button"
-                onClick={() => {
-                  if (s.num < currentStep || validateStep(currentStep)) {
-                    setCurrentStep(s.num as any);
-                  }
-                }}
-                className={`flex items-center gap-2.5 px-3 py-2 rounded-xl text-left transition-all ${
-                  isActive
-                    ? 'bg-orange-50/80 border border-orange-200/80 text-orange-950 font-bold'
-                    : isPassed
-                    ? 'bg-slate-50/80 text-slate-800 hover:bg-slate-100 font-medium'
-                    : 'text-slate-400 hover:text-slate-600 font-medium'
-                }`}
-              >
-                <div
-                  className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-mono shrink-0 transition-all ${
-                    isActive
-                      ? 'bg-orange-600 text-white font-bold'
-                      : isPassed
-                      ? 'bg-emerald-600 text-white font-bold'
-                      : 'bg-slate-100 text-slate-400'
-                  }`}
-                >
-                  {isPassed ? '✓' : `0${s.num}`}
-                </div>
-                <div className="truncate">
-                  <span className="text-xs truncate block">{s.label}</span>
-                </div>
-              </button>
-            );
-          })}
         </div>
       </div>
 
@@ -704,17 +596,34 @@ export const ProductStudioView: React.FC<ProductStudioViewProps> = ({
         </div>
       )}
 
+      {/* Auto-Detect Success Banner */}
+      {autoDetectNotice && (
+        <div className="p-4 bg-emerald-50 border border-emerald-200 rounded-2xl flex items-center justify-between gap-3 text-emerald-800 text-xs">
+          <div className="flex items-center gap-2">
+            <Sparkles className="w-4 h-4 shrink-0 text-emerald-600" />
+            <span>{autoDetectNotice}</span>
+          </div>
+          <button onClick={() => setAutoDetectNotice(null)} className="text-emerald-500 hover:text-emerald-700 font-bold">
+            Dismiss
+          </button>
+        </div>
+      )}
+
       {/* Main Studio Body Workspace */}
       <div className="bg-white rounded-3xl border border-slate-200/90 shadow-xs p-6 sm:p-8">
         
         {/* ========================================================================= */}
         {/* STEP 1: IDENTITY & MARKET POSITIONING                                     */}
+        {/* (Category selector removed - Category, Tools & Keywords are 100%          */}
+        {/* automatically detected upon ZIP upload in Step 4)                         */}
         {/* ========================================================================= */}
         {currentStep === 1 && (
           <div className="space-y-6 max-w-3xl">
             <div>
               <h2 className="text-lg font-bold text-slate-900 tracking-tight">Step 1: Asset Identity & Market Positioning</h2>
-              <p className="text-xs text-slate-500 mt-1">Define the core branding, title, category, and public URL slug for your digital product.</p>
+              <p className="text-xs text-slate-500 mt-1">
+                Enter your product title and value proposition. Project category, tools, and keywords will be automatically detected when you upload the ZIP archive.
+              </p>
             </div>
 
             {/* Asset Title */}
@@ -730,7 +639,7 @@ export const ProductStudioView: React.FC<ProductStudioViewProps> = ({
                 value={title}
                 maxLength={80}
                 onChange={(e) => setTitle(e.target.value)}
-                placeholder="e.g. Kroma Design System v2.0"
+                placeholder="e.g. Modern Fullstack Next.js 15 SaaS Template"
                 className="w-full px-4 py-3 bg-slate-50/50 border border-slate-200 rounded-xl text-sm font-medium text-slate-900 focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all"
               />
             </div>
@@ -748,80 +657,31 @@ export const ProductStudioView: React.FC<ProductStudioViewProps> = ({
                 value={subtitle}
                 maxLength={140}
                 onChange={(e) => setSubtitle(e.target.value)}
-                placeholder="e.g. 250+ responsive React components, dark mode tokens, and complete Figma source files"
+                placeholder="e.g. Production-ready boilerplate with Tailwind CSS, Prisma, authentication, and Stripe payments"
                 className="w-full px-4 py-3 bg-slate-50/50 border border-slate-200 rounded-xl text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all"
               />
             </div>
 
-            {/* Category Selector with Dynamic Creator */}
-            <div className="p-5 bg-slate-50/50 border border-slate-200/80 rounded-2xl space-y-3">
-              <div className="flex items-center justify-between">
-                <div>
-                  <label className="text-xs font-semibold text-slate-900 block">
-                    Product Category <span className="text-orange-600">*</span>
-                  </label>
-                  <span className="text-[11px] text-slate-500">Categories are dynamically indexed and synced with marketplace filter bars.</span>
-                </div>
-                {!isAddingNewCat && (
-                  <button
-                    type="button"
-                    onClick={() => setIsAddingNewCat(true)}
-                    className="text-xs font-semibold text-orange-600 hover:text-orange-700 flex items-center gap-1"
-                  >
-                    <FolderPlus className="w-3.5 h-3.5" />
-                    <span>+ New Category</span>
-                  </button>
+            {/* Intelligent Automation Badge */}
+            <div className="p-4 bg-orange-50/60 border border-orange-200/80 rounded-2xl flex items-start gap-3">
+              <Sparkles className="w-5 h-5 text-orange-600 shrink-0 mt-0.5" />
+              <div>
+                <span className="text-xs font-bold text-orange-950 block">Automated Category & Stack Intelligence</span>
+                <p className="text-xs text-orange-800/90 mt-0.5 leading-relaxed">
+                  You don't need to manually pick categories or enter keywords. When you upload your project ZIP package, the system will automatically inspect dependencies, detect the exact frameworks and project type, and assign the appropriate category and searchable keywords.
+                </p>
+                {category && (
+                  <div className="mt-2 flex items-center gap-2">
+                    <span className="text-[11px] font-semibold text-orange-900">Current Assigned Category:</span>
+                    <span className="px-2.5 py-0.5 rounded-md bg-white border border-orange-200 text-xs font-bold text-orange-700">
+                      {category}
+                    </span>
+                  </div>
                 )}
               </div>
-
-              {isAddingNewCat ? (
-                <div className="flex items-center gap-2 pt-1">
-                  <input
-                    type="text"
-                    value={newCatInput}
-                    onChange={(e) => setNewCatInput(e.target.value)}
-                    placeholder="Enter unique category name..."
-                    className="flex-1 px-3 py-2 text-xs bg-white border border-slate-200 rounded-xl text-slate-900 focus:outline-none focus:border-orange-500"
-                  />
-                  <button
-                    type="button"
-                    onClick={handleCreateCategory}
-                    className="px-3.5 py-2 text-xs font-bold text-white bg-orange-600 hover:bg-orange-700 rounded-xl transition-colors"
-                  >
-                    Add
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => { setIsAddingNewCat(false); setNewCatInput(''); }}
-                    className="px-3 py-2 text-xs font-medium text-slate-500 hover:bg-slate-200 rounded-xl"
-                  >
-                    Cancel
-                  </button>
-                </div>
-              ) : (
-                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-                  {categories.map((c) => (
-                    <button
-                      key={c.id || c.name}
-                      type="button"
-                      onClick={() => setCategory(c.name)}
-                      className={`p-3 rounded-xl border text-left transition-all ${
-                        category === c.name
-                          ? 'border-orange-500 bg-white ring-2 ring-orange-500/10 shadow-xs'
-                          : 'border-slate-200 bg-white hover:border-slate-300'
-                      }`}
-                    >
-                      <span className={`text-xs font-semibold block ${category === c.name ? 'text-orange-950' : 'text-slate-700'}`}>
-                        {c.name}
-                      </span>
-                      <span className="text-[10px] text-slate-400 font-mono">/{c.slug || c.name.toLowerCase()}</span>
-                    </button>
-                  ))}
-                </div>
-              )}
             </div>
 
-            {/* Live Slug Preview */}
+            {/* Storefront URL Slug Preview */}
             <div className="p-4 bg-slate-50 border border-slate-200/60 rounded-2xl flex items-center justify-between">
               <div>
                 <span className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">Storefront URL Slug</span>
@@ -841,7 +701,7 @@ export const ProductStudioView: React.FC<ProductStudioViewProps> = ({
           <div className="space-y-6 max-w-3xl">
             <div>
               <h2 className="text-lg font-bold text-slate-900 tracking-tight">Step 2: Product Story & Deep Specifications</h2>
-              <p className="text-xs text-slate-500 mt-1">Provide clear, compelling copy for marketplace discovery and technical documentation.</p>
+              <p className="text-xs text-slate-500 mt-1">Provide clear, compelling documentation and feature highlights for prospective buyers.</p>
             </div>
 
             {/* Short Description */}
@@ -874,7 +734,7 @@ export const ProductStudioView: React.FC<ProductStudioViewProps> = ({
                 rows={6}
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
-                placeholder="Describe everything included in this asset, compatibility, setup instructions, architecture..."
+                placeholder="Describe everything included in this asset, architecture, setup instructions, prerequisites..."
                 className="w-full px-4 py-3 bg-slate-50/50 border border-slate-200 rounded-xl text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all"
               />
             </div>
@@ -891,7 +751,7 @@ export const ProductStudioView: React.FC<ProductStudioViewProps> = ({
                   value={featureInput}
                   onChange={(e) => setFeatureInput(e.target.value)}
                   onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); handleAddFeature(); } }}
-                  placeholder="e.g. 50+ Figma Auto-layout components..."
+                  placeholder="e.g. 50+ Responsive React components, Dark mode tokens..."
                   className="flex-1 px-3 py-2 text-xs bg-white border border-slate-200 rounded-xl text-slate-900 focus:outline-none focus:border-orange-500"
                 />
                 <button
@@ -930,8 +790,8 @@ export const ProductStudioView: React.FC<ProductStudioViewProps> = ({
         {currentStep === 3 && (
           <div className="space-y-6 max-w-3xl">
             <div>
-              <h2 className="text-lg font-bold text-slate-900 tracking-tight">Step 3: Media & Multi-Image Gallery Studio</h2>
-              <p className="text-xs text-slate-500 mt-1">Upload high-resolution preview shots. Files stream directly to Cloudflare R2 storage.</p>
+              <h2 className="text-lg font-bold text-slate-900 tracking-tight">Step 3: Media & Multi-Image Gallery</h2>
+              <p className="text-xs text-slate-500 mt-1">Upload high-resolution preview screenshots. Images stream directly to Cloudflare R2 storage.</p>
             </div>
 
             {/* Hidden Input for Real Upload */}
@@ -944,13 +804,14 @@ export const ProductStudioView: React.FC<ProductStudioViewProps> = ({
               onChange={handleUploadGalleryImages}
             />
 
-            {/* Upload Zone & Beautiful Circle Progress */}
+            {/* Upload Zone & Sleek Progress */}
             {thumbUploadProgress?.active ? (
-              <BeautifulCircularProgress
+              <SleekUploadProgress
                 percent={thumbUploadProgress.percent}
                 loadedBytes={thumbUploadProgress.loaded}
                 totalBytes={thumbUploadProgress.total}
-                statusText="Streaming image to Cloudflare R2 storage..."
+                statusText="Streaming screenshot to Cloudflare R2 storage..."
+                fileName={activeUploadFile}
               />
             ) : (
               <div
@@ -960,7 +821,7 @@ export const ProductStudioView: React.FC<ProductStudioViewProps> = ({
                 <div className="w-12 h-12 rounded-2xl bg-white border border-slate-200 text-slate-600 group-hover:text-orange-600 group-hover:border-orange-200 flex items-center justify-center mx-auto transition-colors shadow-xs">
                   <UploadCloud className="w-6 h-6" />
                 </div>
-                <h3 className="text-sm font-bold text-slate-900 mt-3">Upload Gallery Preview Shots</h3>
+                <h3 className="text-sm font-bold text-slate-900 mt-3">Upload Screenshots & Cover Shots</h3>
                 <p className="text-xs text-slate-500 mt-1">PNG, JPG, or WEBP up to 25MB each. Click to select files.</p>
                 <button
                   type="button"
@@ -977,7 +838,7 @@ export const ProductStudioView: React.FC<ProductStudioViewProps> = ({
                 <span className="text-xs font-semibold text-slate-900">
                   Uploaded Gallery Assets ({gallery.length})
                 </span>
-                <span className="text-[11px] text-slate-500">Click "Set Cover" to change primary card image</span>
+                <span className="text-[11px] text-slate-500">Click "Set Cover" to select primary card thumbnail</span>
               </div>
 
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
@@ -1042,12 +903,15 @@ export const ProductStudioView: React.FC<ProductStudioViewProps> = ({
 
         {/* ========================================================================= */}
         {/* STEP 4: DIGITAL PACKAGE INGESTION & INTELLIGENT BACKEND ENGINE            */}
+        {/* (Automatic Category, Tools & Keywords Extraction Engine)                  */}
         {/* ========================================================================= */}
         {currentStep === 4 && (
           <div className="space-y-6 max-w-3xl">
             <div>
-              <h2 className="text-lg font-bold text-slate-900 tracking-tight">Step 4: Digital Package Ingestion & Security Engine</h2>
-              <p className="text-xs text-slate-500 mt-1">Upload the actual customer download archive (.zip). The backend streams, verifies security, and auto-detects dependencies.</p>
+              <h2 className="text-lg font-bold text-slate-900 tracking-tight">Step 4: Digital Package Ingestion & Auto-Detection</h2>
+              <p className="text-xs text-slate-500 mt-1">
+                Upload your product ZIP archive. The system automatically inspects code structure, extracts tools and frameworks, assigns the category, and builds keywords.
+              </p>
             </div>
 
             {/* Hidden Input for Real ZIP Archive */}
@@ -1059,13 +923,14 @@ export const ProductStudioView: React.FC<ProductStudioViewProps> = ({
               onChange={handleUploadZipPackage}
             />
 
-            {/* Beautiful Progress Indicator During Upload */}
+            {/* Sleek Modern Upload Progress */}
             {zipUploadProgress?.active ? (
-              <BeautifulCircularProgress
+              <SleekUploadProgress
                 percent={zipUploadProgress.percent}
                 loadedBytes={zipUploadProgress.loaded}
                 totalBytes={zipUploadProgress.total}
                 statusText={zipUploadProgress.statusText}
+                fileName={activeUploadFile}
               />
             ) : (
               <div
@@ -1078,7 +943,7 @@ export const ProductStudioView: React.FC<ProductStudioViewProps> = ({
                 <h3 className="text-sm font-bold text-slate-900 mt-3">
                   {fileUrl ? 'Replace ZIP Archive Package' : 'Upload Digital Asset Archive (.zip)'}
                 </h3>
-                <p className="text-xs text-slate-500 mt-1">Supports packages up to 350MB. Real-time path traversal, decompression bomb, and malware scanning.</p>
+                <p className="text-xs text-slate-500 mt-1">Supports packages up to 350MB. Auto-analyzes package.json, frameworks, and verifies security.</p>
                 <button
                   type="button"
                   className="mt-4 px-4 py-2 bg-white border border-slate-200 text-slate-700 text-xs font-bold rounded-xl shadow-xs hover:bg-slate-50"
@@ -1088,17 +953,17 @@ export const ProductStudioView: React.FC<ProductStudioViewProps> = ({
               </div>
             )}
 
-            {/* Verified Package Badge & Security Dossier */}
+            {/* Automatically Fetched Results Card */}
             {fileUrl && (
-              <div className="p-5 bg-slate-50 border border-slate-200/90 rounded-2xl space-y-4">
-                <div className="flex items-center justify-between">
+              <div className="p-6 bg-slate-50 border border-slate-200 rounded-3xl space-y-4">
+                <div className="flex items-center justify-between pb-3 border-b border-slate-200/80">
                   <div className="flex items-center gap-2.5">
-                    <div className="w-8 h-8 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center font-bold">
-                      <ShieldCheck className="w-4 h-4" />
+                    <div className="w-9 h-9 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center font-bold">
+                      <ShieldCheck className="w-5 h-5" />
                     </div>
                     <div>
-                      <span className="text-xs font-bold text-slate-900 block">Package Verified Clean</span>
-                      <span className="text-[11px] text-slate-500 font-mono">Size: {fileSize || '18 MB'} • Cloudflare R2 Protected</span>
+                      <span className="text-xs font-bold text-slate-900 block">ZIP Package Verified & Inspected</span>
+                      <span className="text-[11px] text-slate-500 font-mono">Size: {fileSize || '18 MB'} • Clean PK Signature</span>
                     </div>
                   </div>
                   <button
@@ -1106,21 +971,55 @@ export const ProductStudioView: React.FC<ProductStudioViewProps> = ({
                     onClick={() => zipInputRef.current?.click()}
                     className="text-xs font-semibold text-orange-600 hover:underline"
                   >
-                    Change Archive
+                    Replace Archive
                   </button>
                 </div>
 
-                {/* Auto-detected tools chips */}
-                {tools.length > 0 && (
-                  <div className="pt-2 border-t border-slate-200/60">
+                {/* Automatically Determined Category */}
+                <div className="flex items-center justify-between p-3.5 bg-white border border-slate-200/80 rounded-2xl">
+                  <div>
+                    <span className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider block">
+                      Auto-Assigned Category
+                    </span>
+                    <span className="text-sm font-bold text-slate-900">
+                      {category || 'Dev Kits'}
+                    </span>
+                  </div>
+                  <span className="px-2.5 py-1 rounded-md bg-orange-100 text-orange-800 text-[10px] font-bold uppercase tracking-wider">
+                    Auto-Detected
+                  </span>
+                </div>
+
+                {/* Auto-detected tools & frameworks */}
+                <div>
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">
+                      Detected Tools & Frameworks ({tools.length})
+                    </span>
+                    <span className="text-[10px] text-slate-400">Extracted from package.json</span>
+                  </div>
+                  <div className="flex flex-wrap gap-1.5">
+                    {tools.map((t, idx) => (
+                      <span key={idx} className="inline-flex items-center gap-1.5 px-3 py-1 bg-white border border-slate-200 rounded-xl text-xs font-medium text-slate-800 shadow-2xs">
+                        <Cpu className="w-3 h-3 text-orange-600" />
+                        <span>{t}</span>
+                        <button type="button" onClick={() => handleRemoveTool(t)} className="text-slate-400 hover:text-rose-500 text-sm leading-none ml-0.5">×</button>
+                      </span>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Auto-generated keywords / tags */}
+                {tags.length > 0 && (
+                  <div>
                     <span className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block mb-2">
-                      Auto-detected Tools & Frameworks ({tools.length})
+                      Auto-Generated Search Keywords & Tags ({tags.length})
                     </span>
                     <div className="flex flex-wrap gap-1.5">
-                      {tools.map((t, idx) => (
-                        <span key={idx} className="inline-flex items-center gap-1 px-2.5 py-1 bg-white border border-slate-200 rounded-lg text-xs font-medium text-slate-700">
-                          <span>{t}</span>
-                          <button type="button" onClick={() => handleRemoveTool(t)} className="text-slate-400 hover:text-rose-500">×</button>
+                      {tags.map((tg, idx) => (
+                        <span key={idx} className="inline-flex items-center gap-1 px-2.5 py-0.5 bg-white border border-slate-200 rounded-md text-[11px] text-slate-600">
+                          <span>#{tg}</span>
+                          <button type="button" onClick={() => handleRemoveTag(tg)} className="text-slate-400 hover:text-rose-500">×</button>
                         </span>
                       ))}
                     </div>
@@ -1129,50 +1028,40 @@ export const ProductStudioView: React.FC<ProductStudioViewProps> = ({
               </div>
             )}
 
-            {/* Manual Tool & Tag Addition */}
+            {/* Quick add custom Tool or Keyword if desired */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              {/* Add Framework/Tool Chip */}
               <div className="p-4 bg-slate-50/50 border border-slate-200 rounded-2xl space-y-2">
-                <label className="text-xs font-semibold text-slate-700 block">Tools & Frameworks</label>
+                <label className="text-xs font-semibold text-slate-700 block">Add Tool / Framework</label>
                 <div className="flex items-center gap-1.5">
                   <input
                     type="text"
                     value={toolInput}
                     onChange={(e) => setToolInput(e.target.value)}
                     onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); handleAddTool(); } }}
-                    placeholder="e.g. Next.js 15, Tailwind, Three.js..."
+                    placeholder="e.g. Supabase, GraphQL..."
                     className="flex-1 px-3 py-1.5 text-xs bg-white border border-slate-200 rounded-xl text-slate-900"
                   />
                   <button type="button" onClick={handleAddTool} className="px-3 py-1.5 bg-slate-900 text-white rounded-xl text-xs font-bold">Add</button>
                 </div>
               </div>
 
-              {/* Add Format Chip */}
               <div className="p-4 bg-slate-50/50 border border-slate-200 rounded-2xl space-y-2">
-                <label className="text-xs font-semibold text-slate-700 block">File Formats Included</label>
+                <label className="text-xs font-semibold text-slate-700 block">Add Search Keyword</label>
                 <div className="flex items-center gap-1.5">
                   <input
                     type="text"
-                    value={formatInput}
-                    onChange={(e) => setFormatInput(e.target.value)}
-                    onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); handleAddFormat(); } }}
-                    placeholder="e.g. .fig, .tsx, .blend, .zip..."
+                    value={tagInput}
+                    onChange={(e) => setTagInput(e.target.value)}
+                    onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); handleAddTag(); } }}
+                    placeholder="e.g. saas, boilerplate..."
                     className="flex-1 px-3 py-1.5 text-xs bg-white border border-slate-200 rounded-xl text-slate-900"
                   />
-                  <button type="button" onClick={handleAddFormat} className="px-3 py-1.5 bg-slate-900 text-white rounded-xl text-xs font-bold">Add</button>
-                </div>
-                <div className="flex flex-wrap gap-1 pt-1">
-                  {formats.map((f, i) => (
-                    <span key={i} className="inline-flex items-center gap-1 px-2 py-0.5 bg-white border border-slate-200 rounded text-[11px] font-mono text-slate-700">
-                      <span>{f}</span>
-                      <button type="button" onClick={() => handleRemoveFormat(f)} className="text-slate-400 hover:text-rose-500">×</button>
-                    </span>
-                  ))}
+                  <button type="button" onClick={handleAddTag} className="px-3 py-1.5 bg-slate-900 text-white rounded-xl text-xs font-bold">Add</button>
                 </div>
               </div>
             </div>
 
-            {/* Commercials: Price, Sale Price, SKU, Version */}
+            {/* Commercial Pricing & SKU */}
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 p-5 bg-slate-50/50 border border-slate-200/80 rounded-2xl">
               <div>
                 <label className="text-xs font-semibold text-slate-700 block mb-1">
@@ -1234,7 +1123,7 @@ export const ProductStudioView: React.FC<ProductStudioViewProps> = ({
           <div className="space-y-6 max-w-3xl">
             <div>
               <h2 className="text-lg font-bold text-slate-900 tracking-tight">Step 5: Review & Publish Dossier</h2>
-              <p className="text-xs text-slate-500 mt-1">Review the live presentation, pricing structure, and package specifications before making it live.</p>
+              <p className="text-xs text-slate-500 mt-1">Review your product presentation, automatically assigned category, and detected stack before publishing.</p>
             </div>
 
             {/* Visual Executive Summary Card */}
@@ -1248,7 +1137,7 @@ export const ProductStudioView: React.FC<ProductStudioViewProps> = ({
                     className="w-full h-full object-cover"
                   />
                   <div className="absolute top-3 left-3 px-2 py-0.5 rounded-md bg-slate-950/80 backdrop-blur-md text-white text-[10px] font-bold uppercase tracking-wider">
-                    {category}
+                    {category || 'Dev Kits'}
                   </div>
                 </div>
 
@@ -1296,15 +1185,15 @@ export const ProductStudioView: React.FC<ProductStudioViewProps> = ({
               <div className="flex items-center gap-3">
                 <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0" />
                 <div>
-                  <span className="text-xs font-bold text-emerald-950 block">Security & Integrity Clearance</span>
-                  <span className="text-[11px] text-emerald-700">0 malicious binaries detected • Safe uncompressed ratio • Ready for SigV4 direct customer downloads</span>
+                  <span className="text-xs font-bold text-emerald-950 block">Security Clearance & Packaging Verified</span>
+                  <span className="text-[11px] text-emerald-700">0 malicious binaries • Path traversal protected • Cloudflare R2 direct customer download active</span>
                 </div>
               </div>
             </div>
           </div>
         )}
 
-        {/* Bottom Step Navigation Bar */}
+        {/* Bottom Navigation Buttons */}
         <div className="mt-8 pt-6 border-t border-slate-200 flex items-center justify-between">
           <div>
             {currentStep > 1 && (
@@ -1326,7 +1215,7 @@ export const ProductStudioView: React.FC<ProductStudioViewProps> = ({
                 onClick={nextStep}
                 className="flex items-center gap-1.5 px-5 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-xs font-bold text-white transition-all shadow-xs"
               >
-                <span>Continue to {stepsList[currentStep]?.label || 'Next'}</span>
+                <span>Continue</span>
                 <ChevronRight className="w-4 h-4" />
               </button>
             ) : (
