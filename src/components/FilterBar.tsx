@@ -9,6 +9,7 @@ interface FilterBarProps {
 
 export const FilterBar: React.FC<FilterBarProps> = ({ searchInputRef, totalCount }) => {
   const {
+    products,
     searchQuery,
     setSearchQuery,
     selectedCategory,
@@ -19,8 +20,17 @@ export const FilterBar: React.FC<FilterBarProps> = ({ searchInputRef, totalCount
     setSortBy,
   } = useStore();
 
-  const categories = ['All', 'UI & Figma', 'Dev Kits', '3D & Spatial', 'Motion & Audio', 'Templates'];
-  const formats = ['All', '.fig', '.tsx', '.blend', '.lottie', '.mp3'];
+  const categories = React.useMemo(() => {
+    const list = ['All', 'UI & Figma', 'Dev Kits', '3D & Spatial', 'Motion & Audio', 'Templates'];
+    products.forEach(p => {
+      if (p.category && !list.includes(p.category)) {
+        list.push(p.category);
+      }
+    });
+    return list;
+  }, [products]);
+
+  const formats = ['All', '.fig', '.tsx', '.blend', '.lottie', '.mp3', '.zip'];
 
   return (
     <div id="marketplace-catalog" className="w-full pt-8 pb-6 scroll-mt-20">

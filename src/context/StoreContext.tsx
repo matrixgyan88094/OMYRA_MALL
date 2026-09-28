@@ -127,51 +127,66 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
           // Map DB products if present
           const mapped = data.map((d: any) => {
             const basePrice = d.price || 49;
+            const salePrice = d.sale_price !== null && d.sale_price !== undefined ? Number(d.sale_price) : undefined;
+            const primaryThumb = d.thumbnail || '/src/assets/images/hero_white_orange_1790435384152.jpg';
+            const gallery = Array.isArray(d.gallery) && d.gallery.length > 0 ? d.gallery : [primaryThumb];
+
             return {
               id: d.id,
               slug: d.id,
               title: d.title,
               tagline: d.subtitle || '',
+              shortDescription: d.short_description || d.subtitle || '',
               description: d.description || '',
-              category: d.category || 'UI & Figma',
-              format: Array.isArray(d.formats) && d.formats[0] ? d.formats[0] : '.fig',
-              fileSize: '48 MB',
-              version: '2.4.0',
+              category: d.category || 'Dev Kits',
+              format: Array.isArray(d.formats) && d.formats[0] ? d.formats[0] : '.zip',
+              formats: Array.isArray(d.formats) ? d.formats : ['.zip'],
+              fileSize: d.file_size || '24 MB',
+              version: d.version || '1.0.0',
+              sku: d.sku || '',
+              tools: Array.isArray(d.tools) ? d.tools : [],
               lastUpdated: 'Recently updated',
               rating: d.rating || 5.0,
               reviewCount: d.reviews_count || 120,
               salesCount: d.sales_count || 340,
               basePrice,
+              salePrice,
               licenses: {
                 personal: {
                   tier: 'personal' as LicenseTier,
                   label: 'Individual Maker',
-                  price: basePrice,
+                  price: salePrice ?? basePrice,
                   description: 'Single commercial project use.',
                   features: ['Full Source Files', '1 Commercial Project', 'Lifetime Updates']
                 },
                 team: {
                   tier: 'team' as LicenseTier,
                   label: 'Team & Studio',
-                  price: Math.round(basePrice * 1.8),
+                  price: Math.round((salePrice ?? basePrice) * 1.8),
                   description: 'For collaborative teams & client work.',
                   features: ['Up to 8 Team Members', 'Unlimited Client Projects', 'Priority Support']
                 },
                 enterprise: {
                   tier: 'enterprise' as LicenseTier,
                   label: 'Enterprise Unlimited',
-                  price: Math.round(basePrice * 3.5),
+                  price: Math.round((salePrice ?? basePrice) * 3.5),
                   description: 'Full unconstrained distribution rights.',
                   features: ['Unlimited Seats', 'Redistribution Waiver', '1-on-1 Consultation']
                 }
               },
               highlights: Array.isArray(d.features) && d.features.length > 0 ? d.features : ['Production Tested', 'Clean Code', 'Commercial Rights'],
               includes: ['Master Source Files', 'Documentation PDF', 'Commercial License Key'],
-              specs: { 'Platform': 'Cross-platform', 'Updates': 'Lifetime' },
+              specs: {
+                'Platform': 'Cross-platform',
+                'Tools': Array.isArray(d.tools) && d.tools.length > 0 ? d.tools.join(', ') : 'Modern Web Architecture',
+                'Updates': 'Lifetime'
+              },
               demoType: 'ui-kit' as const,
-              coverImage: d.thumbnail || '/src/assets/images/hero_white_orange_1790435384152.jpg',
-              galleryImages: [d.thumbnail || '/src/assets/images/hero_white_orange_1790435384152.jpg'],
+              coverImage: primaryThumb,
+              galleryImages: gallery,
+              securityScan: d.security_scan,
               downloadFileName: `${d.id}.zip`,
+              fileUrl: d.file_url,
               isFeatured: true,
               isNew: false,
               status: d.status || 'published',
@@ -453,8 +468,9 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     };
   };
 
-  // Real Digital Package Manifest & Certificate Download
+  // Real Digital Package & Commercial License Download Gateway
   const downloadAsset = (item: OrderItem) => {
+    // 1. Deliver signed commercial license certificate manifest
     const fileContent = `========================================================
 KROMA STUDIO — OFFICIAL COMMERCIAL LICENSE CERTIFICATE
 ========================================================
@@ -464,7 +480,6 @@ Release Version: ${item.version}
 License Tier: ${item.tierLabel} (${item.tier})
 Assigned Commercial License Key: ${item.licenseKey}
 Customer Authorized Entity: Verified Licensee
-Digital Hash: SHA256-${Math.random().toString(36).substring(2)}${Math.random().toString(36).substring(2)}
 Issued On: ${new Date().toISOString()}
 
 COMMERCIAL RIGHTS & PERMISSIONS:
@@ -485,6 +500,17 @@ Registry: https://kroma.studio
     link.click();
     document.body.removeChild(link);
     URL.revokeObjectURL(url);
+
+    // 2. Direct browser to authorized R2 / server download endpoint
+    if (item.licenseKey && item.productId) {
+      setTimeout(() => {
+        const downloadFrame = document.createElement('iframe');
+        downloadFrame.style.display = 'none';
+        downloadFrame.src = `/api/r2/download/${encodeURIComponent(item.licenseKey)}/${encodeURIComponent(item.productId)}`;
+        document.body.appendChild(downloadFrame);
+        setTimeout(() => document.body.removeChild(downloadFrame), 5000);
+      }, 300);
+    }
   };
 
   // Aggregate all items purchased across orders

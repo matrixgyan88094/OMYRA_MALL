@@ -23,11 +23,15 @@ export interface DigitalProduct {
   slug: string;
   title: string;
   tagline: string;
+  shortDescription?: string;
   description: string;
-  category: 'UI & Figma' | 'Dev Kits' | '3D & Spatial' | 'Motion & Audio' | 'Templates';
-  format: '.fig' | '.tsx' | '.blend' | '.lottie' | '.mp3';
+  category: string;
+  format: string;
+  formats?: string[];
   fileSize: string;
   version: string;
+  sku?: string;
+  tools?: string[];
   lastUpdated: string;
   rating: number;
   reviewCount: number;
@@ -38,6 +42,15 @@ export interface DigitalProduct {
   salePrice?: number;
   coverImage: string;
   galleryImages: string[];
+  securityScan?: {
+    isSafe: boolean;
+    securitySummary: string;
+    securityGrade?: string;
+    sha256?: string;
+    fileCount?: number;
+    uncompressedSizeFormatted?: string;
+    threats?: string[];
+  };
   licenses: {
     personal: ProductLicense;
     team: ProductLicense;
@@ -49,6 +62,7 @@ export interface DigitalProduct {
   demoType: 'ui-kit' | 'code-preview' | '3d-viewer' | 'audio-player' | 'interactive-cards';
   status: 'published' | 'draft' | 'archived';
   downloadFileName: string;
+  fileUrl?: string;
   reviews: ProductReview[];
 }
 

@@ -28,6 +28,14 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({ product,
   const { addToCart, cart, setIsCartOpen } = useStore();
   const [selectedTier, setSelectedTier] = useState<LicenseTier>('personal');
   const [activeTab, setActiveTab] = useState<'preview' | 'includes' | 'specs' | 'reviews'>('preview');
+  const [selectedImage, setSelectedImage] = useState<string>(product.coverImage);
+
+  // Sync image if product changes
+  React.useEffect(() => {
+    setSelectedImage(product.coverImage);
+  }, [product.id, product.coverImage]);
+
+  const allImages = [product.coverImage, ...(product.galleryImages || [])].filter(Boolean);
 
   // Interactive UI Kit demo state
   const [demoActiveTheme, setDemoActiveTheme] = useState<'orange' | 'dark' | 'white'>('orange');
@@ -151,13 +159,40 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({ product,
             {/* Left: Product Images & Interactive Preview Stage */}
             <div className="lg:col-span-7 space-y-6">
               {/* Product Cover Showcase */}
-              <div className="relative aspect-[16/10] w-full rounded-xl overflow-hidden border border-zinc-200 bg-zinc-100">
-                <img
-                  src={product.coverImage}
-                  alt={product.title}
-                  referrerPolicy="no-referrer"
-                  className="h-full w-full object-cover"
-                />
+              <div className="space-y-3">
+                <div className="relative aspect-[16/10] w-full rounded-xl overflow-hidden border border-zinc-200 bg-zinc-100 shadow-sm">
+                  <img
+                    src={selectedImage || product.coverImage}
+                    alt={product.title}
+                    referrerPolicy="no-referrer"
+                    className="h-full w-full object-cover transition-all duration-300"
+                  />
+                </div>
+
+                {/* Multiple Gallery Thumbnail Strip */}
+                {allImages.length > 1 && (
+                  <div className="flex items-center gap-2 overflow-x-auto pb-1 pt-1">
+                    {allImages.map((imgUrl, i) => (
+                      <button
+                        key={i}
+                        type="button"
+                        onClick={() => setSelectedImage(imgUrl)}
+                        className={`relative h-16 w-20 flex-shrink-0 rounded-lg overflow-hidden border transition-all ${
+                          selectedImage === imgUrl
+                            ? 'border-orange-500 ring-2 ring-orange-500/20 shadow-sm'
+                            : 'border-zinc-200 opacity-70 hover:opacity-100 hover:border-zinc-300'
+                        }`}
+                      >
+                        <img
+                          src={imgUrl}
+                          alt={`Preview ${i + 1}`}
+                          referrerPolicy="no-referrer"
+                          className="h-full w-full object-cover"
+                        />
+                      </button>
+                    ))}
+                  </div>
+                )}
               </div>
 
               {/* Interactive Demo Preview Stage */}
@@ -590,6 +625,19 @@ export async function POST(req: NextRequest) {
                   <p className="mt-2 text-sm text-zinc-600 leading-relaxed">
                     {product.description}
                   </p>
+
+                  {product.tools && product.tools.length > 0 && (
+                    <div className="mt-3 flex flex-wrap items-center gap-1.5">
+                      {product.tools.map((t, idx) => (
+                        <span
+                          key={idx}
+                          className="px-2 py-0.5 rounded text-[11px] font-medium bg-zinc-100 text-zinc-700 border border-zinc-200"
+                        >
+                          {t}
+                        </span>
+                      ))}
+                    </div>
+                  )}
 
                   <div className="mt-3 flex items-center gap-3 text-xs text-zinc-500">
                     <div className="flex items-center gap-1">
