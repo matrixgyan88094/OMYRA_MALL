@@ -389,10 +389,6 @@ export const ProductStudioView: React.FC<ProductStudioViewProps> = ({
         setErrorNotice('Please enter an asset title before continuing.');
         return false;
       }
-      if (!category) {
-        setErrorNotice('Please choose a category for the product.');
-        return false;
-      }
     } else if (step === 2) {
       if (!description.trim()) {
         setErrorNotice('Please enter a description for the product.');
@@ -834,35 +830,22 @@ export const ProductStudioView: React.FC<ProductStudioViewProps> = ({
               />
             </div>
 
-            {/* Category Dropdown Selector (Clear, manual override & auto-synced) */}
-            <div>
-              <div className="flex items-center justify-between mb-1.5">
-                <label className="text-xs font-semibold text-slate-700">
-                  Marketplace Category <span className="text-orange-600">*</span>
-                </label>
-                <span className="text-[11px] text-slate-400">Auto-detected from ZIP or choose manually</span>
-              </div>
-              <select
-                value={category}
-                onChange={(e) => setCategory(e.target.value)}
-                className="w-full px-4 py-3 bg-slate-50/50 border border-slate-200 rounded-xl text-sm font-semibold text-slate-900 focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all cursor-pointer"
-              >
-                <option value="Dev Kits">Dev Kits (Next.js, React, SaaS & Fullstack Starters)</option>
-                <option value="UI & Figma">UI & Figma (Design Systems, UI Kits & Wireframes)</option>
-                <option value="Templates">Templates (HTML/CSS, WordPress Themes & Landing Pages)</option>
-                <option value="3D & Spatial">3D & Spatial (Blender, Three.js, WebGL & Models)</option>
-                <option value="Motion & Audio">Motion & Audio (Lottie, Sound FX & Haptics)</option>
-              </select>
-            </div>
-
-            {/* Intelligent Automation Badge */}
+            {/* 100% Automated Category Notice */}
             <div className="p-4 bg-orange-50/60 border border-orange-200/80 rounded-2xl flex items-start gap-3">
               <Sparkles className="w-5 h-5 text-orange-600 shrink-0 mt-0.5" />
               <div>
-                <span className="text-xs font-bold text-orange-950 block">Automated Category & Stack Intelligence</span>
+                <span className="text-xs font-bold text-orange-950 block">100% Automatic Category & Stack Intelligence</span>
                 <p className="text-xs text-orange-800/90 mt-0.5 leading-relaxed">
-                  When you upload your digital package in Step 4, the backend will inspect your code, automatically verify dependencies, and sync the category, tools, and search tags. You can also customize the category anytime using the selector above.
+                  No manual category selection needed. When you upload your project ZIP archive in Step 4, our system inspects the code structure and dependencies, automatically detects whether it's UI & Figma, Dev Kits, 3D & Spatial, Templates, or Motion & Audio, and extracts all tools and keywords.
                 </p>
+                {category && (
+                  <div className="mt-2.5 flex items-center gap-2">
+                    <span className="text-[11px] font-semibold text-orange-900">Current Auto-Assigned Category:</span>
+                    <span className="px-2.5 py-0.5 rounded-lg bg-white border border-orange-200 text-xs font-bold text-orange-700 shadow-2xs">
+                      {category}
+                    </span>
+                  </div>
+                )}
               </div>
             </div>
 
