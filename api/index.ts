@@ -684,16 +684,44 @@ function inspectZipBuffer(buffer: Buffer, originalName = 'package.zip'): ZipScan
   const detectedTools = new Set<string>();
   const detectedFormats = new Set<string>();
   const detectedTags = new Set<string>();
-  let detectedCategory = 'Dev Kits';
   let suggestedVersion = '1.0.0';
   let packageDetails: { name?: string; description?: string; version?: string } | undefined;
 
   let fileCount = 0;
   let totalUncompressedBytes = 0;
 
+  // Track category affinity indicators
+  let figmaScore = 0;
+  let threeDScore = 0;
+  let audioMotionScore = 0;
+  let templateScore = 0;
+  let devKitScore = 0;
+
+  // Check original archive name for strong hints
+  const lowerOriginal = originalName.toLowerCase();
+  if (lowerOriginal.includes('figma') || lowerOriginal.includes('ui-kit') || lowerOriginal.includes('uikit') || lowerOriginal.includes('design-system')) {
+    figmaScore += 5;
+  }
+  if (lowerOriginal.includes('3d') || lowerOriginal.includes('blender') || lowerOriginal.includes('spatial') || lowerOriginal.includes('mesh')) {
+    threeDScore += 5;
+  }
+  if (lowerOriginal.includes('audio') || lowerOriginal.includes('sound') || lowerOriginal.includes('sfx') || lowerOriginal.includes('motion') || lowerOriginal.includes('lottie')) {
+    audioMotionScore += 5;
+  }
+  if (lowerOriginal.includes('template') || lowerOriginal.includes('theme') || lowerOriginal.includes('landing') || lowerOriginal.includes('portfolio') || lowerOriginal.includes('html')) {
+    templateScore += 5;
+  }
+  if (lowerOriginal.includes('starter') || lowerOriginal.includes('boilerplate') || lowerOriginal.includes('saas') || lowerOriginal.includes('kit') || lowerOriginal.includes('dev')) {
+    devKitScore += 4;
+  }
+
   try {
     const zip = new AdmZip(buffer);
     const entries = zip.getEntries();
+
+    // Find the primary root package.json (ignore node_modules, vendor, etc.)
+    let rootPkgEntry: any = null;
+    let minPkgDepth = 999;
 
     for (const entry of entries) {
       const entryName = entry.entryName;
@@ -727,103 +755,217 @@ function inspectZipBuffer(buffer: Buffer, originalName = 'package.zip'): ZipScan
         threats.push(`Prohibited executable payload detected: "${entryName}"`);
       }
 
-      // Formats extraction
       if (ext) {
         detectedFormats.add(ext);
       }
 
-      // Heuristic detection based on specific file signatures
-      if (ext === '.fig') {
-        detectedTools.add('Figma');
-        detectedTools.add('Auto Layout');
-        detectedTags.add('Figma');
-        detectedTags.add('UI Kit');
-        detectedCategory = 'UI & Figma';
-      } else if (ext === '.sketch') {
-        detectedTools.add('Sketch');
-        detectedTags.add('Sketch');
-      } else if (ext === '.blend') {
-        detectedTools.add('Blender 3D');
-        detectedTags.add('3D Modeling');
-        detectedCategory = '3D & Spatial';
-      } else if (['.fbx', '.obj', '.gltf', '.glb'].includes(ext)) {
-        detectedTools.add('3D WebGL / Mesh');
-        detectedTags.add('3D Assets');
-        detectedCategory = '3D & Spatial';
-      } else if (['.uproject', '.umap'].includes(ext)) {
-        detectedTools.add('Unreal Engine 5');
-        detectedCategory = 'Game Engine Assets';
-        detectedTags.add('Unreal Engine');
-      } else if (['.unity', '.unitypackage'].includes(ext)) {
-        detectedTools.add('Unity 3D');
-        detectedCategory = 'Game Engine Assets';
-        detectedTags.add('Unity');
-      } else if (ext === '.lottie') {
-        detectedTools.add('Lottie Animation');
-        detectedCategory = 'Motion & Audio';
-        detectedTags.add('Motion');
-      } else if (['.wav', '.mp3', '.ogg'].includes(ext)) {
-        detectedTools.add('Audio UI Engine');
-        detectedCategory = 'Motion & Audio';
-        detectedTags.add('Audio');
-      } else if (ext === '.swift') {
-        detectedTools.add('SwiftUI');
-        detectedTools.add('iOS Native');
-      } else if (ext === '.kt') {
-        detectedTools.add('Kotlin');
-        detectedTools.add('Android Native');
-      }
+      // Skip dependencies/vendor folders for heuristic stack detection
+      const isVendorOrDep =
+        entryName.includes('node_modules/') ||
+        entryName.includes('vendor/') ||
+        entryName.includes('__MACOSX/') ||
+        entryName.includes('.git/');
 
-      // 4. Parse package.json for deep stack intelligence
-      if (path.basename(entryName) === 'package.json') {
-        try {
-          const content = zip.readAsText(entry);
-          const pkg = JSON.parse(content);
-          packageDetails = {
-            name: pkg.name,
-            description: pkg.description,
-            version: pkg.version
-          };
-          if (pkg.version) suggestedVersion = pkg.version;
-
-          const allDeps = {
-            ...(pkg.dependencies || {}),
-            ...(pkg.devDependencies || {}),
-            ...(pkg.peerDependencies || {})
-          };
-
-          if (allDeps['react']) detectedTools.add('React ' + (allDeps['react'].replace(/[^0-9.]/g, '').split('.')[0] || '19'));
-          if (allDeps['next']) {
-            detectedTools.add('Next.js ' + (allDeps['next'].replace(/[^0-9.]/g, '').split('.')[0] || '15'));
-            detectedCategory = 'Dev Kits';
-            detectedTags.add('Next.js');
+      if (!isVendorOrDep) {
+        // Track candidate package.json by shallowest directory depth
+        if (path.basename(entryName) === 'package.json') {
+          const depth = entryName.split('/').length;
+          if (depth < minPkgDepth) {
+            minPkgDepth = depth;
+            rootPkgEntry = entry;
           }
-          if (allDeps['vue']) detectedTools.add('Vue.js');
-          if (allDeps['svelte'] || allDeps['@sveltejs/kit']) detectedTools.add('Svelte');
-          if (allDeps['tailwindcss']) {
-            detectedTools.add('Tailwind CSS');
-            detectedTags.add('Tailwind CSS');
-          }
-          if (allDeps['typescript']) {
-            detectedTools.add('TypeScript');
-            detectedTags.add('TypeScript');
-          }
-          if (allDeps['vite']) detectedTools.add('Vite');
-          if (allDeps['three'] || allDeps['@react-three/fiber']) {
-            detectedTools.add('Three.js / WebGL');
-            detectedCategory = '3D & Spatial';
-          }
-          if (allDeps['@neondatabase/serverless'] || allDeps['pg']) detectedTools.add('Neon PostgreSQL');
-          if (allDeps['express']) detectedTools.add('Express.js');
-          if (allDeps['drizzle-orm']) detectedTools.add('Drizzle ORM');
-          if (allDeps['prisma'] || allDeps['@prisma/client']) detectedTools.add('Prisma ORM');
-          if (allDeps['lucide-react']) detectedTools.add('Lucide Icons');
-          if (allDeps['framer-motion'] || allDeps['motion']) detectedTools.add('Framer Motion');
-          if (allDeps['zustand']) detectedTools.add('Zustand');
-          if (allDeps['astro']) detectedTools.add('Astro');
-        } catch {
-          // ignore corrupted sub package.json
         }
+
+        // File-type heuristics
+        if (ext === '.fig') {
+          detectedTools.add('Figma');
+          detectedTools.add('Auto Layout');
+          detectedTags.add('Figma');
+          detectedTags.add('UI Kit');
+          figmaScore += 10;
+        } else if (ext === '.sketch') {
+          detectedTools.add('Sketch');
+          detectedTags.add('Sketch');
+          figmaScore += 8;
+        } else if (ext === '.blend') {
+          detectedTools.add('Blender 3D');
+          detectedTags.add('3D Modeling');
+          threeDScore += 10;
+        } else if (['.fbx', '.obj', '.gltf', '.glb', '.c4d', '.stl'].includes(ext)) {
+          detectedTools.add('3D WebGL / Mesh');
+          detectedTags.add('3D Assets');
+          threeDScore += 6;
+        } else if (ext === '.lottie') {
+          detectedTools.add('Lottie Animation');
+          detectedTags.add('Motion');
+          audioMotionScore += 8;
+        } else if (['.wav', '.mp3', '.ogg', '.flac', '.aif'].includes(ext)) {
+          detectedTools.add('Audio UI Engine');
+          detectedTags.add('Sound Effects');
+          audioMotionScore += 6;
+        } else if (ext === '.swift') {
+          detectedTools.add('SwiftUI');
+          detectedTools.add('iOS Native');
+          devKitScore += 3;
+        } else if (ext === '.kt' || ext === '.gradle') {
+          detectedTools.add('Kotlin / Android');
+          devKitScore += 3;
+        } else if (entryName.endsWith('pubspec.yaml')) {
+          detectedTools.add('Flutter');
+          detectedTools.add('Dart');
+          devKitScore += 5;
+        } else if (entryName.endsWith('requirements.txt') || entryName.endsWith('Pipfile') || entryName.endsWith('pyproject.toml')) {
+          detectedTools.add('Python');
+          devKitScore += 4;
+        } else if (ext === '.php' || entryName.endsWith('functions.php') || entryName.endsWith('style.css')) {
+          detectedTools.add('WordPress');
+          detectedTools.add('PHP');
+          templateScore += 5;
+        } else if (ext === '.html' || ext === '.htm') {
+          detectedTools.add('HTML5');
+          templateScore += 1;
+        } else if (ext === '.css' || ext === '.scss' || ext === '.sass') {
+          detectedTools.add('CSS3');
+        }
+      }
+    }
+
+    // 4. Parse the project's root package.json (bypassing node_modules entirely!)
+    if (rootPkgEntry) {
+      try {
+        const content = zip.readAsText(rootPkgEntry);
+        const pkg = JSON.parse(content);
+        packageDetails = {
+          name: pkg.name ? pkg.name.replace(/[-_]/g, ' ').replace(/\b\w/g, (c: string) => c.toUpperCase()) : undefined,
+          description: pkg.description,
+          version: pkg.version
+        };
+        if (pkg.version) suggestedVersion = pkg.version;
+
+        // Keywords in package.json
+        if (Array.isArray(pkg.keywords)) {
+          for (const kw of pkg.keywords) {
+            if (typeof kw === 'string' && kw.trim()) {
+              detectedTags.add(kw.trim().toLowerCase());
+            }
+          }
+        }
+
+        const allDeps = {
+          ...(pkg.dependencies || {}),
+          ...(pkg.devDependencies || {}),
+          ...(pkg.peerDependencies || {})
+        };
+
+        // Comprehensive framework & stack detection
+        if (allDeps['next']) {
+          const v = allDeps['next'].replace(/[^0-9.]/g, '').split('.')[0] || '15';
+          detectedTools.add(`Next.js ${v}`);
+          detectedTags.add('Next.js');
+          devKitScore += 6;
+        }
+        if (allDeps['react']) {
+          const v = allDeps['react'].replace(/[^0-9.]/g, '').split('.')[0] || '19';
+          detectedTools.add(`React ${v}`);
+          detectedTags.add('React');
+        }
+        if (allDeps['vue']) {
+          detectedTools.add('Vue.js');
+          detectedTags.add('Vue');
+        }
+        if (allDeps['nuxt']) {
+          detectedTools.add('Nuxt');
+          devKitScore += 5;
+        }
+        if (allDeps['svelte'] || allDeps['@sveltejs/kit']) {
+          detectedTools.add('SvelteKit');
+          devKitScore += 4;
+        }
+        if (allDeps['astro']) {
+          detectedTools.add('Astro');
+          templateScore += 4;
+        }
+        if (allDeps['remix'] || allDeps['@remix-run/react']) {
+          detectedTools.add('Remix');
+          devKitScore += 4;
+        }
+        if (allDeps['tailwindcss'] || allDeps['@tailwindcss/postcss']) {
+          detectedTools.add('Tailwind CSS');
+          detectedTags.add('Tailwind CSS');
+        }
+        if (allDeps['typescript']) {
+          detectedTools.add('TypeScript');
+          detectedTags.add('TypeScript');
+        }
+        if (allDeps['vite']) {
+          detectedTools.add('Vite');
+        }
+        if (allDeps['prisma'] || allDeps['@prisma/client']) {
+          detectedTools.add('Prisma ORM');
+          detectedTags.add('Database');
+          devKitScore += 3;
+        }
+        if (allDeps['drizzle-orm']) {
+          detectedTools.add('Drizzle ORM');
+          devKitScore += 3;
+        }
+        if (allDeps['@neondatabase/serverless'] || allDeps['pg']) {
+          detectedTools.add('PostgreSQL');
+        }
+        if (allDeps['@supabase/supabase-js']) {
+          detectedTools.add('Supabase');
+          devKitScore += 3;
+        }
+        if (allDeps['firebase'] || allDeps['firebase-admin']) {
+          detectedTools.add('Firebase');
+          devKitScore += 3;
+        }
+        if (allDeps['stripe'] || allDeps['@stripe/stripe-js']) {
+          detectedTools.add('Stripe Payments');
+          detectedTags.add('Stripe');
+          devKitScore += 3;
+        }
+        if (allDeps['resend']) {
+          detectedTools.add('Resend Email');
+        }
+        if (allDeps['lucide-react']) {
+          detectedTools.add('Lucide Icons');
+        }
+        if (allDeps['framer-motion'] || allDeps['motion']) {
+          detectedTools.add('Framer Motion');
+          audioMotionScore += 2;
+        }
+        if (allDeps['three'] || allDeps['@react-three/fiber']) {
+          detectedTools.add('Three.js / WebGL');
+          threeDScore += 8;
+        }
+        if (allDeps['express']) {
+          detectedTools.add('Express.js');
+          devKitScore += 3;
+        }
+        if (allDeps['fastify']) {
+          detectedTools.add('Fastify');
+          devKitScore += 3;
+        }
+        if (allDeps['nestjs'] || allDeps['@nestjs/core']) {
+          detectedTools.add('NestJS');
+          devKitScore += 4;
+        }
+        if (allDeps['hono']) {
+          detectedTools.add('Hono');
+          devKitScore += 3;
+        }
+        if (allDeps['zustand']) {
+          detectedTools.add('Zustand');
+        }
+        if (allDeps['radix-ui'] || Object.keys(allDeps).some(k => k.startsWith('@radix-ui/'))) {
+          detectedTools.add('Radix UI');
+        }
+        if (allDeps['shadcn-ui'] || allDeps['@shadcn/ui']) {
+          detectedTools.add('Shadcn UI');
+        }
+      } catch (e) {
+        console.warn('Notice parsing package.json:', e);
       }
     }
 
@@ -835,16 +977,62 @@ function inspectZipBuffer(buffer: Buffer, originalName = 'package.zip'): ZipScan
     threats.push(`Archive header corrupted or invalid ZIP structure: ${err.message}`);
   }
 
-  // Fallback tools if empty
-  if (detectedTools.size === 0) {
-    if (detectedFormats.has('.fig')) detectedTools.add('Figma');
-    else if (detectedFormats.has('.blend')) detectedTools.add('Blender');
-    else detectedTools.add('Universal Code Package');
+  // 5. Intelligent Multi-Factor Category Resolution
+  let detectedCategory = 'Dev Kits';
+  const scores = [
+    { cat: 'UI & Figma', score: figmaScore },
+    { cat: '3D & Spatial', score: threeDScore },
+    { cat: 'Motion & Audio', score: audioMotionScore },
+    { cat: 'Templates', score: templateScore },
+    { cat: 'Dev Kits', score: devKitScore }
+  ];
+  scores.sort((a, b) => b.score - a.score);
+
+  if (scores[0].score > 0) {
+    detectedCategory = scores[0].cat;
+  } else {
+    // Fallback based on detected tools
+    if (detectedTools.has('Figma') || detectedTools.has('Sketch')) {
+      detectedCategory = 'UI & Figma';
+    } else if (detectedTools.has('Blender 3D') || detectedTools.has('Three.js / WebGL')) {
+      detectedCategory = '3D & Spatial';
+    } else if (detectedTools.has('Lottie Animation') || detectedTools.has('Audio UI Engine')) {
+      detectedCategory = 'Motion & Audio';
+    } else if (detectedTools.has('WordPress') || detectedTools.has('HTML5')) {
+      detectedCategory = 'Templates';
+    } else {
+      detectedCategory = 'Dev Kits';
+    }
   }
 
-  if (detectedTags.size === 0) {
-    detectedTags.add('Production Asset');
-    detectedTags.add('Clean Code');
+  // Fallback tools if still empty
+  if (detectedTools.size === 0) {
+    if (detectedCategory === 'UI & Figma') {
+      detectedTools.add('Figma');
+      detectedTools.add('Vector UI Components');
+    } else if (detectedCategory === '3D & Spatial') {
+      detectedTools.add('3D Models / Assets');
+    } else if (detectedCategory === 'Motion & Audio') {
+      detectedTools.add('Audio & Motion Assets');
+    } else if (detectedCategory === 'Templates') {
+      detectedTools.add('Responsive Web Template');
+      detectedTools.add('HTML / CSS');
+    } else {
+      detectedTools.add('Universal Code Package');
+      detectedTools.add('TypeScript / JavaScript');
+    }
+  }
+
+  // Add rich category and tool keywords
+  detectedTags.add(detectedCategory.toLowerCase());
+  for (const t of detectedTools) {
+    detectedTags.add(t.toLowerCase().replace(/[^a-z0-9]+/g, '-'));
+  }
+  if (packageDetails?.name) {
+    const nameWords = packageDetails.name.toLowerCase().split(/\s+/).filter(w => w.length > 2);
+    for (const w of nameWords.slice(0, 4)) {
+      detectedTags.add(w);
+    }
   }
 
   // Generate SKU: KRO-{CAT}-{RANDOM}
@@ -870,7 +1058,7 @@ function inspectZipBuffer(buffer: Buffer, originalName = 'package.zip'): ZipScan
     compressedSizeFormatted: formatBytes(buffer.length),
     detectedTools: Array.from(detectedTools),
     detectedCategory,
-    detectedTags: Array.from(detectedTags),
+    detectedTags: Array.from(detectedTags).slice(0, 12),
     detectedFormats: Array.from(detectedFormats).slice(0, 8),
     suggestedSku,
     suggestedVersion,

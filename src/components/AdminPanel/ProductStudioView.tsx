@@ -7,7 +7,6 @@ import {
   CheckCircle2,
   AlertCircle,
   ShieldCheck,
-  ShieldAlert,
   Sparkles,
   Layers,
   Tag,
@@ -24,7 +23,9 @@ import {
   Check,
   Zap,
   Cpu,
-  CheckCircle
+  CheckCircle,
+  RefreshCw,
+  FolderOpen
 } from 'lucide-react';
 
 export interface ProductStudioData {
@@ -59,7 +60,6 @@ interface ProductStudioViewProps {
 
 // =========================================================================
 // STUNNING CIRCULAR UPLOAD PROGRESS WITH SMOOTH TICK-UP INTERPOLATION
-// Prevents abrupt jumps (e.g. directly jumping from 0 to 1MB or 4MB)
 // =========================================================================
 const StunningCircularUploadProgress: React.FC<{
   targetPercent: number;
@@ -85,7 +85,6 @@ const StunningCircularUploadProgress: React.FC<{
     return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
   };
 
-  // High-performance smooth interpolation engine
   useEffect(() => {
     let animId: number;
     let lastTime = performance.now();
@@ -97,8 +96,6 @@ const StunningCircularUploadProgress: React.FC<{
       setDisplayPercent(prev => {
         const goal = isComplete ? 100 : Math.max(targetPercent, 5);
         if (Math.abs(prev - goal) < 0.2) return goal;
-        // Smooth logarithmic easing towards target
-        const speed = isComplete ? 45 : 30;
         const diff = goal - prev;
         const step = diff * Math.min(dt * 8, 0.4) + (diff > 0 ? 0.1 : -0.1);
         const next = prev + step;
@@ -120,7 +117,6 @@ const StunningCircularUploadProgress: React.FC<{
     return () => cancelAnimationFrame(animId);
   }, [targetPercent, targetLoadedBytes, totalBytes, isComplete]);
 
-  // SVG Geometry constants (124px diameter)
   const size = 124;
   const strokeWidth = 6.5;
   const radius = (size - strokeWidth * 2) / 2;
@@ -132,7 +128,6 @@ const StunningCircularUploadProgress: React.FC<{
 
   return (
     <div className="p-8 bg-white border border-slate-200/90 rounded-3xl shadow-lg max-w-md mx-auto flex flex-col items-center justify-center text-center transition-all">
-      {/* Exquisite SVG Circular Ring */}
       <div className="relative flex items-center justify-center" style={{ width: size, height: size }}>
         <svg
           className="-rotate-90 filter drop-shadow-sm"
@@ -152,7 +147,6 @@ const StunningCircularUploadProgress: React.FC<{
             </linearGradient>
           </defs>
 
-          {/* Background track circle */}
           <circle
             cx={size / 2}
             cy={size / 2}
@@ -162,7 +156,6 @@ const StunningCircularUploadProgress: React.FC<{
             fill="transparent"
           />
 
-          {/* Dynamic Progress Stroke Ring with Smooth DashOffset */}
           <circle
             cx={size / 2}
             cy={size / 2}
@@ -177,12 +170,11 @@ const StunningCircularUploadProgress: React.FC<{
           />
         </svg>
 
-        {/* Center Percentage & Status Readout */}
         <div className="absolute inset-0 flex flex-col items-center justify-center">
           {isFinished ? (
             <div className="flex flex-col items-center animate-in fade-in zoom-in duration-300">
               <CheckCircle className="w-8 h-8 text-emerald-600" />
-              <span className="text-[10px] font-bold text-emerald-700 uppercase tracking-widest mt-1">Verified</span>
+              <span className="text-[10px] font-bold text-emerald-700 uppercase tracking-widest mt-1">Ready</span>
             </div>
           ) : (
             <div className="flex flex-col items-center">
@@ -191,14 +183,13 @@ const StunningCircularUploadProgress: React.FC<{
                 <span className="text-base font-semibold text-slate-400 font-mono ml-0.5">%</span>
               </span>
               <span className="text-[10px] font-bold text-orange-600 uppercase tracking-widest mt-1">
-                {clampedPercent > 80 ? 'Scanning' : 'Uploading'}
+                {clampedPercent > 80 ? 'Processing' : 'Uploading'}
               </span>
             </div>
           )}
         </div>
       </div>
 
-      {/* File Metrics & Live Smooth Byte Counter */}
       <div className="mt-5 w-full">
         {fileName && (
           <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-slate-50 border border-slate-200/80 rounded-full text-xs font-semibold text-slate-800 max-w-full truncate mb-2">
@@ -212,7 +203,6 @@ const StunningCircularUploadProgress: React.FC<{
           <span className="text-slate-400 font-normal">/ {formatSize(totalBytes)}</span>
         </div>
 
-        {/* Live Smooth Status Pill */}
         <div className="mt-2.5 flex items-center justify-center gap-2 text-xs font-medium text-slate-600">
           <span
             className={`w-2 h-2 rounded-full shrink-0 ${
@@ -221,8 +211,8 @@ const StunningCircularUploadProgress: React.FC<{
           />
           <span className="truncate max-w-xs">
             {isFinished
-              ? 'Package Ingested & Verified Clean ✓'
-              : statusText || 'Streaming package to secure storage...'}
+              ? 'Verification Completed ✓'
+              : statusText || 'Streaming file to secure storage...'}
           </span>
         </div>
       </div>
@@ -232,13 +222,12 @@ const StunningCircularUploadProgress: React.FC<{
 
 // =========================================================================
 // CIRCULAR STEP PROGRESS INDICATOR FOR TOP STUDIO HEADER
-// Displays a luxurious 44px radial ring with exact step completion %
 // =========================================================================
 const CircularStepIndicator: React.FC<{
   currentStep: number;
   totalSteps?: number;
 }> = ({ currentStep, totalSteps = 5 }) => {
-  const size = 46;
+  const size = 44;
   const strokeWidth = 3.5;
   const radius = (size - strokeWidth * 2) / 2;
   const circumference = 2 * Math.PI * radius;
@@ -292,9 +281,9 @@ const CircularStepIndicator: React.FC<{
             : currentStep === 2
             ? 'Story & Specs'
             : currentStep === 3
-            ? 'Gallery Media'
+            ? 'Product Thumbnail'
             : currentStep === 4
-            ? 'Package & AI Scan'
+            ? 'Package & Code Intelligence'
             : 'Review & Publish'}
         </div>
       </div>
@@ -317,8 +306,8 @@ export const ProductStudioView: React.FC<ProductStudioViewProps> = ({
   const [shortDescription, setShortDescription] = useState(initialProduct?.short_description || '');
   const [description, setDescription] = useState(initialProduct?.description || '');
   
-  // Category is automatically derived from ZIP inspection!
-  const [category, setCategory] = useState(initialProduct?.category || '');
+  // Category with sensible default (Dev Kits)
+  const [category, setCategory] = useState(initialProduct?.category || 'Dev Kits');
   
   const [price, setPrice] = useState(initialProduct?.price ? initialProduct.price.toString() : '49');
   const [salePrice, setSalePrice] = useState(initialProduct?.sale_price ? initialProduct.sale_price.toString() : '');
@@ -336,11 +325,12 @@ export const ProductStudioView: React.FC<ProductStudioViewProps> = ({
       : ['Instant Digital Download', 'Full Commercial License', 'Free Updates for 1 Year']
   );
   
-  const [thumbnail, setThumbnail] = useState(initialProduct?.thumbnail || '/src/assets/images/hero_white_orange_1790435384152.jpg');
+  // Clean thumbnail state: empty initially if creating a new product
+  const [thumbnail, setThumbnail] = useState<string>(initialProduct?.thumbnail || '');
   const [gallery, setGallery] = useState<string[]>(
     initialProduct?.gallery && initialProduct.gallery.length > 0
       ? initialProduct.gallery
-      : [initialProduct?.thumbnail || '/src/assets/images/hero_white_orange_1790435384152.jpg']
+      : (initialProduct?.thumbnail ? [initialProduct.thumbnail] : [])
   );
   
   const [fileUrl, setFileUrl] = useState(initialProduct?.file_url || '');
@@ -399,6 +389,10 @@ export const ProductStudioView: React.FC<ProductStudioViewProps> = ({
         setErrorNotice('Please enter an asset title before continuing.');
         return false;
       }
+      if (!category) {
+        setErrorNotice('Please choose a category for the product.');
+        return false;
+      }
     } else if (step === 2) {
       if (!description.trim()) {
         setErrorNotice('Please enter a description for the product.');
@@ -406,7 +400,7 @@ export const ProductStudioView: React.FC<ProductStudioViewProps> = ({
       }
     } else if (step === 3) {
       if (!thumbnail.trim()) {
-        setErrorNotice('Please upload at least one preview image.');
+        setErrorNotice('Please upload a product thumbnail cover image before proceeding.');
         return false;
       }
     } else if (step === 4) {
@@ -435,105 +429,90 @@ export const ProductStudioView: React.FC<ProductStudioViewProps> = ({
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  // Real Multi-Image Upload with XHR byte progress & smooth completion
-  const handleUploadGalleryImages = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = e.target.files;
-    if (!files || files.length === 0) return;
+  // Dedicated Product Thumbnail Upload & Instant Local Preview
+  const handleUploadThumbnail = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
 
     setErrorNotice(null);
-    const fileList = Array.from(files);
+    setActiveUploadFile(file.name);
 
-    fileList.forEach(file => {
-      setActiveUploadFile(file.name);
-      const effectiveToken = token || localStorage.getItem('kroma_admin_token') || 'admin_primary';
-      const xhr = new XMLHttpRequest();
-      const formData = new FormData();
-      formData.append('file', file);
-      formData.append('userId', 'admin_primary');
-      formData.append('folderType', 'thumbnails');
+    // Instant local preview via FileReader: guarantees that preview renders immediately
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      const dataUrl = ev.target?.result as string;
+      if (dataUrl) {
+        setThumbnail(dataUrl);
+        setGallery([dataUrl]);
+      }
+    };
+    reader.readAsDataURL(file);
 
-      setThumbUploadProgress({
-        active: true,
-        percent: 15,
-        loaded: Math.round(file.size * 0.15),
-        total: file.size,
-        isComplete: false
-      });
+    // Upload to server/R2 storage in background with smooth progress ring
+    const effectiveToken = token || localStorage.getItem('kroma_admin_token') || 'admin_primary';
+    const xhr = new XMLHttpRequest();
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('userId', 'admin_primary');
+    formData.append('folderType', 'thumbnails');
 
-      xhr.upload.onprogress = (event) => {
-        if (event.lengthComputable) {
-          const rawPercent = (event.loaded / event.total) * 100;
-          setThumbUploadProgress({
-            active: true,
-            percent: Math.min(rawPercent, 90),
-            loaded: event.loaded,
-            total: event.total,
-            isComplete: false
-          });
-        }
-      };
-
-      xhr.onload = () => {
-        if (xhr.status >= 200 && xhr.status < 300) {
-          try {
-            const data = JSON.parse(xhr.responseText);
-            const uploadedUrl = data.publicUrl || `/uploads/thumbnails/${data.filename || file.name}`;
-
-            setThumbUploadProgress(prev => (prev ? { ...prev, percent: 100, loaded: file.size, isComplete: true } : null));
-
-            setTimeout(() => {
-              setThumbUploadProgress(null);
-              setGallery(prev => Array.from(new Set([...prev, uploadedUrl])));
-              setThumbnail(prev => (prev.includes('hero_white_orange') ? uploadedUrl : prev));
-            }, 600);
-          } catch {
-            setThumbUploadProgress(null);
-            setErrorNotice('Image stored. Updating gallery view...');
-          }
-        } else {
-          // If server reported an issue, gracefully fall back to client Data URL so user is never blocked
-          const reader = new FileReader();
-          reader.onload = (ev) => {
-            const dataUrl = ev.target?.result as string;
-            if (dataUrl) {
-              setThumbUploadProgress(prev => (prev ? { ...prev, percent: 100, loaded: file.size, isComplete: true } : null));
-              setTimeout(() => {
-                setThumbUploadProgress(null);
-                setGallery(prev => Array.from(new Set([...prev, dataUrl])));
-                setThumbnail(prev => (prev.includes('hero_white_orange') ? dataUrl : prev));
-              }, 400);
-            }
-          };
-          reader.readAsDataURL(file);
-        }
-      };
-
-      xhr.onerror = () => {
-        // Fallback to local Data URL on network error
-        const reader = new FileReader();
-        reader.onload = (ev) => {
-          const dataUrl = ev.target?.result as string;
-          if (dataUrl) {
-            setThumbUploadProgress(prev => (prev ? { ...prev, percent: 100, loaded: file.size, isComplete: true } : null));
-            setTimeout(() => {
-              setThumbUploadProgress(null);
-              setGallery(prev => Array.from(new Set([...prev, dataUrl])));
-              setThumbnail(prev => (prev.includes('hero_white_orange') ? dataUrl : prev));
-            }, 400);
-          }
-        };
-        reader.readAsDataURL(file);
-      };
-
-      xhr.open('POST', '/api/admin/r2/upload');
-      xhr.setRequestHeader('Authorization', `Bearer ${effectiveToken}`);
-      xhr.send(formData);
+    setThumbUploadProgress({
+      active: true,
+      percent: 15,
+      loaded: Math.round(file.size * 0.15),
+      total: file.size,
+      isComplete: false
     });
+
+    xhr.upload.onprogress = (event) => {
+      if (event.lengthComputable) {
+        const rawPercent = (event.loaded / event.total) * 100;
+        setThumbUploadProgress({
+          active: true,
+          percent: Math.min(rawPercent, 90),
+          loaded: event.loaded,
+          total: event.total,
+          isComplete: false
+        });
+      }
+    };
+
+    xhr.onload = () => {
+      if (xhr.status >= 200 && xhr.status < 300) {
+        try {
+          const data = JSON.parse(xhr.responseText);
+          const serverUrl = data.publicUrl || `/uploads/thumbnails/${data.filename || file.name}`;
+
+          setThumbUploadProgress(prev => (prev ? { ...prev, percent: 100, loaded: file.size, isComplete: true } : null));
+
+          setTimeout(() => {
+            setThumbUploadProgress(null);
+            setThumbnail(serverUrl);
+            setGallery([serverUrl]);
+          }, 600);
+        } catch {
+          setThumbUploadProgress(null);
+        }
+      } else {
+        // Fall back gracefully to the already-rendered FileReader data URL
+        setThumbUploadProgress(prev => (prev ? { ...prev, percent: 100, loaded: file.size, isComplete: true } : null));
+        setTimeout(() => setThumbUploadProgress(null), 400);
+      }
+    };
+
+    xhr.onerror = () => {
+      setThumbUploadProgress(prev => (prev ? { ...prev, percent: 100, loaded: file.size, isComplete: true } : null));
+      setTimeout(() => setThumbUploadProgress(null), 400);
+    };
+
+    xhr.open('POST', '/api/admin/r2/upload');
+    xhr.setRequestHeader('Authorization', `Bearer ${effectiveToken}`);
+    xhr.send(formData);
 
     if (thumbInputRef.current) thumbInputRef.current.value = '';
   };
 
-  // Real ZIP Package Ingestion + Smooth Progress + 5-Layer Security Scan + Auto-Categorization
+  // Real ZIP Package Ingestion + 5-Layer Security Scan + Auto-Categorization & Stack Extraction
   const handleUploadZipPackage = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -570,7 +549,7 @@ export const ProductStudioView: React.FC<ProductStudioViewProps> = ({
           loaded: event.loaded,
           total: event.total,
           statusText: boundedPercent > 65
-            ? 'Running 5-layer security scan & stack intelligence...'
+            ? 'Analyzing package structure, dependencies & security scan...'
             : 'Streaming archive to secure storage...',
           isComplete: false
         });
@@ -583,7 +562,6 @@ export const ProductStudioView: React.FC<ProductStudioViewProps> = ({
           const resp = JSON.parse(xhr.responseText);
           const scan = resp.scan;
 
-          // Smoothly finish progress to 100%
           setZipUploadProgress(prev =>
             prev
               ? {
@@ -603,18 +581,26 @@ export const ProductStudioView: React.FC<ProductStudioViewProps> = ({
             setFileUrl(resp.fileUrl || `r2://${resp.key}`);
             setFileSize(resp.fileSize || scan.formattedCompressedSize || '15 MB');
 
-            // AUTOMATIC CATEGORY ASSIGNMENT (fetched directly from ZIP files)
-            const detectedCat = scan.suggestedCategory || scan.detectedCategory || 'Dev Kits';
+            // 1. AUTOMATIC CATEGORY ASSIGNMENT
+            const detectedCat = scan.detectedCategory || scan.suggestedCategory || 'Dev Kits';
             setCategory(detectedCat);
 
-            // AUTOMATIC TOOLS & FRAMEWORKS EXTRACTION
-            if (scan.detectedTools && Array.isArray(scan.detectedTools) && scan.detectedTools.length > 0) {
-              setTools(prev => Array.from(new Set([...prev, ...scan.detectedTools])));
+            // 2. AUTOMATIC TOOLS & FRAMEWORKS EXTRACTION
+            const incomingTools = scan.detectedTools || scan.tools || [];
+            if (Array.isArray(incomingTools) && incomingTools.length > 0) {
+              setTools(prev => Array.from(new Set([...prev, ...incomingTools])));
             }
 
-            // AUTOMATIC TAGS & KEYWORDS GENERATION
-            if (scan.suggestedTags && Array.isArray(scan.suggestedTags) && scan.suggestedTags.length > 0) {
-              setTags(prev => Array.from(new Set([...prev, ...scan.suggestedTags])));
+            // 3. AUTOMATIC TAGS & KEYWORDS GENERATION
+            const incomingTags = scan.detectedTags || scan.suggestedTags || [];
+            if (Array.isArray(incomingTags) && incomingTags.length > 0) {
+              setTags(prev => Array.from(new Set([...prev, ...incomingTags])));
+            }
+
+            // 4. AUTOMATIC FORMATS
+            const incomingFormats = scan.detectedFormats || scan.formats || ['.zip'];
+            if (Array.isArray(incomingFormats) && incomingFormats.length > 0) {
+              setFormats(prev => Array.from(new Set([...prev, ...incomingFormats])));
             }
 
             if (scan.suggestedSku && (!sku || sku.trim() === '')) {
@@ -631,7 +617,7 @@ export const ProductStudioView: React.FC<ProductStudioViewProps> = ({
             }
 
             setAutoDetectNotice(
-              `ZIP Successfully Analyzed: Assigned category "${detectedCat}", detected ${scan.detectedTools?.length || 0} tools/frameworks, and generated keywords.`
+              `ZIP Successfully Analyzed: Assigned category "${detectedCat}", detected ${incomingTools.length} tools/frameworks, and generated ${incomingTags.length} searchable keywords.`
             );
           }, 900);
         } catch {
@@ -715,8 +701,8 @@ export const ProductStudioView: React.FC<ProductStudioViewProps> = ({
       formats,
       tags,
       features,
-      thumbnail,
-      gallery,
+      thumbnail: thumbnail.trim(),
+      gallery: [thumbnail.trim()],
       file_url: fileUrl,
       file_size: fileSize || '24 MB',
       security_scan: securityScan,
@@ -726,12 +712,13 @@ export const ProductStudioView: React.FC<ProductStudioViewProps> = ({
     try {
       const url = initialProduct?.id ? `/api/products/${initialProduct.id}` : '/api/products';
       const method = initialProduct?.id ? 'PUT' : 'POST';
+      const effectiveToken = token || localStorage.getItem('kroma_admin_token') || 'admin_primary';
 
       const res = await fetch(url, {
         method,
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`
+          Authorization: `Bearer ${effectiveToken}`
         },
         body: JSON.stringify(payload)
       });
@@ -753,7 +740,7 @@ export const ProductStudioView: React.FC<ProductStudioViewProps> = ({
 
   return (
     <div className="space-y-6">
-      {/* Top Breadcrumb & Circular Step Progress Bar */}
+      {/* Top Navigation Bar: Breadcrumb + Step Indicator (Discard/Save Draft/Publish Live REMOVED as requested) */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-200">
         <div className="flex items-center gap-3">
           <button
@@ -767,33 +754,6 @@ export const ProductStudioView: React.FC<ProductStudioViewProps> = ({
           
           {/* Beautiful Circular Step Completion Ring */}
           <CircularStepIndicator currentStep={currentStep} totalSteps={5} />
-        </div>
-
-        {/* Quick Actions */}
-        <div className="flex items-center gap-2">
-          <button
-            type="button"
-            onClick={onBack}
-            className="px-4 py-2 text-xs font-semibold text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded-xl transition-colors"
-          >
-            Discard
-          </button>
-          <button
-            type="button"
-            disabled={saving}
-            onClick={() => handleFinalSubmit('draft')}
-            className="px-4 py-2 text-xs font-semibold text-slate-700 bg-white border border-slate-200 hover:bg-slate-50 rounded-xl transition-all shadow-xs"
-          >
-            Save Draft
-          </button>
-          <button
-            type="button"
-            disabled={saving}
-            onClick={() => handleFinalSubmit('published')}
-            className="px-5 py-2 text-xs font-bold text-white bg-orange-600 hover:bg-orange-700 rounded-xl transition-all shadow-xs shadow-orange-600/20"
-          >
-            {saving ? 'Publishing...' : 'Publish Live'}
-          </button>
         </div>
       </div>
 
@@ -834,7 +794,7 @@ export const ProductStudioView: React.FC<ProductStudioViewProps> = ({
             <div>
               <h2 className="text-lg font-bold text-slate-900 tracking-tight">Step 1: Asset Identity & Market Positioning</h2>
               <p className="text-xs text-slate-500 mt-1">
-                Enter your product title and value proposition. Project category, tools, and keywords will be automatically detected when you upload the ZIP archive.
+                Enter your product title and category. Categories, tools, and keywords will also be automatically detected when you upload the ZIP archive.
               </p>
             </div>
 
@@ -874,22 +834,35 @@ export const ProductStudioView: React.FC<ProductStudioViewProps> = ({
               />
             </div>
 
+            {/* Category Dropdown Selector (Clear, manual override & auto-synced) */}
+            <div>
+              <div className="flex items-center justify-between mb-1.5">
+                <label className="text-xs font-semibold text-slate-700">
+                  Marketplace Category <span className="text-orange-600">*</span>
+                </label>
+                <span className="text-[11px] text-slate-400">Auto-detected from ZIP or choose manually</span>
+              </div>
+              <select
+                value={category}
+                onChange={(e) => setCategory(e.target.value)}
+                className="w-full px-4 py-3 bg-slate-50/50 border border-slate-200 rounded-xl text-sm font-semibold text-slate-900 focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all cursor-pointer"
+              >
+                <option value="Dev Kits">Dev Kits (Next.js, React, SaaS & Fullstack Starters)</option>
+                <option value="UI & Figma">UI & Figma (Design Systems, UI Kits & Wireframes)</option>
+                <option value="Templates">Templates (HTML/CSS, WordPress Themes & Landing Pages)</option>
+                <option value="3D & Spatial">3D & Spatial (Blender, Three.js, WebGL & Models)</option>
+                <option value="Motion & Audio">Motion & Audio (Lottie, Sound FX & Haptics)</option>
+              </select>
+            </div>
+
             {/* Intelligent Automation Badge */}
             <div className="p-4 bg-orange-50/60 border border-orange-200/80 rounded-2xl flex items-start gap-3">
               <Sparkles className="w-5 h-5 text-orange-600 shrink-0 mt-0.5" />
               <div>
                 <span className="text-xs font-bold text-orange-950 block">Automated Category & Stack Intelligence</span>
                 <p className="text-xs text-orange-800/90 mt-0.5 leading-relaxed">
-                  You don't need to manually pick categories or enter keywords. When you upload your project ZIP package, the system will automatically inspect dependencies, detect the exact frameworks and project type, and assign the appropriate category and searchable keywords.
+                  When you upload your digital package in Step 4, the backend will inspect your code, automatically verify dependencies, and sync the category, tools, and search tags. You can also customize the category anytime using the selector above.
                 </p>
-                {category && (
-                  <div className="mt-2 flex items-center gap-2">
-                    <span className="text-[11px] font-semibold text-orange-900">Current Assigned Category:</span>
-                    <span className="px-2.5 py-0.5 rounded-md bg-white border border-orange-200 text-xs font-bold text-orange-700">
-                      {category}
-                    </span>
-                  </div>
-                )}
               </div>
             </div>
 
@@ -913,7 +886,7 @@ export const ProductStudioView: React.FC<ProductStudioViewProps> = ({
           <div className="space-y-6 max-w-3xl">
             <div>
               <h2 className="text-lg font-bold text-slate-900 tracking-tight">Step 2: Product Story & Deep Specifications</h2>
-              <p className="text-xs text-slate-500 mt-1">Provide clear, compelling documentation and feature highlights for prospective buyers.</p>
+              <p className="text-xs text-slate-500 mt-1">Provide clear documentation and feature highlights for prospective buyers.</p>
             </div>
 
             {/* Short Description */}
@@ -997,120 +970,105 @@ export const ProductStudioView: React.FC<ProductStudioViewProps> = ({
         )}
 
         {/* ========================================================================= */}
-        {/* STEP 3: MEDIA & MULTI-IMAGE GALLERY STUDIO                                */}
+        {/* STEP 3: DEDICATED THUMBNAIL COVER VIEWER & SHOWCASE                       */}
+        {/* (All old gallery clutter removed, beautiful preview card added)            */}
         {/* ========================================================================= */}
         {currentStep === 3 && (
           <div className="space-y-6 max-w-3xl">
             <div>
-              <h2 className="text-lg font-bold text-slate-900 tracking-tight">Step 3: Media & Multi-Image Gallery</h2>
-              <p className="text-xs text-slate-500 mt-1">Upload high-resolution preview screenshots. Images stream directly to Cloudflare R2 storage.</p>
+              <h2 className="text-lg font-bold text-slate-900 tracking-tight">Step 3: Product Thumbnail & Card Cover</h2>
+              <p className="text-xs text-slate-500 mt-1">Upload the primary showcase thumbnail displayed across the store catalog, cards, and search results.</p>
             </div>
 
-            {/* Hidden Input for Real Upload */}
+            {/* Hidden Input for Thumbnail File Selection */}
             <input
               ref={thumbInputRef}
               type="file"
               accept="image/png,image/jpeg,image/webp,image/gif"
-              multiple
               className="hidden"
-              onChange={handleUploadGalleryImages}
+              onChange={handleUploadThumbnail}
             />
 
-            {/* Upload Zone with Stunning Circular Progress Animation */}
+            {/* Uploading with Smooth Circular Progress Ring */}
             {thumbUploadProgress?.active ? (
               <StunningCircularUploadProgress
                 targetPercent={thumbUploadProgress.percent}
                 targetLoadedBytes={thumbUploadProgress.loaded}
                 totalBytes={thumbUploadProgress.total}
-                statusText="Streaming screenshot to Cloudflare R2 storage..."
+                statusText="Ingesting cover image to storage..."
                 fileName={activeUploadFile}
                 isComplete={thumbUploadProgress.isComplete}
               />
+            ) : thumbnail ? (
+              /* High-Fidelity Dedicated Thumbnail Preview Viewer Card */
+              <div className="p-6 bg-slate-50/80 border border-slate-200 rounded-3xl space-y-4">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <Sparkles className="w-4 h-4 text-orange-600" />
+                    <span className="text-xs font-bold text-slate-900">Current Showcase Thumbnail Preview</span>
+                  </div>
+                  <span className="px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-[10px] font-bold uppercase tracking-wider">
+                    Active Cover
+                  </span>
+                </div>
+
+                {/* Big, Crisp, Beautiful Image Preview Canvas */}
+                <div className="relative aspect-[16/10] sm:aspect-[16/9] w-full rounded-2xl overflow-hidden border border-slate-200/90 shadow-sm bg-slate-950/5">
+                  <img
+                    src={thumbnail}
+                    alt="Product Cover Preview"
+                    referrerPolicy="no-referrer"
+                    className="w-full h-full object-cover transition-transform duration-500 hover:scale-[1.01]"
+                  />
+                  <div className="absolute top-3 left-3 px-3 py-1 rounded-xl bg-slate-950/80 backdrop-blur-md text-white text-xs font-bold flex items-center gap-1.5 shadow-md">
+                    <Star className="w-3.5 h-3.5 text-amber-400 fill-amber-400" />
+                    <span>Storefront Cover Image</span>
+                  </div>
+                </div>
+
+                {/* Action Buttons to Replace or Remove */}
+                <div className="flex items-center justify-between pt-2">
+                  <span className="text-xs text-slate-500">
+                    Recommended: 1200×750px PNG, JPG, or WEBP (16:10 or 16:9 ratio)
+                  </span>
+                  <div className="flex items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={() => setThumbnail('')}
+                      className="px-3.5 py-2 text-xs font-semibold text-rose-600 hover:text-rose-700 hover:bg-rose-50 rounded-xl transition-colors border border-rose-200"
+                    >
+                      Remove
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => thumbInputRef.current?.click()}
+                      className="flex items-center gap-1.5 px-4 py-2 bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold rounded-xl transition-all shadow-xs"
+                    >
+                      <RefreshCw className="w-3.5 h-3.5" />
+                      <span>Replace Thumbnail</span>
+                    </button>
+                  </div>
+                </div>
+              </div>
             ) : (
+              /* Clean Drag-and-Drop Empty State Upload Zone */
               <div
                 onClick={() => thumbInputRef.current?.click()}
-                className="p-8 border-2 border-dashed border-slate-200 hover:border-orange-500/60 rounded-3xl bg-slate-50/40 hover:bg-orange-50/20 text-center cursor-pointer transition-all group"
+                className="p-10 border-2 border-dashed border-slate-200 hover:border-orange-500/60 rounded-3xl bg-slate-50/40 hover:bg-orange-50/20 text-center cursor-pointer transition-all group"
               >
-                <div className="w-12 h-12 rounded-2xl bg-white border border-slate-200 text-slate-600 group-hover:text-orange-600 group-hover:border-orange-200 flex items-center justify-center mx-auto transition-colors shadow-xs">
-                  <UploadCloud className="w-6 h-6" />
+                <div className="w-14 h-14 rounded-2xl bg-white border border-slate-200 text-slate-600 group-hover:text-orange-600 group-hover:border-orange-200 flex items-center justify-center mx-auto transition-colors shadow-xs">
+                  <UploadCloud className="w-7 h-7" />
                 </div>
-                <h3 className="text-sm font-bold text-slate-900 mt-3">Upload Screenshots & Cover Shots</h3>
-                <p className="text-xs text-slate-500 mt-1">PNG, JPG, or WEBP up to 25MB each. Click to select files.</p>
+                <h3 className="text-sm font-bold text-slate-900 mt-3.5">Upload Product Showcase Thumbnail</h3>
+                <p className="text-xs text-slate-500 mt-1">PNG, JPG, or WEBP up to 25MB (16:10 or 16:9 ratio recommended). Click to select.</p>
                 <button
                   type="button"
-                  className="mt-4 px-4 py-2 bg-white border border-slate-200 text-slate-700 text-xs font-bold rounded-xl shadow-xs hover:bg-slate-50"
+                  className="mt-5 px-5 py-2.5 bg-white border border-slate-200 text-slate-700 text-xs font-bold rounded-xl shadow-xs hover:bg-slate-50"
                 >
-                  Select From Device
+                  Select Image File
                 </button>
               </div>
             )}
-
-            {/* Gallery Image Manager Grid */}
-            <div className="space-y-3">
-              <div className="flex items-center justify-between">
-                <span className="text-xs font-semibold text-slate-900">
-                  Uploaded Gallery Assets ({gallery.length})
-                </span>
-                <span className="text-[11px] text-slate-500">Click "Set Cover" to select primary card thumbnail</span>
-              </div>
-
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                {gallery.map((imgUrl, idx) => {
-                  const isPrimary = thumbnail === imgUrl;
-                  return (
-                    <div
-                      key={idx}
-                      className={`relative aspect-[16/10] rounded-2xl overflow-hidden border transition-all group ${
-                        isPrimary
-                          ? 'border-orange-500 ring-2 ring-orange-500/20 shadow-sm'
-                          : 'border-slate-200 bg-slate-100 hover:border-slate-300'
-                      }`}
-                    >
-                      <img
-                        src={imgUrl}
-                        alt={`Asset preview ${idx + 1}`}
-                        referrerPolicy="no-referrer"
-                        className="w-full h-full object-cover"
-                      />
-
-                      {/* Primary Badge */}
-                      {isPrimary && (
-                        <div className="absolute top-2 left-2 px-2 py-0.5 rounded-md bg-orange-600 text-white text-[10px] font-bold uppercase tracking-wider shadow-sm flex items-center gap-1">
-                          <Star className="w-3 h-3 fill-white" />
-                          <span>Primary Cover</span>
-                        </div>
-                      )}
-
-                      {/* Hover Controls */}
-                      <div className="absolute inset-0 bg-slate-950/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2 p-2">
-                        {!isPrimary && (
-                          <button
-                            type="button"
-                            onClick={() => setThumbnail(imgUrl)}
-                            className="px-2.5 py-1 bg-white text-slate-900 rounded-lg text-xs font-bold shadow-sm hover:bg-orange-50"
-                          >
-                            Set Cover
-                          </button>
-                        )}
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setGallery(prev => prev.filter((_, i) => i !== idx));
-                            if (isPrimary && gallery.length > 1) {
-                              const remaining = gallery.filter((_, i) => i !== idx);
-                              setThumbnail(remaining[0]);
-                            }
-                          }}
-                          className="w-7 h-7 bg-white text-rose-600 rounded-lg flex items-center justify-center hover:bg-rose-50 transition-colors shadow-sm"
-                        >
-                          <Trash2 className="w-3.5 h-3.5" />
-                        </button>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
           </div>
         )}
 
@@ -1121,9 +1079,9 @@ export const ProductStudioView: React.FC<ProductStudioViewProps> = ({
         {currentStep === 4 && (
           <div className="space-y-6 max-w-3xl">
             <div>
-              <h2 className="text-lg font-bold text-slate-900 tracking-tight">Step 4: Digital Package Ingestion & Auto-Detection</h2>
+              <h2 className="text-lg font-bold text-slate-900 tracking-tight">Step 4: Digital Package Ingestion & Code Intelligence</h2>
               <p className="text-xs text-slate-500 mt-1">
-                Upload your product ZIP archive. The system automatically inspects code structure, extracts tools and frameworks, assigns the category, and builds keywords.
+                Upload your product ZIP archive. The engine inspects dependencies, detects used tools and frameworks, assigns the category, and generates searchable keywords.
               </p>
             </div>
 
@@ -1196,11 +1154,11 @@ export const ProductStudioView: React.FC<ProductStudioViewProps> = ({
                       Auto-Assigned Category
                     </span>
                     <span className="text-sm font-bold text-slate-900">
-                      {category || 'Dev Kits'}
+                      {category}
                     </span>
                   </div>
                   <span className="px-2.5 py-1 rounded-md bg-orange-100 text-orange-800 text-[10px] font-bold uppercase tracking-wider">
-                    Auto-Detected
+                    Synced with Category
                   </span>
                 </div>
 
@@ -1210,7 +1168,7 @@ export const ProductStudioView: React.FC<ProductStudioViewProps> = ({
                     <span className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">
                       Detected Tools & Frameworks ({tools.length})
                     </span>
-                    <span className="text-[10px] text-slate-400">Extracted from package.json</span>
+                    <span className="text-[10px] text-slate-400">Extracted from code dependencies</span>
                   </div>
                   <div className="flex flex-wrap gap-1.5">
                     {tools.map((t, idx) => (
@@ -1242,7 +1200,7 @@ export const ProductStudioView: React.FC<ProductStudioViewProps> = ({
               </div>
             )}
 
-            {/* Quick add custom Tool or Keyword if desired */}
+            {/* Quick add custom Tool or Keyword */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="p-4 bg-slate-50/50 border border-slate-200 rounded-2xl space-y-2">
                 <label className="text-xs font-semibold text-slate-700 block">Add Tool / Framework</label>
@@ -1337,21 +1295,27 @@ export const ProductStudioView: React.FC<ProductStudioViewProps> = ({
           <div className="space-y-6 max-w-3xl">
             <div>
               <h2 className="text-lg font-bold text-slate-900 tracking-tight">Step 5: Review & Publish Dossier</h2>
-              <p className="text-xs text-slate-500 mt-1">Review your product presentation, automatically assigned category, and detected stack before publishing.</p>
+              <p className="text-xs text-slate-500 mt-1">Review your product presentation, assigned category, and detected stack before publishing.</p>
             </div>
 
             {/* Visual Executive Summary Card */}
             <div className="border border-slate-200 rounded-2xl overflow-hidden bg-white shadow-xs">
               <div className="grid grid-cols-1 sm:grid-cols-12">
                 <div className="sm:col-span-5 relative aspect-[16/10] sm:aspect-auto bg-slate-100">
-                  <img
-                    src={thumbnail}
-                    alt={title}
-                    referrerPolicy="no-referrer"
-                    className="w-full h-full object-cover"
-                  />
+                  {thumbnail ? (
+                    <img
+                      src={thumbnail}
+                      alt={title}
+                      referrerPolicy="no-referrer"
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center text-slate-400 text-xs">
+                      No cover selected
+                    </div>
+                  )}
                   <div className="absolute top-3 left-3 px-2 py-0.5 rounded-md bg-slate-950/80 backdrop-blur-md text-white text-[10px] font-bold uppercase tracking-wider">
-                    {category || 'Dev Kits'}
+                    {category}
                   </div>
                 </div>
 
@@ -1380,13 +1344,13 @@ export const ProductStudioView: React.FC<ProductStudioViewProps> = ({
                   {/* Tools preview */}
                   {tools.length > 0 && (
                     <div className="mt-4 pt-3 border-t border-slate-100 flex flex-wrap gap-1">
-                      {tools.slice(0, 5).map((t, idx) => (
+                      {tools.slice(0, 6).map((t, idx) => (
                         <span key={idx} className="px-2 py-0.5 rounded text-[10px] font-semibold bg-slate-100 text-slate-700">
                           {t}
                         </span>
                       ))}
-                      {tools.length > 5 && (
-                        <span className="px-2 py-0.5 rounded text-[10px] text-slate-400">+{tools.length - 5} more</span>
+                      {tools.length > 6 && (
+                        <span className="px-2 py-0.5 rounded text-[10px] text-slate-400">+{tools.length - 6} more</span>
                       )}
                     </div>
                   )}
