@@ -14,7 +14,7 @@ import {
   Layers,
   Box
 } from 'lucide-react';
-import { ProductStudioModal, ProductStudioData } from './ProductStudioModal';
+import { ProductStudioView, ProductStudioData } from './ProductStudioView';
 
 interface ProductsTabProps {
   token: string;
@@ -23,7 +23,7 @@ interface ProductsTabProps {
 export const ProductsTab: React.FC<ProductsTabProps> = ({ token }) => {
   const [products, setProducts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const [isStudioOpen, setIsStudioOpen] = useState(false);
+  const [viewMode, setViewMode] = useState<'list' | 'studio'>('list');
   const [editingProduct, setEditingProduct] = useState<ProductStudioData | null>(null);
   const [notice, setNotice] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
 
@@ -48,7 +48,8 @@ export const ProductsTab: React.FC<ProductsTabProps> = ({ token }) => {
 
   const handleOpenAdd = () => {
     setEditingProduct(null);
-    setIsStudioOpen(true);
+    setViewMode('studio');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const handleOpenEdit = (p: any) => {
@@ -74,7 +75,8 @@ export const ProductsTab: React.FC<ProductsTabProps> = ({ token }) => {
       security_scan: p.security_scan || null,
       status: p.status || 'published'
     });
-    setIsStudioOpen(true);
+    setViewMode('studio');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const handleDeleteProduct = async (id: string) => {
@@ -98,174 +100,235 @@ export const ProductsTab: React.FC<ProductsTabProps> = ({ token }) => {
     setNotice({
       type: 'success',
       message: editingProduct
-        ? `Asset "${saved.title}" updated successfully!`
-        : `Asset "${saved.title}" published with full security verification!`
+        ? `Product "${saved.title}" updated successfully.`
+        : `Product "${saved.title}" published to catalog.`
     });
+    setViewMode('list');
+    setEditingProduct(null);
     fetchProducts();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
+  const handleToggleStatus = async (p: any) => {
+    const newStatus = p.status === 'published' ? 'draft' : 'published';
+    try {
+      const res = await fetch(`/api/products/${p.id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify({ ...p, status: newStatus })
+      });
+      if (res.ok) {
+        setProducts(prev => prev.map(item => item.id === p.id ? { ...item, status: newStatus } : item));
+        setNotice({ type: 'success', message: `Product status changed to ${newStatus}.` });
+      }
+    } catch (e) {
+      console.error('Failed to toggle status', e);
+    }
+  };
+
+  // If in studio view, render the in-page Studio View (NO POPUP / NO MODAL)
+  if (viewMode === 'studio') {
+    return (
+      <ProductStudioView
+        token={token}
+        initialProduct={editingProduct}
+        onBack={() => {
+          setViewMode('list');
+          setEditingProduct(null);
+        }}
+        onSaved={handleProductSaved}
+      />
+    );
+  }
+
+  // Otherwise, render catalog list table
   return (
     <div className="space-y-6">
-      {/* Tab Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <h2 className="text-xl font-bold text-slate-900 tracking-tight">Products & Digital Inventory</h2>
-          <p className="text-xs text-slate-500 mt-1">
-            Publish engineering assets, design systems, and boilerplates with automatic 5-layer security verification and framework auto-detection.
-          </p>
-        </div>
-
-        <button
-          onClick={handleOpenAdd}
-          className="inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-orange-600 hover:bg-orange-700 active:scale-[0.99] text-white text-xs font-semibold rounded-xl shadow-sm transition-all"
-        >
-          <Plus className="w-4 h-4" />
-          <span>Add Digital Product</span>
-        </button>
-      </div>
-
+      {/* Notice Banner */}
       {notice && (
         <div
-          className={`p-4 rounded-xl text-xs flex items-start justify-between gap-2.5 ${
+          className={`p-4 rounded-2xl flex items-center justify-between text-xs ${
             notice.type === 'success'
-              ? 'bg-emerald-50 border border-emerald-200 text-emerald-800'
-              : 'bg-red-50 border border-red-200 text-red-700'
+              ? 'bg-emerald-50 text-emerald-800 border border-emerald-200'
+              : 'bg-rose-50 text-rose-800 border border-rose-200'
           }`}
         >
           <div className="flex items-center gap-2">
             {notice.type === 'success' ? (
               <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
             ) : (
-              <AlertCircle className="w-4 h-4 text-red-600 shrink-0" />
+              <AlertCircle className="w-4 h-4 text-rose-600 shrink-0" />
             )}
-            <span className="leading-relaxed font-medium">{notice.message}</span>
+            <span>{notice.message}</span>
           </div>
-          <button
-            onClick={() => setNotice(null)}
-            className="text-slate-400 hover:text-slate-700 font-bold"
-          >
-            ×
+          <button onClick={() => setNotice(null)} className="font-bold opacity-70 hover:opacity-100">
+            Dismiss
           </button>
         </div>
       )}
 
-      {/* Catalog Table */}
-      <div className="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
+      {/* Top Header & Metrics */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <h1 className="text-xl font-bold text-slate-900 tracking-tight">Products & Inventory</h1>
+          <p className="text-xs text-slate-500 mt-0.5">
+            Manage your digital goods catalog, Cloudflare R2 archive packages, and pricing tiers.
+          </p>
+        </div>
+
+        <button
+          onClick={handleOpenAdd}
+          className="inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-orange-600 hover:bg-orange-700 text-white text-xs font-bold rounded-xl shadow-xs shadow-orange-600/20 transition-all active:scale-98"
+        >
+          <Plus className="w-4 h-4" />
+          <span>Add Digital Asset</span>
+        </button>
+      </div>
+
+      {/* Quick Stats Grid */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
+        <div className="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-xs">
+          <span className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider block">Total Products</span>
+          <span className="text-2xl font-black text-slate-900 mt-1 block tabular-nums">{products.length}</span>
+        </div>
+        <div className="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-xs">
+          <span className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider block">Active Live</span>
+          <span className="text-2xl font-black text-emerald-600 mt-1 block tabular-nums">
+            {products.filter(p => p.status === 'published' || !p.status).length}
+          </span>
+        </div>
+        <div className="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-xs">
+          <span className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider block">Drafts / Staging</span>
+          <span className="text-2xl font-black text-amber-600 mt-1 block tabular-nums">
+            {products.filter(p => p.status === 'draft').length}
+          </span>
+        </div>
+        <div className="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-xs">
+          <span className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider block">Protected Files</span>
+          <span className="text-2xl font-black text-orange-600 mt-1 block tabular-nums">
+            {products.filter(p => p.file_url).length}
+          </span>
+        </div>
+      </div>
+
+      {/* Product List Table */}
+      <div className="bg-white rounded-3xl border border-slate-200/80 shadow-xs overflow-hidden">
+        <div className="px-6 py-4 border-b border-slate-100 flex items-center justify-between">
+          <span className="text-xs font-bold text-slate-900 uppercase tracking-wider">Catalog Inventory</span>
+          <span className="text-xs text-slate-400 font-mono">{products.length} Items</span>
+        </div>
+
         {loading ? (
-          <div className="p-12 text-center text-xs text-slate-400">Loading catalog inventory...</div>
+          <div className="p-12 text-center text-slate-400 text-xs">
+            <div className="w-6 h-6 border-2 border-orange-500 border-t-transparent rounded-full animate-spin mx-auto mb-2" />
+            Loading catalog...
+          </div>
         ) : products.length === 0 ? (
-          <div className="p-12 text-center">
-            <Package className="w-10 h-10 text-slate-300 mx-auto mb-2" />
-            <div className="text-sm font-semibold text-slate-700">No products in database</div>
-            <p className="text-xs text-slate-400 mt-1">Click "Add Digital Product" to publish your first asset.</p>
+          <div className="p-12 text-center text-slate-500 space-y-3">
+            <Package className="w-10 h-10 text-slate-300 mx-auto" />
+            <p className="text-xs">No digital products registered yet.</p>
+            <button
+              onClick={handleOpenAdd}
+              className="px-4 py-2 bg-orange-600 text-white rounded-xl text-xs font-bold shadow-xs hover:bg-orange-700"
+            >
+              Add First Asset
+            </button>
           </div>
         ) : (
           <div className="overflow-x-auto">
-            <table className="w-full text-left text-xs">
+            <table className="w-full text-left border-collapse">
               <thead>
-                <tr className="border-b border-slate-200 bg-slate-50 text-slate-500 font-semibold uppercase tracking-wider text-[10px]">
-                  <th className="py-3 px-4">Product Details</th>
-                  <th className="py-3 px-4">Category & SKU</th>
+                <tr className="border-b border-slate-100 bg-slate-50/60 text-[11px] font-bold text-slate-500 uppercase tracking-wider">
+                  <th className="py-3 px-6">Product</th>
+                  <th className="py-3 px-4">Category</th>
                   <th className="py-3 px-4">Price</th>
-                  <th className="py-3 px-4">Security Grade</th>
+                  <th className="py-3 px-4">Package</th>
                   <th className="py-3 px-4">Status</th>
-                  <th className="py-3 px-4">Sales</th>
-                  <th className="py-3 px-4 text-right">Actions</th>
+                  <th className="py-3 px-6 text-right">Actions</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-100">
+              <tbody className="divide-y divide-slate-100 text-xs">
                 {products.map((p) => {
-                  const saleP = p.sale_price !== null && p.sale_price !== undefined ? parseFloat(p.sale_price) : undefined;
-                  const regP = parseFloat(p.price) || 0;
+                  const isPublished = p.status === 'published' || !p.status;
+                  const thumb = p.thumbnail || p.cover_image || '/src/assets/images/hero_white_orange_1790435384152.jpg';
 
                   return (
-                    <tr key={p.id} className="hover:bg-slate-50">
-                      <td className="py-3 px-4">
+                    <tr key={p.id} className="hover:bg-slate-50/60 transition-colors">
+                      <td className="py-3.5 px-6">
                         <div className="flex items-center gap-3">
                           <img
-                            src={p.thumbnail}
+                            src={thumb}
                             alt={p.title}
-                            className="w-11 h-11 rounded-xl object-cover border border-slate-200 shrink-0 bg-slate-100"
-                            onError={(e) => {
-                              (e.target as HTMLImageElement).src = '/src/assets/images/hero_white_orange_1790435384152.jpg';
-                            }}
+                            referrerPolicy="no-referrer"
+                            className="w-11 h-11 rounded-xl object-cover border border-slate-200 shrink-0"
                           />
-                          <div className="min-w-0 max-w-xs">
-                            <div className="font-bold text-slate-900 truncate">{p.title}</div>
-                            <div className="text-[11px] text-slate-500 truncate">{p.subtitle || p.short_description}</div>
-                            {Array.isArray(p.tools) && p.tools.length > 0 && (
-                              <div className="flex gap-1 mt-1 overflow-hidden">
-                                {p.tools.slice(0, 2).map((t: string, i: number) => (
-                                  <span key={i} className="text-[9px] px-1.5 py-0.2 bg-slate-100 text-slate-600 rounded">
-                                    {t}
-                                  </span>
-                                ))}
-                                {p.tools.length > 2 && (
-                                  <span className="text-[9px] text-slate-400">+{p.tools.length - 2}</span>
-                                )}
-                              </div>
-                            )}
-                          </div>
-                        </div>
-                      </td>
-
-                      <td className="py-3 px-4">
-                        <div>
-                          <span className="px-2 py-0.5 bg-slate-100 rounded text-[11px] font-medium text-slate-700">
-                            {p.category}
-                          </span>
-                          <div className="text-[10px] font-mono text-slate-400 mt-0.5">
-                            {p.sku || 'KRO-AST'} • v{p.version || '1.0.0'}
-                          </div>
-                        </div>
-                      </td>
-
-                      <td className="py-3 px-4">
-                        {saleP && saleP > 0 ? (
                           <div>
-                            <span className="font-bold text-slate-900">${saleP}</span>
-                            <span className="text-[10px] text-slate-400 line-through ml-1.5">${regP}</span>
+                            <span className="font-bold text-slate-900 block line-clamp-1">{p.title}</span>
+                            <span className="text-[11px] text-slate-400 font-mono block">
+                              {p.sku || p.id} • v{p.version || '1.0.0'}
+                            </span>
                           </div>
-                        ) : (
-                          <div className="font-bold text-slate-900">${regP}</div>
-                        )}
-                      </td>
-
-                      <td className="py-3 px-4">
-                        <div className="flex items-center gap-1.5 text-emerald-700 font-semibold text-[11px]">
-                          <ShieldCheck className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
-                          <span>A+ Clean</span>
                         </div>
                       </td>
 
-                      <td className="py-3 px-4">
-                        {p.status === 'published' ? (
-                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
-                            <Eye className="w-2.5 h-2.5" /> Published
-                          </span>
-                        ) : (
-                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-slate-100 text-slate-600 border border-slate-200">
-                            <EyeOff className="w-2.5 h-2.5" /> Draft
+                      <td className="py-3.5 px-4 font-medium text-slate-700">
+                        <span className="px-2.5 py-1 rounded-md bg-slate-100 border border-slate-200 text-[11px]">
+                          {p.category}
+                        </span>
+                      </td>
+
+                      <td className="py-3.5 px-4 font-mono font-bold text-slate-900">
+                        ${p.price}
+                        {p.sale_price && (
+                          <span className="text-[10px] text-emerald-600 block font-normal">
+                            Sale: ${p.sale_price}
                           </span>
                         )}
                       </td>
 
-                      <td className="py-3 px-4 font-mono text-[11px] text-slate-600">
-                        {p.sales_count || 0} units
+                      <td className="py-3.5 px-4 font-mono text-[11px] text-slate-500">
+                        {p.file_url ? (
+                          <span className="inline-flex items-center gap-1 text-emerald-600">
+                            <ShieldCheck className="w-3.5 h-3.5" />
+                            <span>{p.file_size || 'Attached'}</span>
+                          </span>
+                        ) : (
+                          <span className="text-amber-500">No ZIP</span>
+                        )}
                       </td>
 
-                      <td className="py-3 px-4 text-right space-x-1">
+                      <td className="py-3.5 px-4">
                         <button
+                          type="button"
+                          onClick={() => handleToggleStatus(p)}
+                          className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[10px] font-bold uppercase tracking-wider transition-all ${
+                            isPublished
+                              ? 'bg-emerald-50 text-emerald-700 border border-emerald-200 hover:bg-emerald-100'
+                              : 'bg-amber-50 text-amber-700 border border-amber-200 hover:bg-amber-100'
+                          }`}
+                        >
+                          {isPublished ? <Eye className="w-3 h-3" /> : <EyeOff className="w-3 h-3" />}
+                          <span>{isPublished ? 'Published' : 'Draft'}</span>
+                        </button>
+                      </td>
+
+                      <td className="py-3.5 px-6 text-right space-x-2">
+                        <button
+                          type="button"
                           onClick={() => handleOpenEdit(p)}
-                          className="p-1.5 text-slate-500 hover:text-orange-600 hover:bg-orange-50 rounded-lg transition-colors"
-                          title="Open 5-Step Asset Studio"
+                          className="p-1.5 rounded-lg border border-slate-200 text-slate-600 hover:text-orange-600 hover:border-orange-200 hover:bg-orange-50/50 transition-colors"
+                          title="Edit Product"
                         >
                           <Edit2 className="w-3.5 h-3.5" />
                         </button>
                         <button
+                          type="button"
                           onClick={() => handleDeleteProduct(p.id)}
-                          className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-                          title="Delete product"
+                          className="p-1.5 rounded-lg border border-slate-200 text-slate-400 hover:text-rose-600 hover:border-rose-200 hover:bg-rose-50 transition-colors"
+                          title="Delete Product"
                         >
                           <Trash2 className="w-3.5 h-3.5" />
                         </button>
@@ -278,15 +341,6 @@ export const ProductsTab: React.FC<ProductsTabProps> = ({ token }) => {
           </div>
         )}
       </div>
-
-      {/* 5-Step Asset Studio Modal */}
-      <ProductStudioModal
-        isOpen={isStudioOpen}
-        token={token}
-        initialProduct={editingProduct}
-        onClose={() => setIsStudioOpen(false)}
-        onSaved={handleProductSaved}
-      />
     </div>
   );
 };
