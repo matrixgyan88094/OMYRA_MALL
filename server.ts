@@ -3,16 +3,24 @@ import path from 'path';
 import express from 'express';
 import dotenv from 'dotenv';
 
+import http from 'http';
+
 dotenv.config();
 
 const PORT = process.env.PORT ? parseInt(process.env.PORT, 10) : 3000;
 const isProduction = process.env.NODE_ENV === 'production';
+const isHmrDisabled = process.env.DISABLE_HMR === 'true';
 
 async function startServer() {
+  const server = http.createServer(app);
+
   if (!isProduction) {
     const { createServer: createViteServer } = await import('vite');
     const vite = await createViteServer({
-      server: { middlewareMode: true },
+      server: {
+        middlewareMode: true,
+        hmr: isHmrDisabled ? false : { server }
+      },
       appType: 'spa'
     });
     app.use(vite.middlewares);
@@ -24,7 +32,7 @@ async function startServer() {
     });
   }
 
-  app.listen(PORT, '0.0.0.0', () => {
+  server.listen(PORT, '0.0.0.0', () => {
     console.log(`🚀 Production-Ready Fullstack Marketplace running on port ${PORT}`);
     console.log(`🔒 Initial Admin Entry Point: http://localhost:${PORT}/md1620`);
   });

@@ -665,6 +665,7 @@ interface ZipScanResult {
   detectedFormats: string[];
   suggestedSku: string;
   suggestedVersion: string;
+  version?: string;
   packageDetails?: {
     name?: string;
     description?: string;
@@ -969,6 +970,89 @@ function inspectZipBuffer(buffer: Buffer, originalName = 'package.zip'): ZipScan
       }
     }
 
+    // Deep multi-format version extraction if not found in package.json
+    if (suggestedVersion === '1.0.0') {
+      for (const entry of entries) {
+        if (entry.isDirectory) continue;
+        const entryName = entry.entryName;
+        if (entryName.includes('node_modules/') || entryName.includes('vendor/')) continue;
+        const baseName = path.basename(entryName).toLowerCase();
+
+        // 1. composer.json
+        if (baseName === 'composer.json') {
+          try {
+            const comp = JSON.parse(zip.readAsText(entry));
+            if (comp.version && typeof comp.version === 'string') {
+              suggestedVersion = comp.version.replace(/^v/i, '');
+              break;
+            }
+          } catch {}
+        }
+
+        // 2. pubspec.yaml (Flutter / Dart)
+        if (baseName === 'pubspec.yaml') {
+          try {
+            const txt = zip.readAsText(entry);
+            const m = txt.match(/^version:\s*([0-9]+\.[0-9]+(?:\.[0-9]+)?)/m);
+            if (m && m[1]) {
+              suggestedVersion = m[1];
+              break;
+            }
+          } catch {}
+        }
+
+        // 3. pyproject.toml / setup.cfg / setup.py
+        if (baseName === 'pyproject.toml' || baseName === 'setup.cfg' || baseName === 'setup.py') {
+          try {
+            const txt = zip.readAsText(entry);
+            const m = txt.match(/version\s*=\s*["']([0-9]+\.[0-9]+(?:\.[0-9]+)?)/i);
+            if (m && m[1]) {
+              suggestedVersion = m[1];
+              break;
+            }
+          } catch {}
+        }
+
+        // 4. Cargo.toml (Rust)
+        if (baseName === 'cargo.toml') {
+          try {
+            const txt = zip.readAsText(entry);
+            const m = txt.match(/version\s*=\s*["']([0-9]+\.[0-9]+(?:\.[0-9]+)?)/i);
+            if (m && m[1]) {
+              suggestedVersion = m[1];
+              break;
+            }
+          } catch {}
+        }
+
+        // 5. style.css (WordPress Themes)
+        if (baseName === 'style.css') {
+          try {
+            const txt = zip.readAsText(entry);
+            const m = txt.match(/Version:\s*([0-9]+\.[0-9]+(?:\.[0-9]+)?)/i);
+            if (m && m[1]) {
+              suggestedVersion = m[1];
+              break;
+            }
+          } catch {}
+        }
+      }
+    }
+
+    // If still 1.0.0, check original archive filename (e.g. "my-project-v2.4.0.zip" or "kit-1.2.zip")
+    if (suggestedVersion === '1.0.0') {
+      const matchVer = originalName.match(/(?:v|version[-_ ]?|\b)([0-9]+\.[0-9]+(?:\.[0-9]+)?)/i);
+      if (matchVer && matchVer[1]) {
+        suggestedVersion = matchVer[1];
+      }
+    }
+
+    if (packageDetails) {
+      packageDetails.version = suggestedVersion;
+    } else {
+      packageDetails = { version: suggestedVersion };
+    }
+
     // Safety barrier check: total uncompressed limit 2.5 GB
     if (totalUncompressedBytes > 2.5 * 1024 * 1024 * 1024) {
       threats.push('Total uncompressed package payload exceeds 2.5 GB safety envelope');
@@ -1062,6 +1146,7 @@ function inspectZipBuffer(buffer: Buffer, originalName = 'package.zip'): ZipScan
     detectedFormats: Array.from(detectedFormats).slice(0, 8),
     suggestedSku,
     suggestedVersion,
+    version: suggestedVersion,
     packageDetails
   };
 }
@@ -2700,7 +2785,7 @@ apiRouter.post('/orders/:id/resend-email', verifyAuth, async (req: Request, res:
 });
 
 // Universal Uploads Delivery Handler (Memory cache, Local public, and /tmp fallback)
-app.get('/uploads/:folder/:filename', (req: Request, res: Response) => {
+const handleUploadDelivery = (req: Request, res: Response) => {
   const { folder, filename } = req.params;
   const safeFolder = path.basename(folder);
   const safeFilename = path.basename(filename);
@@ -2709,7 +2794,7 @@ app.get('/uploads/:folder/:filename', (req: Request, res: Response) => {
   const memKey = `${safeFolder}/${safeFilename}`;
   const memItem = inMemoryUploadedFiles.get(memKey);
   if (memItem) {
-    res.setHeader('Content-Type', memItem.mime || 'application/octet-stream');
+    res.setHeader('Content-Type', memItem.mime || 'image/png');
     res.setHeader('Content-Disposition', `inline; filename="${memItem.name}"`);
     return res.send(memItem.buffer);
   }
@@ -2727,7 +2812,10 @@ app.get('/uploads/:folder/:filename', (req: Request, res: Response) => {
   }
 
   res.status(404).json({ error: 'Uploaded file not found' });
-});
+};
+
+app.get('/uploads/:folder/:filename', handleUploadDelivery);
+apiRouter.get('/uploads/:folder/:filename', handleUploadDelivery);
 
 // Mount the apiRouter at both '/api' and '/'
 app.use('/api', apiRouter);
