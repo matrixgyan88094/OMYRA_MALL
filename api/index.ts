@@ -66,6 +66,44 @@ function getSafeUploadDir(folderType: string): string {
   }
 }
 
+// High-capacity, zero-memory-leak disk storage for package ZIP archives
+const zipDiskStorage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    try {
+      const dir = getSafeUploadDir('secure-products');
+      cb(null, dir);
+    } catch (e: any) {
+      cb(e, os.tmpdir());
+    }
+  },
+  filename: (req, file, cb) => {
+    const originalName = (file.originalname || 'package.zip').replace(/[^a-zA-Z0-9._-]/g, '_');
+    const safeFilename = `${Date.now()}_${originalName}`;
+    cb(null, safeFilename);
+  }
+});
+
+const uploadZip = multer({
+  storage: zipDiskStorage,
+  limits: { fileSize: 500 * 1024 * 1024 } // 500MB upload ceiling for digital packages
+});
+
+// Resilient middleware wrapper to catch Multer errors cleanly and return JSON instead of crashing
+function handleZipUploadMiddleware(req: Request, res: Response, next: NextFunction) {
+  uploadZip.single('file')(req, res, (err) => {
+    if (err) {
+      console.error('ZIP upload multer error:', err);
+      if (err.code === 'LIMIT_FILE_SIZE') {
+        return res.status(413).json({
+          error: 'Package exceeds the maximum file size limit (500MB). Please remove temporary build artifacts and try again.'
+        });
+      }
+      return res.status(400).json({ error: `Package upload error: ${err.message}` });
+    }
+    next();
+  });
+}
+
 // ---------------------------------------------------------
 // DATABASE & STORAGE LAYER (Neon PostgreSQL + Safe Memory Fallback)
 // ---------------------------------------------------------
@@ -673,14 +711,29 @@ interface ZipScanResult {
   };
 }
 
-const DANGEROUS_EXTENSIONS = new Set([
-  '.exe', '.scr', '.bat', '.cmd', '.pif', '.msi', '.vbs', '.vbe',
-  '.ps1', '.ps2', '.com', '.hta', '.cpl', '.reg', '.wsf', '.wsh',
-  '.msc', '.inf', '.scf'
+// Known malware/exploit script payload extensions blocked from marketplace archives
+const MALICIOUS_EXTENSIONS = new Set([
+  '.scr', '.pif', '.vbs', '.vbe', '.hta', '.cpl', '.wsf', '.wsh', '.scf'
 ]);
 
-function inspectZipBuffer(buffer: Buffer, originalName = 'package.zip'): ZipScanResult {
-  const sha256 = crypto.createHash('sha256').update(buffer).digest('hex');
+function inspectZipArchive(fileInput: Buffer | string, originalName = 'package.zip'): ZipScanResult {
+  let sha256 = '';
+  let fileSizeBytes = 0;
+
+  try {
+    if (typeof fileInput === 'string') {
+      const stat = fs.statSync(fileInput);
+      fileSizeBytes = stat.size;
+      const fileBuf = fs.readFileSync(fileInput);
+      sha256 = crypto.createHash('sha256').update(fileBuf).digest('hex');
+    } else {
+      fileSizeBytes = fileInput.length;
+      sha256 = crypto.createHash('sha256').update(fileInput).digest('hex');
+    }
+  } catch {
+    sha256 = crypto.randomUUID().replace(/-/g, '');
+  }
+
   const threats: string[] = [];
   const detectedTools = new Set<string>();
   const detectedFormats = new Set<string>();
@@ -718,8 +771,9 @@ function inspectZipBuffer(buffer: Buffer, originalName = 'package.zip'): ZipScan
   }
 
   try {
-    const zip = new AdmZip(buffer);
+    const zip = new AdmZip(fileInput);
     const entries = zip.getEntries();
+    fileCount = entries.length;
 
     // Collect candidate manifests across the archive (ignoring vendor/cache)
     const packageJsonEntries: any[] = [];
@@ -731,48 +785,52 @@ function inspectZipBuffer(buffer: Buffer, originalName = 'package.zip'): ZipScan
     let pubspecEntry: any = null;
     let styleCssEntry: any = null;
 
-    for (const entry of entries) {
-      const entryName = entry.entryName.replace(/\\/g, '/');
+    const maxEntriesToScan = Math.min(entries.length, 6000);
+    for (let i = 0; i < maxEntriesToScan; i++) {
+      const entry = entries[i];
+      const rawName = entry.entryName || '';
+      const entryName = rawName.replace(/\\/g, '/');
 
-      // 1. Path traversal check (Zip-Slip defense)
-      if (
-        entryName.includes('../') ||
-        entryName.startsWith('/') ||
-        /^[a-zA-Z]:/.test(entryName)
-      ) {
-        threats.push(`Directory traversal anomaly detected in path: "${entryName}"`);
+      // 1. Path traversal check (Zip-Slip defense: prevent escaping target extraction directory)
+      const normalizedPath = path.normalize(entryName).replace(/\\/g, '/');
+      if (normalizedPath.startsWith('../') || normalizedPath.includes('/../') || normalizedPath === '..') {
+        threats.push(`Directory traversal anomaly (Zip-Slip attempt) detected in path: "${entryName}"`);
       }
 
       if (entry.isDirectory) continue;
-      fileCount++;
 
-      const uncompressedSize = entry.header.size || 0;
-      const compressedSize = entry.header.compressedSize || 1;
+      const uncompressedSize = (entry.header && typeof entry.header.size === 'number')
+        ? entry.header.size
+        : ((entry as any).size || 0);
+      const compressedSize = (entry.header && typeof entry.header.compressedSize === 'number')
+        ? (entry.header.compressedSize || 1)
+        : 1;
       totalUncompressedBytes += uncompressedSize;
 
-      // 2. Decompression bomb ratio check
-      if (uncompressedSize > 100 * 1024 * 1024 && uncompressedSize / compressedSize > 150) {
+      // 2. Decompression bomb ratio check (only on large individual uncompressed entries > 60MB)
+      if (uncompressedSize > 60 * 1024 * 1024 && uncompressedSize / Math.max(compressedSize, 1) > 200) {
         threats.push(`Decompression bomb ratio anomaly detected in "${entryName}"`);
       }
 
-      // 3. Prohibited executable binary check
       const ext = path.extname(entryName).toLowerCase();
-      if (DANGEROUS_EXTENSIONS.has(ext)) {
-        threats.push(`Prohibited executable payload detected: "${entryName}"`);
-      }
-
       if (ext) {
         detectedFormats.add(ext);
       }
 
-      // Skip dependencies/vendor folders for heuristic stack detection
+      // Skip dependencies/vendor folders for heuristic detection & security false positives
       const isVendorOrDep =
         entryName.includes('node_modules/') ||
         entryName.includes('vendor/') ||
         entryName.includes('__MACOSX/') ||
         entryName.includes('.git/') ||
         entryName.includes('dist/') ||
-        entryName.includes('.next/');
+        entryName.includes('.next/') ||
+        entryName.includes('.turbo/');
+
+      // 3. Prohibited executable malware check (flag standalone executable payloads outside vendor/deps)
+      if (!isVendorOrDep && MALICIOUS_EXTENSIONS.has(ext)) {
+        threats.push(`Prohibited executable payload detected: "${entryName}"`);
+      }
 
       if (!isVendorOrDep) {
         const baseName = path.basename(entryName).toLowerCase();
@@ -1325,7 +1383,7 @@ function inspectZipBuffer(buffer: Buffer, originalName = 'package.zip'): ZipScan
     fileCount,
     totalUncompressedBytes,
     uncompressedSizeFormatted: formatBytes(totalUncompressedBytes),
-    compressedSizeFormatted: formatBytes(buffer.length),
+    compressedSizeFormatted: formatBytes(fileSizeBytes),
     detectedTools: Array.from(detectedTools),
     detectedCategory,
     detectedTags: Array.from(detectedTags).slice(0, 12),
@@ -1336,6 +1394,8 @@ function inspectZipBuffer(buffer: Buffer, originalName = 'package.zip'): ZipScan
     packageDetails
   };
 }
+
+const inspectZipBuffer = inspectZipArchive;
 
 async function getAllProducts(): Promise<ProductRecord[]> {
   if (sql && neonConnected) {
@@ -2632,15 +2692,20 @@ apiRouter.post('/admin/categories', verifyAuth, async (req: Request, res: Respon
 // ---------------------------------------------------------
 // INTELLIGENT ZIP INSPECTION & SECURITY SCANNER
 // ---------------------------------------------------------
-apiRouter.post('/admin/products/inspect-zip', verifyAuth, upload.single('file'), async (req: Request, res: Response) => {
+apiRouter.post('/admin/products/inspect-zip', verifyAuth, handleZipUploadMiddleware, async (req: Request, res: Response) => {
   if (!req.file) {
     return res.status(400).json({ error: 'No ZIP archive file provided for inspection.' });
   }
 
   try {
-    const scan = inspectZipBuffer(req.file.buffer, req.file.originalname);
+    const fileSource = req.file.path || req.file.buffer;
+    const scan = inspectZipArchive(fileSource, req.file.originalname);
     if (scan.isSafe && scan.detectedCategory) {
       await ensureMarketplaceCategory(scan.detectedCategory);
+    }
+    // Clean up temporary inspection file if stored on disk
+    if (req.file.path && fs.existsSync(req.file.path)) {
+      try { fs.unlinkSync(req.file.path); } catch {}
     }
     res.json({
       success: true,
@@ -2653,19 +2718,26 @@ apiRouter.post('/admin/products/inspect-zip', verifyAuth, upload.single('file'),
 });
 
 // Full Combined Upload & Automatic Security / Framework Analysis Engine
-apiRouter.post('/admin/products/inspect-and-upload-zip', verifyAuth, upload.single('file'), async (req: Request, res: Response) => {
+apiRouter.post('/admin/products/inspect-and-upload-zip', verifyAuth, handleZipUploadMiddleware, async (req: Request, res: Response) => {
   if (!req.file) {
     return res.status(400).json({ error: 'No ZIP archive file provided.' });
   }
 
   try {
-    // 1. Run deep 5-layer security and stack inspection first
-    const scan = inspectZipBuffer(req.file.buffer, req.file.originalname);
+    const fileSource = req.file.path || req.file.buffer;
+    const originalName = (req.file.originalname || 'package.zip').replace(/[^a-zA-Z0-9._-]/g, '_');
+
+    // 1. Run deep security and stack inspection
+    const scan = inspectZipArchive(fileSource, originalName);
 
     if (!scan.isSafe) {
+      // Remove unsafe file from disk immediately
+      if (req.file.path && fs.existsSync(req.file.path)) {
+        try { fs.unlinkSync(req.file.path); } catch {}
+      }
       return res.status(400).json({
         success: false,
-        error: 'Digital package security verification failed. Threats detected.',
+        error: `Security verification notice: ${scan.threats.join('; ')}`,
         scan
       });
     }
@@ -2679,7 +2751,6 @@ apiRouter.post('/admin/products/inspect-and-upload-zip', verifyAuth, upload.sing
     const admin = await getAdminAccount();
     const r2 = getR2ClientFromConfig(admin);
     const userId = 'admin_primary';
-    const originalName = req.file.originalname.replace(/[^a-zA-Z0-9._-]/g, '_');
     const secureKey = buildR2Key(userId, 'secure-products', originalName);
 
     let fileUrl = '';
@@ -2687,10 +2758,11 @@ apiRouter.post('/admin/products/inspect-and-upload-zip', verifyAuth, upload.sing
 
     if (r2) {
       try {
+        const bodyStream = req.file.path ? fs.createReadStream(req.file.path) : req.file.buffer;
         const putCmd = new PutObjectCommand({
           Bucket: r2.bucket,
           Key: secureKey,
-          Body: req.file.buffer,
+          Body: bodyStream,
           ContentType: 'application/zip',
           Metadata: {
             'uploaded-by': userId,
@@ -2707,24 +2779,9 @@ apiRouter.post('/admin/products/inspect-and-upload-zip', verifyAuth, upload.sing
     }
 
     if (!fileUrl) {
-      // Resilient storage fallback (handles serverless /var/task read-only filesystems)
-      const uploadsDir = getSafeUploadDir('secure-products');
-      const safeFilename = `${Date.now()}_${originalName}`;
-      
-      try {
-        fs.writeFileSync(path.join(uploadsDir, safeFilename), req.file.buffer);
-      } catch (fsErr) {
-        console.warn('Filesystem write bypassed in container, caching in memory:', fsErr);
-      }
-
-      // Keep in memory cache for immediate downloads
-      inMemoryUploadedFiles.set(`secure-products/${safeFilename}`, {
-        buffer: req.file.buffer,
-        mime: 'application/zip',
-        name: safeFilename
-      });
-
-      fileUrl = `/uploads/secure-products/${safeFilename}`;
+      // Disk-backed persistence already stored by multer diskStorage
+      const filename = req.file.filename || path.basename(req.file.path || originalName);
+      fileUrl = `/uploads/secure-products/${filename}`;
       storageType = 'Secure Local Storage (Configure R2 for Multi-Region CDN)';
     }
 

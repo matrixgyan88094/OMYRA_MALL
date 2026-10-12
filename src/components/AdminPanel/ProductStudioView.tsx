@@ -689,12 +689,25 @@ export const ProductStudioView: React.FC<ProductStudioViewProps> = ({
         }
       } else {
         setZipUploadProgress(null);
-        try {
-          const errData = JSON.parse(xhr.responseText);
-          setErrorNotice(errData.error || 'Failed to inspect and secure archive.');
-        } catch {
-          setErrorNotice('Server error during archive security inspection.');
+        let errorMsg = 'Failed to inspect and secure archive.';
+        if (xhr.status === 413) {
+          errorMsg = 'Archive package exceeds server size limit (500MB). Please remove temporary build files or node_modules and retry.';
+        } else if (xhr.status === 504 || xhr.status === 502) {
+          errorMsg = 'Server gateway timed out while inspecting archive. Please retry or optimize archive contents.';
+        } else {
+          try {
+            const errData = JSON.parse(xhr.responseText);
+            errorMsg = errData.error || errData.message || 'Failed to inspect and secure archive.';
+          } catch {
+            const cleanText = (xhr.responseText || '').replace(/<[^>]+>/g, ' ').trim();
+            if (cleanText && cleanText.length > 5 && cleanText.length < 250) {
+              errorMsg = cleanText;
+            } else {
+              errorMsg = `Server inspection request returned status ${xhr.status || 'unknown'}. Please verify archive integrity.`;
+            }
+          }
         }
+        setErrorNotice(errorMsg);
       }
     };
 
