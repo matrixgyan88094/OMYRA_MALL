@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import JSZip from 'jszip';
 import {
   ArrowLeft,
   ChevronRight,
@@ -549,7 +550,8 @@ export const ProductStudioView: React.FC<ProductStudioViewProps> = ({
   };
 
   // Real ZIP Package Ingestion + Smooth Progress + 5-Layer Security Scan + Auto-Categorization
-  const handleUploadZipPackage = (e: React.ChangeEvent<HTMLInputElement>) => {
+  // Real ZIP Package Ingestion + Instant JSZip Pre-Scanning + Resilient Chunked & Direct R2 Ingestion
+  const handleUploadZipPackage = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
@@ -563,166 +565,432 @@ export const ProductStudioView: React.FC<ProductStudioViewProps> = ({
     setAutoDetectNotice(null);
     setActiveUploadFile(file.name);
 
-    const xhr = new XMLHttpRequest();
-    const formData = new FormData();
-    formData.append('file', file);
+    // 1. Instant client-side inspection with JSZip
+    // Extracts manifests (package.json, composer.json, pom.xml, style.css, artisan, .php, .java, etc.)
+    // and populates tools (with authentic SVG brand logos), version, tags immediately!
+    try {
+      const jszip = new JSZip();
+      const zipData = await jszip.loadAsync(file.slice(0, Math.min(file.size, 100 * 1024 * 1024)));
+
+      const clientTools = new Set<string>();
+      const clientTags = new Set<string>();
+      let clientCategory = '';
+      let clientVersion = '';
+      let clientTitle = '';
+      let clientDescription = '';
+
+      const fileNames = Object.keys(zipData.files);
+      let hasPhp = false;
+      let hasCss = false;
+      let hasJava = false;
+      let hasCs = false;
+      let hasPython = false;
+
+      for (const p of fileNames) {
+        const lower = p.toLowerCase();
+        const base = lower.split('/').pop() || '';
+
+        if (base === 'artisan') {
+          clientTools.add('Laravel');
+          clientTools.add('PHP');
+        } else if (base === 'pom.xml' || base === 'build.gradle') {
+          clientTools.add('Java');
+          clientTools.add('Spring Boot');
+        } else if (base === 'dockerfile' || base.startsWith('docker-compose')) {
+          clientTools.add('Docker');
+        } else if (base.endsWith('.php')) {
+          hasPhp = true;
+        } else if (base.endsWith('.css')) {
+          hasCss = true;
+        } else if (base.endsWith('.java')) {
+          hasJava = true;
+        } else if (base.endsWith('.cs')) {
+          hasCs = true;
+        } else if (base.endsWith('.py')) {
+          hasPython = true;
+        }
+
+        // Check WordPress indicators
+        if (lower.includes('wp-content') || lower.includes('wp-includes') || base === 'wp-config.php' || base === 'plugin.php') {
+          clientTools.add('WordPress');
+          clientTools.add('PHP');
+          if (!clientCategory) clientCategory = 'WordPress Themes & Plugins';
+        }
+      }
+
+      if (hasPhp) clientTools.add('PHP');
+      if (hasCss) clientTools.add('CSS3');
+      if (hasJava) clientTools.add('Java');
+      if (hasCs) clientTools.add('C#');
+      if (hasPython) clientTools.add('Python');
+
+      // Parse package.json if present
+      const packageJsonFile = Object.values(zipData.files).find(
+        f => !f.dir && f.name.replace(/\\/g, '/').toLowerCase().endsWith('package.json') && !f.name.toLowerCase().includes('node_modules')
+      );
+      if (packageJsonFile) {
+        try {
+          const pkgText = await packageJsonFile.async('text');
+          const pkg = JSON.parse(pkgText);
+          if (pkg.name && !title) clientTitle = String(pkg.name).replace(/[-_]/g, ' ');
+          if (pkg.description && !description) clientDescription = pkg.description;
+          if (pkg.version) clientVersion = pkg.version;
+          const allDeps = { ...(pkg.dependencies || {}), ...(pkg.devDependencies || {}) };
+          if (allDeps['react']) clientTools.add('React');
+          if (allDeps['next']) clientTools.add('Next.js');
+          if (allDeps['vue']) clientTools.add('Vue');
+          if (allDeps['nuxt']) clientTools.add('Nuxt');
+          if (allDeps['svelte']) clientTools.add('Svelte');
+          if (allDeps['tailwindcss'] || allDeps['@tailwindcss/vite']) clientTools.add('Tailwind CSS');
+          if (allDeps['typescript']) clientTools.add('TypeScript');
+          if (allDeps['express']) clientTools.add('Express');
+          if (allDeps['laravel-echo'] || allDeps['@inertiajs/react']) {
+            clientTools.add('Laravel');
+            clientTools.add('PHP');
+          }
+          clientTools.add('Node.js');
+        } catch {}
+      }
+
+      // Parse composer.json if present
+      const composerFile = Object.values(zipData.files).find(
+        f => !f.dir && f.name.replace(/\\/g, '/').toLowerCase().endsWith('composer.json') && !f.name.toLowerCase().includes('vendor')
+      );
+      if (composerFile) {
+        try {
+          const compText = await composerFile.async('text');
+          const comp = JSON.parse(compText);
+          clientTools.add('PHP');
+          const reqs = { ...(comp.require || {}), ...(comp['require-dev'] || {}) };
+          if (reqs['laravel/framework']) clientTools.add('Laravel');
+          if (reqs['symfony/framework-bundle']) clientTools.add('Symfony');
+          if (reqs['roots/sage'] || reqs['johnpbloch/wordpress']) clientTools.add('WordPress');
+          if (comp.version) clientVersion = comp.version;
+        } catch {}
+      }
+
+      // Parse style.css if present (WordPress themes)
+      const styleCssFile = Object.values(zipData.files).find(
+        f => !f.dir && f.name.replace(/\\/g, '/').toLowerCase().endsWith('style.css')
+      );
+      if (styleCssFile) {
+        try {
+          const cssText = await styleCssFile.async('text');
+          if (/Theme Name:/i.test(cssText) || /Author:/i.test(cssText)) {
+            clientTools.add('WordPress');
+            clientTools.add('PHP');
+            clientTools.add('CSS3');
+            clientCategory = 'WordPress Themes & Plugins';
+            const matchTheme = cssText.match(/Theme Name:\s*([^\r\n]+)/i);
+            if (matchTheme && !title) clientTitle = matchTheme[1].trim();
+            const matchVer = cssText.match(/Version:\s*([^\r\n]+)/i);
+            if (matchVer) clientVersion = matchVer[1].trim();
+          }
+        } catch {}
+      }
+
+      // Pre-populate state instantly so user sees authentic brand logos right away!
+      if (clientTools.size > 0) {
+        setTools(Array.from(clientTools));
+        Array.from(clientTools).forEach(t => clientTags.add(t.toLowerCase().replace(/[^a-z0-9]/g, '')));
+      }
+      if (clientCategory) setCategory(clientCategory);
+      if (clientVersion) setVersion(clientVersion);
+      if (clientTitle && !title) setTitle(clientTitle);
+      if (clientDescription && !description) setDescription(clientDescription);
+      if (clientTags.size > 0) setTags(Array.from(clientTags));
+    } catch (clientPreScanErr) {
+      console.warn('Client-side zip pre-inspection notice:', clientPreScanErr);
+    }
+
+    // 2. Resilient file transmission: Get Strategy (presigned-r2 or chunked)
+    const effectiveToken = token || localStorage.getItem('kroma_admin_token') || 'admin_primary';
 
     setZipUploadProgress({
       active: true,
       percent: 10,
       loaded: Math.round(file.size * 0.1),
       total: file.size,
-      statusText: 'Streaming archive to secure storage...',
+      statusText: 'Determining optimal ingestion pipeline...',
       isComplete: false
     });
 
-    xhr.upload.onprogress = (event) => {
-      if (event.lengthComputable) {
-        const rawRatio = event.loaded / event.total;
-        const uploadPercent = Math.min(85, Math.max(10, Math.round(rawRatio * 85)));
+    try {
+      let strategyResp: any = null;
+      try {
+        const sRes = await fetch('/api/admin/products/get-upload-strategy', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${effectiveToken}`
+          },
+          body: JSON.stringify({ fileName: file.name, fileSize: file.size })
+        });
+        if (sRes.ok) {
+          strategyResp = await sRes.json();
+        }
+      } catch {}
+
+      const strategy = strategyResp?.strategy || (file.size > 3 * 1024 * 1024 ? 'chunked' : 'direct');
+
+      // Helper to process successful inspection scan
+      const handleScanComplete = (scan: any, fileUrlVal: string, sizeVal: string) => {
+        cleanupZipTicker();
+        setSecurityScan(scan);
+        setFileUrl(fileUrlVal);
+        setFileSize(sizeVal);
+
+        const detectedCat = scan.detectedCategory || scan.suggestedCategory || category || 'Dev Kits';
+        setCategory(detectedCat);
+
+        const detectedVer = scan.version || scan.suggestedVersion || scan.packageDetails?.version;
+        if (detectedVer) setVersion(detectedVer);
+
+        const incomingTools = scan.detectedTools || scan.tools || [];
+        if (Array.isArray(incomingTools) && incomingTools.length > 0) {
+          setTools(incomingTools);
+        }
+
+        const incomingTags = scan.detectedTags || scan.suggestedTags || [];
+        if (Array.isArray(incomingTags) && incomingTags.length > 0) {
+          setTags(incomingTags);
+        }
+
+        const incomingFormats = scan.detectedFormats || scan.formats || ['.zip'];
+        if (Array.isArray(incomingFormats) && incomingFormats.length > 0) {
+          setFormats(incomingFormats);
+        }
+
+        if (scan.suggestedSku && (!sku || sku.trim() === '')) setSku(scan.suggestedSku);
+        if (scan.packageDetails?.name && (!title || title.trim() === '')) setTitle(scan.packageDetails.name);
+        if (scan.packageDetails?.description && (!description || description.trim() === '')) setDescription(scan.packageDetails.description);
+
+        setAutoDetectNotice(
+          `ZIP Successfully Analyzed: Assigned category "${detectedCat}", release version v${detectedVer || version}, detected ${incomingTools.length} tools/frameworks, and generated ${incomingTags.length} keywords.`
+        );
 
         setZipUploadProgress({
           active: true,
-          percent: uploadPercent,
-          loaded: event.loaded,
-          total: event.total,
-          statusText: uploadPercent > 50
-            ? 'Transferring digital package to server...'
-            : 'Streaming archive to secure storage...',
+          percent: 100,
+          loaded: file.size,
+          total: file.size,
+          statusText: 'Verification passed & stack identified ✓',
+          isComplete: true
+        });
+
+        setTimeout(() => {
+          setZipUploadProgress(null);
+        }, 500);
+      };
+
+      // STRATEGY A: Direct Presigned R2 Upload (0 bytes through serverless body - Vercel 4.5MB limit completely bypassed)
+      if (strategy === 'presigned-r2' && strategyResp.uploadUrl) {
+        setZipUploadProgress({
+          active: true,
+          percent: 15,
+          loaded: Math.round(file.size * 0.15),
+          total: file.size,
+          statusText: 'Streaming directly to Cloudflare R2 Global Edge...',
           isComplete: false
         });
 
-        // When bytes finish transferring to the server, start smooth processing ticker
-        if (event.loaded >= event.total && !zipTickerRef.current) {
-          let currentTick = 88;
+        const r2Xhr = new XMLHttpRequest();
+        r2Xhr.upload.onprogress = (ev) => {
+          if (ev.lengthComputable) {
+            const pct = Math.min(85, Math.max(15, Math.round((ev.loaded / ev.total) * 85)));
+            setZipUploadProgress({
+              active: true,
+              percent: pct,
+              loaded: ev.loaded,
+              total: ev.total,
+              statusText: 'Uploading directly to Cloudflare R2 bucket...',
+              isComplete: false
+            });
+          }
+        };
+
+        await new Promise<void>((resolve, reject) => {
+          r2Xhr.onload = () => {
+            if (r2Xhr.status >= 200 && r2Xhr.status < 300) resolve();
+            else reject(new Error(`Cloudflare R2 returned HTTP ${r2Xhr.status}`));
+          };
+          r2Xhr.onerror = () => reject(new Error('Network error uploading directly to Cloudflare R2'));
+          r2Xhr.open('PUT', strategyResp.uploadUrl);
+          r2Xhr.setRequestHeader('Content-Type', 'application/zip');
+          r2Xhr.send(file);
+        });
+
+        // Trigger server inspection on stored R2 object
+        setZipUploadProgress({
+          active: true,
+          percent: 90,
+          loaded: file.size,
+          total: file.size,
+          statusText: 'Archive stored safely • Running 5-layer security verification & signature check...',
+          isComplete: false
+        });
+
+        const inspectRes = await fetch('/api/admin/products/inspect-r2-archive', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${effectiveToken}`
+          },
+          body: JSON.stringify({ key: strategyResp.key, originalName: file.name })
+        });
+
+        if (!inspectRes.ok) {
+          const errJson = await inspectRes.json().catch(() => ({}));
+          throw new Error(errJson.error || `Archive inspection failed with status ${inspectRes.status}`);
+        }
+
+        const inspectData = await inspectRes.json();
+        handleScanComplete(inspectData.scan, inspectData.fileUrl || `r2://${strategyResp.key}`, inspectData.fileSize || `${(file.size / (1024 * 1024)).toFixed(1)} MB`);
+        return;
+      }
+
+      // STRATEGY B: Chunked Upload (2MB slices - completely safe on Vercel)
+      if (strategy === 'chunked' || file.size > 3 * 1024 * 1024) {
+        const uploadId = strategyResp?.uploadId || ('upl_' + Date.now() + '_' + Math.random().toString(36).substring(2, 8));
+        const CHUNK_SIZE = strategyResp?.chunkSize || (2 * 1024 * 1024); // 2MB
+        const totalChunks = Math.ceil(file.size / CHUNK_SIZE);
+
+        for (let i = 0; i < totalChunks; i++) {
+          const start = i * CHUNK_SIZE;
+          const end = Math.min(start + CHUNK_SIZE, file.size);
+          const chunkBlob = file.slice(start, end);
+
+          const chunkFormData = new FormData();
+          chunkFormData.append('uploadId', uploadId);
+          chunkFormData.append('chunkIndex', String(i));
+          chunkFormData.append('totalChunks', String(totalChunks));
+          chunkFormData.append('fileName', file.name);
+          chunkFormData.append('chunk', chunkBlob, `chunk_${i}`);
+
+          const currentLoaded = start;
+          const slicePct = Math.min(85, Math.max(10, Math.round((currentLoaded / file.size) * 85)));
           setZipUploadProgress({
             active: true,
-            percent: 88,
-            loaded: file.size,
+            percent: slicePct,
+            loaded: currentLoaded,
             total: file.size,
-            statusText: 'Upload complete • Decompressing & inspecting project architecture...',
+            statusText: `Uploading slice ${i + 1} of ${totalChunks} (serverless chunked stream)...`,
             isComplete: false
           });
 
-          zipTickerRef.current = setInterval(() => {
-            currentTick = Math.min(currentTick + 2, 98);
-            setZipUploadProgress({
-              active: true,
-              percent: currentTick,
-              loaded: file.size,
-              total: file.size,
-              statusText: currentTick > 94
-                ? 'Running 5-layer security verification & signature check...'
-                : 'Extracting framework dependencies & parsing code manifests...',
-              isComplete: false
-            });
-          }, 350);
-        }
-      }
-    };
-
-    xhr.onload = () => {
-      cleanupZipTicker();
-      if (xhr.status >= 200 && xhr.status < 300) {
-        try {
-          const resp = JSON.parse(xhr.responseText);
-          const scan = resp.scan;
-
-          // 1. Immediately update all detected results into product state!
-          setSecurityScan(scan);
-          setFileUrl(resp.fileUrl || `r2://${resp.key}`);
-          setFileSize(resp.fileSize || scan.compressedSizeFormatted || scan.formattedCompressedSize || '15 MB');
-
-          const detectedCat = scan.detectedCategory || scan.suggestedCategory || 'Dev Kits';
-          setCategory(detectedCat);
-
-          const detectedVer = scan.version || scan.suggestedVersion || scan.packageDetails?.version;
-          if (detectedVer) {
-            setVersion(detectedVer);
-          }
-
-          const incomingTools = scan.detectedTools || scan.tools || [];
-          if (Array.isArray(incomingTools) && incomingTools.length > 0) {
-            setTools(incomingTools);
-          }
-
-          const incomingTags = scan.detectedTags || scan.suggestedTags || [];
-          if (Array.isArray(incomingTags) && incomingTags.length > 0) {
-            setTags(incomingTags);
-          }
-
-          const incomingFormats = scan.detectedFormats || scan.formats || ['.zip'];
-          if (Array.isArray(incomingFormats) && incomingFormats.length > 0) {
-            setFormats(incomingFormats);
-          }
-
-          if (scan.suggestedSku && (!sku || sku.trim() === '')) {
-            setSku(scan.suggestedSku);
-          }
-          if (scan.packageDetails?.name && (!title || title.trim() === '')) {
-            setTitle(scan.packageDetails.name);
-          }
-          if (scan.packageDetails?.description && (!description || description.trim() === '')) {
-            setDescription(scan.packageDetails.description);
-          }
-
-          setAutoDetectNotice(
-            `ZIP Successfully Analyzed: Assigned category "${detectedCat}", release version v${detectedVer || version}, detected ${incomingTools.length} tools/frameworks, and generated ${incomingTags.length} keywords.`
-          );
-
-          // 2. Complete the progress display smoothly
-          setZipUploadProgress({
-            active: true,
-            percent: 100,
-            loaded: file.size,
-            total: file.size,
-            statusText: 'Verification passed & stack identified ✓',
-            isComplete: true
+          const chunkRes = await fetch(`/api/admin/products/upload-chunk?uploadId=${encodeURIComponent(uploadId)}&chunkIndex=${i}&totalChunks=${totalChunks}`, {
+            method: 'POST',
+            headers: {
+              'Authorization': `Bearer ${effectiveToken}`
+            },
+            body: chunkFormData
           });
 
-          setTimeout(() => {
-            setZipUploadProgress(null);
-          }, 400);
-        } catch {
-          setZipUploadProgress(null);
-          setErrorNotice('Failed to process server security analysis response.');
-        }
-      } else {
-        setZipUploadProgress(null);
-        let errorMsg = 'Failed to inspect and secure archive.';
-        if (xhr.status === 413) {
-          errorMsg = 'Archive package exceeds server size limit (500MB). Please remove temporary build files or node_modules and retry.';
-        } else if (xhr.status === 504 || xhr.status === 502) {
-          errorMsg = 'Server gateway timed out while inspecting archive. Please retry or optimize archive contents.';
-        } else {
-          try {
-            const errData = JSON.parse(xhr.responseText);
-            errorMsg = errData.error || errData.message || 'Failed to inspect and secure archive.';
-          } catch {
-            const cleanText = (xhr.responseText || '').replace(/<[^>]+>/g, ' ').trim();
-            if (cleanText && cleanText.length > 5 && cleanText.length < 250) {
-              errorMsg = cleanText;
-            } else {
-              errorMsg = `Server inspection request returned status ${xhr.status || 'unknown'}. Please verify archive integrity.`;
-            }
+          if (!chunkRes.ok) {
+            const errData = await chunkRes.json().catch(() => ({}));
+            throw new Error(errData.error || `Failed uploading slice ${i + 1}/${totalChunks} (Status ${chunkRes.status})`);
           }
         }
-        setErrorNotice(errorMsg);
-      }
-    };
 
-    xhr.onerror = () => {
+        // All chunks uploaded! Request assembly and deep inspection
+        setZipUploadProgress({
+          active: true,
+          percent: 88,
+          loaded: file.size,
+          total: file.size,
+          statusText: 'All slices received • Assembling package & executing security scan...',
+          isComplete: false
+        });
+
+        const assembleRes = await fetch('/api/admin/products/assemble-and-inspect', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${effectiveToken}`
+          },
+          body: JSON.stringify({
+            uploadId,
+            fileName: file.name,
+            totalChunks,
+            fileSize: file.size
+          })
+        });
+
+        if (!assembleRes.ok) {
+          const errJson = await assembleRes.json().catch(() => ({}));
+          throw new Error(errJson.error || `Archive assembly failed with status ${assembleRes.status}`);
+        }
+
+        const assembleData = await assembleRes.json();
+        handleScanComplete(
+          assembleData.scan,
+          assembleData.fileUrl || `/uploads/secure-products/${file.name}`,
+          assembleData.fileSize || `${(file.size / (1024 * 1024)).toFixed(1)} MB`
+        );
+        return;
+      }
+
+      // STRATEGY C: Standard Direct Upload (for small files under 3MB)
+      const formData = new FormData();
+      formData.append('file', file);
+
+      const xhr = new XMLHttpRequest();
+      xhr.upload.onprogress = (event) => {
+        if (event.lengthComputable) {
+          const uploadPercent = Math.min(85, Math.max(10, Math.round((event.loaded / event.total) * 85)));
+          setZipUploadProgress({
+            active: true,
+            percent: uploadPercent,
+            loaded: event.loaded,
+            total: event.total,
+            statusText: 'Transferring digital package to server...',
+            isComplete: false
+          });
+        }
+      };
+
+      xhr.onload = () => {
+        if (xhr.status >= 200 && xhr.status < 300) {
+          try {
+            const resp = JSON.parse(xhr.responseText);
+            handleScanComplete(resp.scan, resp.fileUrl || `r2://${resp.key}`, resp.fileSize || `${(file.size / (1024 * 1024)).toFixed(1)} MB`);
+          } catch {
+            setZipUploadProgress(null);
+            setErrorNotice('Failed to process server security analysis response.');
+          }
+        } else {
+          setZipUploadProgress(null);
+          let errorMsg = 'Failed to inspect and secure archive.';
+          if (xhr.status === 413) {
+            errorMsg = 'Archive exceeds direct upload ceiling. Please retry to use chunked ingestion.';
+          } else {
+            try {
+              const errData = JSON.parse(xhr.responseText);
+              errorMsg = errData.error || errData.message || errorMsg;
+            } catch {
+              errorMsg = `Server returned status ${xhr.status}. Please retry.`;
+            }
+          }
+          setErrorNotice(errorMsg);
+        }
+      };
+
+      xhr.onerror = () => {
+        setZipUploadProgress(null);
+        setErrorNotice('Network error uploading package archive. Please check your connection.');
+      };
+
+      xhr.open('POST', '/api/admin/products/inspect-and-upload-zip');
+      xhr.setRequestHeader('Authorization', `Bearer ${effectiveToken}`);
+      xhr.send(formData);
+
+    } catch (err: any) {
       cleanupZipTicker();
       setZipUploadProgress(null);
-      setErrorNotice('Network error uploading package archive. Please check your connection.');
-    };
-
-    const effectiveToken = token || localStorage.getItem('kroma_admin_token') || 'admin_primary';
-    xhr.open('POST', '/api/admin/products/inspect-and-upload-zip');
-    xhr.setRequestHeader('Authorization', `Bearer ${effectiveToken}`);
-    xhr.send(formData);
-
-    if (zipInputRef.current) zipInputRef.current.value = '';
+      setErrorNotice(err.message || 'Error occurred while inspecting and securing archive.');
+    } finally {
+      if (zipInputRef.current) zipInputRef.current.value = '';
+    }
   };
 
   // Feature Bullets Add/Remove

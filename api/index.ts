@@ -104,6 +104,43 @@ function handleZipUploadMiddleware(req: Request, res: Response, next: NextFuncti
   });
 }
 
+// Low-memory, serverless-safe chunk storage (2MB per slice - completely bypasses Vercel 4.5MB limits)
+const chunkDiskStorage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    const rawId = req.query.uploadId || (req.headers['x-upload-id'] as string) || req.body?.uploadId || 'temp_' + Date.now();
+    const uploadId = String(rawId).replace(/[^a-zA-Z0-9_-]/g, '_');
+    const targetDir = path.join(os.tmpdir(), 'kroma_chunks', uploadId);
+    try {
+      if (!fs.existsSync(targetDir)) {
+        fs.mkdirSync(targetDir, { recursive: true });
+      }
+      cb(null, targetDir);
+    } catch (e: any) {
+      cb(e, os.tmpdir());
+    }
+  },
+  filename: (req, file, cb) => {
+    const rawIndex = req.query.chunkIndex || (req.headers['x-chunk-index'] as string) || req.body?.chunkIndex || '0';
+    const chunkIndex = parseInt(String(rawIndex), 10) || 0;
+    cb(null, `chunk_${chunkIndex}`);
+  }
+});
+
+const uploadChunk = multer({
+  storage: chunkDiskStorage,
+  limits: { fileSize: 10 * 1024 * 1024 }
+});
+
+function handleChunkUploadMiddleware(req: Request, res: Response, next: NextFunction) {
+  uploadChunk.single('chunk')(req, res, (err) => {
+    if (err) {
+      console.error('Chunk upload multer error:', err);
+      return res.status(400).json({ error: `Chunk upload error: ${err.message}` });
+    }
+    next();
+  });
+}
+
 // ---------------------------------------------------------
 // DATABASE & STORAGE LAYER (Neon PostgreSQL + Safe Memory Fallback)
 // ---------------------------------------------------------
@@ -2717,7 +2754,258 @@ apiRouter.post('/admin/products/inspect-zip', verifyAuth, handleZipUploadMiddlew
   }
 });
 
-// Full Combined Upload & Automatic Security / Framework Analysis Engine
+// Handle accidental GET request gracefully
+apiRouter.get('/admin/products/inspect-and-upload-zip', (req: Request, res: Response) => {
+  res.status(405).json({
+    error: 'GET method not allowed on this endpoint. Use POST with multipart ZIP archive, chunked upload, or presigned R2 upload.',
+    supportedEndpoints: [
+      'POST /api/admin/products/get-upload-strategy',
+      'POST /api/admin/products/upload-chunk',
+      'POST /api/admin/products/assemble-and-inspect',
+      'POST /api/admin/products/inspect-r2-archive',
+      'POST /api/admin/products/inspect-and-upload-zip'
+    ]
+  });
+});
+
+// Strategic Upload Director: Decides between direct R2 presigned upload (zero bytes through serverless) and chunked upload (2MB slices)
+apiRouter.post('/admin/products/get-upload-strategy', verifyAuth, async (req: Request, res: Response) => {
+  const { fileName, fileSize } = req.body || {};
+  const cleanName = (fileName || 'package.zip').replace(/[^a-zA-Z0-9._-]/g, '_');
+  const admin = await getAdminAccount();
+  const r2 = getR2ClientFromConfig(admin);
+
+  if (r2) {
+    // Generate direct presigned PUT url for R2 (0 byte through serverless, bypasses Vercel 4.5MB completely!)
+    const userId = 'admin_primary';
+    const secureKey = buildR2Key(userId, 'secure-products', cleanName);
+    try {
+      const command = new PutObjectCommand({
+        Bucket: r2.bucket,
+        Key: secureKey,
+        ContentType: 'application/zip',
+        Metadata: {
+          'uploaded-by': userId,
+          'folder-type': 'secure-products'
+        }
+      });
+      const uploadUrl = await getSignedUrl(r2.client, command, { expiresIn: 900 });
+      return res.json({
+        strategy: 'presigned-r2',
+        uploadUrl,
+        key: secureKey,
+        storageType: 'Cloudflare R2 Private Bucket'
+      });
+    } catch (e: any) {
+      console.warn('Failed to generate presigned PUT url for R2:', e.message);
+    }
+  }
+
+  // If R2 is not configured, use 2MB chunked upload so it never exceeds Vercel's 4.5MB limit
+  const uploadId = 'upl_' + Date.now() + '_' + crypto.randomBytes(4).toString('hex');
+  res.json({
+    strategy: 'chunked',
+    uploadId,
+    chunkSize: 2 * 1024 * 1024, // 2MB slices
+    storageType: 'Secure Chunked Ingestion'
+  });
+});
+
+// Single Slice Receiver (2MB chunk per request - completely safe on Vercel)
+apiRouter.post('/admin/products/upload-chunk', verifyAuth, handleChunkUploadMiddleware, async (req: Request, res: Response) => {
+  const { uploadId, chunkIndex, totalChunks } = req.body || {};
+  if (!req.file && !req.body) {
+    return res.status(400).json({ error: 'Missing chunk payload.' });
+  }
+  res.json({
+    success: true,
+    uploadId,
+    chunkIndex: Number(chunkIndex),
+    totalChunks: Number(totalChunks)
+  });
+});
+
+// Reassembles chunks into full archive and executes 5-layer security + framework analysis
+apiRouter.post('/admin/products/assemble-and-inspect', verifyAuth, async (req: Request, res: Response) => {
+  const { uploadId, fileName, totalChunks, fileSize } = req.body || {};
+  if (!uploadId || !fileName || totalChunks === undefined) {
+    return res.status(400).json({ error: 'Missing assembly parameters (uploadId, fileName, totalChunks).' });
+  }
+
+  const safeUploadId = String(uploadId).replace(/[^a-zA-Z0-9_-]/g, '_');
+  const chunksDir = path.join(os.tmpdir(), 'kroma_chunks', safeUploadId);
+  const total = parseInt(String(totalChunks), 10);
+
+  if (!fs.existsSync(chunksDir)) {
+    return res.status(404).json({ error: 'Upload chunk session not found or expired. Please retry.' });
+  }
+
+  // Verify all slices are present
+  for (let i = 0; i < total; i++) {
+    const chunkFile = path.join(chunksDir, `chunk_${i}`);
+    if (!fs.existsSync(chunkFile)) {
+      return res.status(400).json({ error: `Missing chunk ${i} of ${total}. Please retry upload.` });
+    }
+  }
+
+  const originalName = String(fileName || 'package.zip').replace(/[^a-zA-Z0-9._-]/g, '_');
+  const safeFilename = `${Date.now()}_${originalName}`;
+  const outDir = getSafeUploadDir('secure-products');
+  const assembledPath = path.join(outDir, safeFilename);
+
+  try {
+    const writeStream = fs.createWriteStream(assembledPath);
+    for (let i = 0; i < total; i++) {
+      const chunkFile = path.join(chunksDir, `chunk_${i}`);
+      const chunkBuf = fs.readFileSync(chunkFile);
+      writeStream.write(chunkBuf);
+    }
+    await new Promise<void>((resolve, reject) => {
+      writeStream.end((err?: any) => {
+        if (err) reject(err);
+        else resolve();
+      });
+    });
+
+    // Clean up temporary chunks
+    for (let i = 0; i < total; i++) {
+      try { fs.unlinkSync(path.join(chunksDir, `chunk_${i}`)); } catch {}
+    }
+    try { fs.rmdirSync(chunksDir); } catch {}
+
+    // Run deep security and stack inspection
+    const scan = inspectZipArchive(assembledPath, originalName);
+
+    if (!scan.isSafe) {
+      try { fs.unlinkSync(assembledPath); } catch {}
+      return res.status(400).json({
+        success: false,
+        error: `Security verification notice: ${scan.threats.join('; ')}`,
+        scan
+      });
+    }
+
+    if (scan.detectedCategory) {
+      await ensureMarketplaceCategory(scan.detectedCategory);
+    }
+
+    // Store archive (R2 if available, else secure local storage)
+    const admin = await getAdminAccount();
+    const r2 = getR2ClientFromConfig(admin);
+    const userId = 'admin_primary';
+    const secureKey = buildR2Key(userId, 'secure-products', originalName);
+
+    let fileUrl = '';
+    let storageType = 'Cloudflare R2 Private Bucket';
+
+    if (r2) {
+      try {
+        const bodyStream = fs.createReadStream(assembledPath);
+        const putCmd = new PutObjectCommand({
+          Bucket: r2.bucket,
+          Key: secureKey,
+          Body: bodyStream,
+          ContentType: 'application/zip',
+          Metadata: {
+            'uploaded-by': userId,
+            'folder-type': 'secure-products',
+            'security-grade': scan.securityGrade,
+            'sha256': scan.sha256
+          }
+        });
+        await r2.client.send(putCmd);
+        fileUrl = `r2://${secureKey}`;
+        try { fs.unlinkSync(assembledPath); } catch {}
+      } catch (r2Err: any) {
+        console.warn('R2 package upload failed, auto-falling back to secure local storage:', r2Err.message);
+      }
+    }
+
+    if (!fileUrl) {
+      fileUrl = `/uploads/secure-products/${safeFilename}`;
+      storageType = 'Secure Local Storage (Configure R2 for Multi-Region CDN)';
+    }
+
+    const finalSize = fs.existsSync(assembledPath) ? fs.statSync(assembledPath).size : (Number(fileSize) || scan.totalUncompressedBytes);
+
+    res.json({
+      success: true,
+      fileUrl,
+      storageType,
+      key: secureKey,
+      fileSize: scan.compressedSizeFormatted,
+      exactBytes: finalSize,
+      scan
+    });
+  } catch (err: any) {
+    console.error('assemble-and-inspect error:', err);
+    try { if (fs.existsSync(assembledPath)) fs.unlinkSync(assembledPath); } catch {}
+    res.status(500).json({ error: err.message || 'Failed to assemble and inspect digital archive.' });
+  }
+});
+
+// Inspect Archive Uploaded Directly to R2 Bucket
+apiRouter.post('/admin/products/inspect-r2-archive', verifyAuth, async (req: Request, res: Response) => {
+  const { key, originalName } = req.body || {};
+  if (!key) {
+    return res.status(400).json({ error: 'Missing R2 object key.' });
+  }
+
+  const admin = await getAdminAccount();
+  const r2 = getR2ClientFromConfig(admin);
+  if (!r2) {
+    return res.status(400).json({ error: 'Cloudflare R2 is not configured.' });
+  }
+
+  try {
+    const getCmd = new GetObjectCommand({
+      Bucket: r2.bucket,
+      Key: key
+    });
+    const objResp = await r2.client.send(getCmd);
+    if (!objResp.Body) {
+      return res.status(404).json({ error: 'Archive not found in R2 bucket.' });
+    }
+
+    const chunks: Uint8Array[] = [];
+    const stream = objResp.Body as NodeJS.ReadableStream;
+    for await (const chunk of stream) {
+      chunks.push(typeof chunk === 'string' ? Buffer.from(chunk) : chunk);
+    }
+    const fullBuffer = Buffer.concat(chunks);
+
+    const scan = inspectZipArchive(fullBuffer, originalName || path.basename(key));
+    if (!scan.isSafe) {
+      try {
+        await r2.client.send(new DeleteObjectCommand({ Bucket: r2.bucket, Key: key }));
+      } catch {}
+      return res.status(400).json({
+        success: false,
+        error: `Security verification notice: ${scan.threats.join('; ')}`,
+        scan
+      });
+    }
+
+    if (scan.detectedCategory) {
+      await ensureMarketplaceCategory(scan.detectedCategory);
+    }
+
+    res.json({
+      success: true,
+      fileUrl: `r2://${key}`,
+      storageType: 'Cloudflare R2 Private Bucket',
+      key,
+      fileSize: scan.compressedSizeFormatted,
+      exactBytes: fullBuffer.length,
+      scan
+    });
+  } catch (err: any) {
+    console.error('Failed to inspect R2 archive:', err);
+    res.status(500).json({ error: err.message || 'Failed to inspect archive in R2.' });
+  }
+});
+
+// Full Combined Upload & Automatic Security / Framework Analysis Engine (Legacy direct upload for < 3MB files)
 apiRouter.post('/admin/products/inspect-and-upload-zip', verifyAuth, handleZipUploadMiddleware, async (req: Request, res: Response) => {
   if (!req.file) {
     return res.status(400).json({ error: 'No ZIP archive file provided.' });
