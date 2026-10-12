@@ -793,6 +793,17 @@ function inspectZipBuffer(buffer: Buffer, originalName = 'package.zip'): ZipScan
           pubspecEntry = entry;
         } else if (baseName === 'style.css') {
           styleCssEntry = entry;
+        } else if (baseName === 'artisan') {
+          detectedTools.add('Laravel');
+          detectedTools.add('PHP');
+          devKitScore += 6;
+        } else if (baseName === 'pom.xml' || baseName === 'build.gradle' || baseName === 'build.gradle.kts') {
+          detectedTools.add('Java');
+          devKitScore += 4;
+        } else if (entryName.toLowerCase().includes('wp-content') || entryName.toLowerCase().includes('wp-includes') || baseName === 'functions.php') {
+          detectedTools.add('WordPress');
+          detectedTools.add('PHP');
+          templateScore += 6;
         } else if (baseName === 'dockerfile' || baseName.startsWith('docker-compose')) {
           detectedTools.add('Docker');
           devKitScore += 3;
@@ -851,6 +862,18 @@ function inspectZipBuffer(buffer: Buffer, originalName = 'package.zip'): ZipScan
           devKitScore += 3;
         } else if (ext === '.py') {
           detectedTools.add('Python');
+          devKitScore += 3;
+        } else if (ext === '.java') {
+          detectedTools.add('Java');
+          devKitScore += 4;
+        } else if (ext === '.cs') {
+          detectedTools.add('C#');
+          devKitScore += 3;
+        } else if (ext === '.rb') {
+          detectedTools.add('Ruby');
+          devKitScore += 3;
+        } else if (ext === '.cpp' || ext === '.c' || ext === '.h' || ext === '.hpp') {
+          detectedTools.add('C++');
           devKitScore += 3;
         } else if (ext === '.php') {
           detectedTools.add('PHP');

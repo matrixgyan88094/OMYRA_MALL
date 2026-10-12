@@ -18,6 +18,7 @@ import {
 } from 'lucide-react';
 import { DigitalProduct, LicenseTier } from '../types';
 import { useStore } from '../context/StoreContext';
+import { TechToolIcon } from './TechToolIcon';
 
 interface ProductDetailModalProps {
   product: DigitalProduct;
@@ -631,9 +632,10 @@ export async function POST(req: NextRequest) {
                       {product.tools.map((t, idx) => (
                         <span
                           key={idx}
-                          className="px-2 py-0.5 rounded text-[11px] font-medium bg-zinc-100 text-zinc-700 border border-zinc-200"
+                          className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[11px] font-medium bg-zinc-100 text-zinc-800 border border-zinc-200/80 shadow-2xs"
                         >
-                          {t}
+                          <TechToolIcon toolName={t} className="w-3.5 h-3.5 shrink-0" />
+                          <span>{t}</span>
                         </span>
                       ))}
                     </div>
