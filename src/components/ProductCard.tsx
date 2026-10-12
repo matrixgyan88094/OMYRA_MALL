@@ -2,6 +2,7 @@ import React from 'react';
 import { ShoppingBag, Star, Check } from 'lucide-react';
 import { DigitalProduct } from '../types';
 import { useStore } from '../context/StoreContext';
+import { TechToolIcon } from './TechToolIcon';
 
 interface ProductCardProps {
   product: DigitalProduct;
@@ -58,6 +59,27 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
         <p className="mt-1 text-xs text-zinc-500 line-clamp-2 leading-relaxed flex-1">
           {product.tagline}
         </p>
+
+        {/* Exact Framework & Tool Vector Logos */}
+        {product.tools && product.tools.length > 0 && (
+          <div className="mt-2.5 flex flex-wrap items-center gap-1.5">
+            {product.tools.slice(0, 4).map((tool) => (
+              <span
+                key={tool}
+                className="inline-flex items-center gap-1 rounded bg-zinc-100 hover:bg-zinc-200/80 px-2 py-0.5 text-[11px] font-medium text-zinc-700 transition-colors border border-zinc-200/60"
+                title={tool}
+              >
+                <TechToolIcon toolName={tool} className="w-3.5 h-3.5 shrink-0" />
+                <span className="truncate max-w-[85px]">{tool}</span>
+              </span>
+            ))}
+            {product.tools.length > 4 && (
+              <span className="text-[10px] font-semibold text-zinc-400">
+                +{product.tools.length - 4}
+              </span>
+            )}
+          </div>
+        )}
 
         {/* Rating and Sales */}
         <div className="mt-3 flex items-center justify-between text-xs text-zinc-500 pt-3 border-t border-zinc-100">

@@ -1,11 +1,23 @@
 import React from 'react';
-import { Search, X } from 'lucide-react';
+import { Search, X, LayoutGrid, Layers, Code2, Box, Music, LayoutTemplate, Sparkles } from 'lucide-react';
 import { useStore } from '../context/StoreContext';
 
 interface FilterBarProps {
   searchInputRef?: React.RefObject<HTMLInputElement | null>;
   totalCount: number;
 }
+
+const getCategoryIcon = (cat: string) => {
+  switch (cat) {
+    case 'All': return <LayoutGrid className="w-3.5 h-3.5 shrink-0" />;
+    case 'UI & Figma': return <Layers className="w-3.5 h-3.5 shrink-0" />;
+    case 'Dev Kits': return <Code2 className="w-3.5 h-3.5 shrink-0" />;
+    case '3D & Spatial': return <Box className="w-3.5 h-3.5 shrink-0" />;
+    case 'Motion & Audio': return <Music className="w-3.5 h-3.5 shrink-0" />;
+    case 'Templates': return <LayoutTemplate className="w-3.5 h-3.5 shrink-0" />;
+    default: return <Sparkles className="w-3.5 h-3.5 shrink-0" />;
+  }
+};
 
 export const FilterBar: React.FC<FilterBarProps> = ({ searchInputRef, totalCount }) => {
   const {
@@ -46,7 +58,7 @@ export const FilterBar: React.FC<FilterBarProps> = ({ searchInputRef, totalCount
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Search UI systems, boilerplates, 3D assets..."
+            placeholder="Search UI systems, boilerplates, 3D assets, WordPress..."
             className="w-full rounded-lg border border-zinc-200 bg-white py-2.5 pl-10 pr-10 text-sm text-zinc-900 placeholder-zinc-400 focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500 transition-all min-h-[44px] shadow-sm"
           />
           {searchQuery && (
@@ -81,21 +93,22 @@ export const FilterBar: React.FC<FilterBarProps> = ({ searchInputRef, totalCount
         </div>
       </div>
 
-      {/* Category Segmented Filter Tabs */}
-      <div className="mt-4 flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none">
+      {/* Category Segmented Filter Tabs with Distinctive Icons */}
+      <div className="mt-4 flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none">
         {categories.map((cat) => {
           const isActive = selectedCategory === cat;
           return (
             <button
               key={cat}
               onClick={() => setSelectedCategory(cat)}
-              className={`min-h-[38px] px-3.5 py-1.5 text-xs font-medium rounded-lg transition-all whitespace-nowrap shrink-0 ${
+              className={`inline-flex items-center gap-2 min-h-[38px] px-3.5 py-1.5 text-xs font-medium rounded-lg transition-all whitespace-nowrap shrink-0 ${
                 isActive
                   ? 'bg-orange-600 text-white font-semibold shadow-sm'
                   : 'bg-white text-zinc-600 hover:text-zinc-900 hover:bg-zinc-50 border border-zinc-200'
               }`}
             >
-              {cat}
+              {getCategoryIcon(cat)}
+              <span>{cat}</span>
             </button>
           );
         })}

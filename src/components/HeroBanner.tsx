@@ -77,25 +77,25 @@ export const HeroBanner: React.FC = () => {
           <div className="lg:col-span-6 flex flex-col justify-center">
             
             {/* Pill Header */}
-            <div className="inline-flex items-center gap-2 rounded-full border border-orange-200/80 bg-orange-50/70 px-3.5 py-1 text-xs font-semibold text-orange-700 shadow-xs backdrop-blur-xs w-fit mb-5">
+            <div className="inline-flex items-center gap-2 rounded-full border border-orange-200/90 bg-orange-50/80 px-3.5 py-1 text-xs font-semibold text-orange-700 shadow-2xs backdrop-blur-xs w-fit mb-5">
               <span className="relative flex h-2 w-2">
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-orange-400 opacity-75" />
                 <span className="relative inline-flex rounded-full h-2 w-2 bg-orange-600" />
               </span>
-              <span>Digital Products & Engineering Assets</span>
+              <span>OMYRA MALL • Certified Digital Marketplace</span>
             </div>
 
             {/* Main Headline */}
             <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight text-zinc-950 leading-[1.12]">
-              High-performance assets for{' '}
+              Digital products for{' '}
               <span className="text-orange-600">
-                builders and designers
+                builders & creators
               </span>
             </h1>
 
             {/* Description Subtext */}
             <p className="mt-5 text-base sm:text-lg text-zinc-600 leading-relaxed font-normal max-w-xl">
-              Production-tested Figma design systems, fullstack boilerplates, 3D spatial renders, and motion kits. Handcrafted with precision and ready for immediate commercial deployment.
+              Discover verified UI design systems, fullstack application starters, WordPress themes, 3D assets, and engineering packages. Instant delivery, zero bloat, and commercial licensing included.
             </p>
 
             {/* Action Buttons */}
@@ -105,16 +105,16 @@ export const HeroBanner: React.FC = () => {
                 className="inline-flex items-center justify-center gap-2.5 rounded-lg bg-orange-600 px-6 py-3 text-sm font-semibold text-white shadow-sm shadow-orange-500/25 hover:bg-orange-700 active:scale-[0.98] transition-all min-h-[44px]"
               >
                 <ShoppingBag className="h-4 w-4" />
-                Browse Catalog
+                Explore Marketplace
                 <ArrowRight className="h-4 w-4 text-orange-200" />
               </button>
 
               <a
-                href="#about"
+                href="#marketplace-catalog"
                 className="inline-flex items-center justify-center gap-2 rounded-lg border border-zinc-200 bg-white px-5 py-3 text-sm font-medium text-zinc-700 hover:bg-zinc-50 hover:border-zinc-300 active:scale-[0.98] transition-all min-h-[44px]"
               >
                 <ShieldCheck className="h-4 w-4 text-orange-600" />
-                License Guarantee
+                Security Guarantee
               </a>
             </div>
 
@@ -122,15 +122,15 @@ export const HeroBanner: React.FC = () => {
             <div className="mt-8 pt-6 border-t border-zinc-100 flex flex-wrap items-center gap-y-2 gap-x-6 text-xs text-zinc-600 font-medium">
               <div className="flex items-center gap-1.5">
                 <CheckCircle2 className="h-3.5 w-3.5 text-orange-600" />
-                <span>Single-vendor vetted</span>
+                <span>Malware & hash verified</span>
               </div>
               <div className="flex items-center gap-1.5">
                 <CheckCircle2 className="h-3.5 w-3.5 text-orange-600" />
-                <span>Commercial rights included</span>
+                <span>Commercial license included</span>
               </div>
               <div className="flex items-center gap-1.5">
                 <CheckCircle2 className="h-3.5 w-3.5 text-orange-600" />
-                <span>Instant package download</span>
+                <span>Instant automated delivery</span>
               </div>
             </div>
 

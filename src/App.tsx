@@ -108,7 +108,7 @@ const StorefrontContent: React.FC = () => {
                 Enterprise Standards in Every File
               </h2>
               <p className="text-sm text-zinc-600 leading-relaxed">
-                Unlike open marketplaces filled with abandoned files and messy codebases, every asset on Kroma is engineered to high production standards, thoroughly documented, and actively updated.
+                Unlike open marketplaces filled with abandoned files and messy codebases, every asset on OMYRA MALL is engineered to high production standards, thoroughly documented, and actively updated.
               </p>
             </div>
 
