@@ -697,6 +697,7 @@ function inspectZipBuffer(buffer: Buffer, originalName = 'package.zip'): ZipScan
   let audioMotionScore = 0;
   let templateScore = 0;
   let devKitScore = 0;
+  let detectedCategory = 'Dev Kits';
 
   // Check original archive name for strong hints
   const lowerOriginal = originalName.toLowerCase();
@@ -720,19 +721,23 @@ function inspectZipBuffer(buffer: Buffer, originalName = 'package.zip'): ZipScan
     const zip = new AdmZip(buffer);
     const entries = zip.getEntries();
 
-    // Find the primary root package.json (ignore node_modules, vendor, etc.)
-    let rootPkgEntry: any = null;
-    let minPkgDepth = 999;
+    // Collect candidate manifests across the archive (ignoring vendor/cache)
+    const packageJsonEntries: any[] = [];
+    let composerJsonEntry: any = null;
+    let pyprojectEntry: any = null;
+    let requirementsEntry: any = null;
+    let cargoEntry: any = null;
+    let goModEntry: any = null;
+    let pubspecEntry: any = null;
+    let styleCssEntry: any = null;
 
     for (const entry of entries) {
-      const entryName = entry.entryName;
+      const entryName = entry.entryName.replace(/\\/g, '/');
 
       // 1. Path traversal check (Zip-Slip defense)
       if (
         entryName.includes('../') ||
-        entryName.includes('..\\') ||
         entryName.startsWith('/') ||
-        entryName.startsWith('\\') ||
         /^[a-zA-Z]:/.test(entryName)
       ) {
         threats.push(`Directory traversal anomaly detected in path: "${entryName}"`);
@@ -765,16 +770,43 @@ function inspectZipBuffer(buffer: Buffer, originalName = 'package.zip'): ZipScan
         entryName.includes('node_modules/') ||
         entryName.includes('vendor/') ||
         entryName.includes('__MACOSX/') ||
-        entryName.includes('.git/');
+        entryName.includes('.git/') ||
+        entryName.includes('dist/') ||
+        entryName.includes('.next/');
 
       if (!isVendorOrDep) {
-        // Track candidate package.json by shallowest directory depth
-        if (path.basename(entryName) === 'package.json') {
-          const depth = entryName.split('/').length;
-          if (depth < minPkgDepth) {
-            minPkgDepth = depth;
-            rootPkgEntry = entry;
-          }
+        const baseName = path.basename(entryName).toLowerCase();
+
+        if (baseName === 'package.json') {
+          packageJsonEntries.push(entry);
+        } else if (baseName === 'composer.json') {
+          composerJsonEntry = entry;
+        } else if (baseName === 'pyproject.toml') {
+          pyprojectEntry = entry;
+        } else if (baseName === 'requirements.txt') {
+          requirementsEntry = entry;
+        } else if (baseName === 'cargo.toml') {
+          cargoEntry = entry;
+        } else if (baseName === 'go.mod') {
+          goModEntry = entry;
+        } else if (baseName === 'pubspec.yaml') {
+          pubspecEntry = entry;
+        } else if (baseName === 'style.css') {
+          styleCssEntry = entry;
+        } else if (baseName === 'dockerfile' || baseName.startsWith('docker-compose')) {
+          detectedTools.add('Docker');
+          devKitScore += 3;
+        } else if (baseName === 'components.json') {
+          detectedTools.add('Shadcn UI');
+        } else if (baseName.includes('tailwind.config')) {
+          detectedTools.add('Tailwind CSS');
+        } else if (baseName.includes('vite.config')) {
+          detectedTools.add('Vite');
+        } else if (baseName.includes('next.config')) {
+          detectedTools.add('Next.js');
+          devKitScore += 5;
+        } else if (baseName === 'tsconfig.json') {
+          detectedTools.add('TypeScript');
         }
 
         // File-type heuristics
@@ -793,7 +825,7 @@ function inspectZipBuffer(buffer: Buffer, originalName = 'package.zip'): ZipScan
           detectedTags.add('3D Modeling');
           threeDScore += 10;
         } else if (['.fbx', '.obj', '.gltf', '.glb', '.c4d', '.stl'].includes(ext)) {
-          detectedTools.add('3D WebGL / Mesh');
+          detectedTools.add('Three.js / WebGL');
           detectedTags.add('3D Assets');
           threeDScore += 6;
         } else if (ext === '.lottie') {
@@ -811,37 +843,60 @@ function inspectZipBuffer(buffer: Buffer, originalName = 'package.zip'): ZipScan
         } else if (ext === '.kt' || ext === '.gradle') {
           detectedTools.add('Kotlin / Android');
           devKitScore += 3;
-        } else if (entryName.endsWith('pubspec.yaml')) {
-          detectedTools.add('Flutter');
-          detectedTools.add('Dart');
-          devKitScore += 5;
-        } else if (entryName.endsWith('requirements.txt') || entryName.endsWith('Pipfile') || entryName.endsWith('pyproject.toml')) {
+        } else if (ext === '.rs') {
+          detectedTools.add('Rust');
+          devKitScore += 3;
+        } else if (ext === '.go') {
+          detectedTools.add('Go');
+          devKitScore += 3;
+        } else if (ext === '.py') {
           detectedTools.add('Python');
-          devKitScore += 4;
-        } else if (ext === '.php' || entryName.endsWith('functions.php') || entryName.endsWith('style.css')) {
-          detectedTools.add('WordPress');
+          devKitScore += 3;
+        } else if (ext === '.php') {
           detectedTools.add('PHP');
-          templateScore += 5;
+          templateScore += 3;
+        } else if (ext === '.ts' || ext === '.tsx') {
+          detectedTools.add('TypeScript');
+        } else if (ext === '.js' || ext === '.jsx') {
+          detectedTools.add('JavaScript');
         } else if (ext === '.html' || ext === '.htm') {
           detectedTools.add('HTML5');
           templateScore += 1;
-        } else if (ext === '.css' || ext === '.scss' || ext === '.sass') {
+        } else if (ext === '.css') {
           detectedTools.add('CSS3');
+        } else if (ext === '.scss' || ext === '.sass') {
+          detectedTools.add('Sass');
+        } else if (ext === '.vue') {
+          detectedTools.add('Vue.js');
+        } else if (ext === '.svelte') {
+          detectedTools.add('Svelte');
+        } else if (ext === '.astro') {
+          detectedTools.add('Astro');
+          templateScore += 3;
+        } else if (ext === '.prisma') {
+          detectedTools.add('Prisma ORM');
         }
       }
     }
 
-    // 4. Parse the project's root package.json (bypassing node_modules entirely!)
-    if (rootPkgEntry) {
+    // 4. Parse all package.json files (shallowest first for naming, but scan all for deps)
+    packageJsonEntries.sort((a, b) => a.entryName.split('/').length - b.entryName.split('/').length);
+
+    for (const pkgEntry of packageJsonEntries) {
       try {
-        const content = zip.readAsText(rootPkgEntry);
+        const content = zip.readAsText(pkgEntry);
         const pkg = JSON.parse(content);
-        packageDetails = {
-          name: pkg.name ? pkg.name.replace(/[-_]/g, ' ').replace(/\b\w/g, (c: string) => c.toUpperCase()) : undefined,
-          description: pkg.description,
-          version: pkg.version
-        };
-        if (pkg.version) suggestedVersion = pkg.version;
+
+        if (!packageDetails) {
+          packageDetails = {
+            name: pkg.name ? pkg.name.replace(/[-_]/g, ' ').replace(/\b\w/g, (c: string) => c.toUpperCase()) : undefined,
+            description: pkg.description,
+            version: pkg.version
+          };
+        }
+        if (pkg.version && (suggestedVersion === '1.0.0' || !suggestedVersion)) {
+          suggestedVersion = pkg.version;
+        }
 
         // Keywords in package.json
         if (Array.isArray(pkg.keywords)) {
@@ -860,13 +915,13 @@ function inspectZipBuffer(buffer: Buffer, originalName = 'package.zip'): ZipScan
 
         // Comprehensive framework & stack detection
         if (allDeps['next']) {
-          const v = allDeps['next'].replace(/[^0-9.]/g, '').split('.')[0] || '15';
+          const v = (allDeps['next'] || '').replace(/[^0-9.]/g, '').split('.')[0] || '15';
           detectedTools.add(`Next.js ${v}`);
           detectedTags.add('Next.js');
           devKitScore += 6;
         }
         if (allDeps['react']) {
-          const v = allDeps['react'].replace(/[^0-9.]/g, '').split('.')[0] || '19';
+          const v = (allDeps['react'] || '').replace(/[^0-9.]/g, '').split('.')[0] || '19';
           detectedTools.add(`React ${v}`);
           detectedTags.add('React');
         }
@@ -879,8 +934,12 @@ function inspectZipBuffer(buffer: Buffer, originalName = 'package.zip'): ZipScan
           devKitScore += 5;
         }
         if (allDeps['svelte'] || allDeps['@sveltejs/kit']) {
-          detectedTools.add('SvelteKit');
+          detectedTools.add('Svelte');
           devKitScore += 4;
+        }
+        if (allDeps['@angular/core']) {
+          detectedTools.add('Angular');
+          devKitScore += 5;
         }
         if (allDeps['astro']) {
           detectedTools.add('Astro');
@@ -890,7 +949,7 @@ function inspectZipBuffer(buffer: Buffer, originalName = 'package.zip'): ZipScan
           detectedTools.add('Remix');
           devKitScore += 4;
         }
-        if (allDeps['tailwindcss'] || allDeps['@tailwindcss/postcss']) {
+        if (allDeps['tailwindcss'] || allDeps['@tailwindcss/postcss'] || allDeps['@tailwindcss/vite']) {
           detectedTools.add('Tailwind CSS');
           detectedTags.add('Tailwind CSS');
         }
@@ -900,6 +959,9 @@ function inspectZipBuffer(buffer: Buffer, originalName = 'package.zip'): ZipScan
         }
         if (allDeps['vite']) {
           detectedTools.add('Vite');
+        }
+        if (allDeps['webpack']) {
+          detectedTools.add('Webpack');
         }
         if (allDeps['prisma'] || allDeps['@prisma/client']) {
           detectedTools.add('Prisma ORM');
@@ -913,9 +975,21 @@ function inspectZipBuffer(buffer: Buffer, originalName = 'package.zip'): ZipScan
         if (allDeps['@neondatabase/serverless'] || allDeps['pg']) {
           detectedTools.add('PostgreSQL');
         }
+        if (allDeps['mysql'] || allDeps['mysql2']) {
+          detectedTools.add('MySQL');
+        }
+        if (allDeps['mongodb'] || allDeps['mongoose']) {
+          detectedTools.add('MongoDB');
+        }
+        if (allDeps['redis'] || allDeps['ioredis']) {
+          detectedTools.add('Redis');
+        }
+        if (allDeps['sqlite3'] || allDeps['better-sqlite3']) {
+          detectedTools.add('SQLite');
+        }
         if (allDeps['@supabase/supabase-js']) {
           detectedTools.add('Supabase');
-          devKitScore += 3;
+          devKitScore += 4;
         }
         if (allDeps['firebase'] || allDeps['firebase-admin']) {
           detectedTools.add('Firebase');
@@ -937,7 +1011,7 @@ function inspectZipBuffer(buffer: Buffer, originalName = 'package.zip'): ZipScan
           audioMotionScore += 2;
         }
         if (allDeps['three'] || allDeps['@react-three/fiber']) {
-          detectedTools.add('Three.js / WebGL');
+          detectedTools.add('Three.js');
           threeDScore += 8;
         }
         if (allDeps['express']) {
@@ -959,83 +1033,172 @@ function inspectZipBuffer(buffer: Buffer, originalName = 'package.zip'): ZipScan
         if (allDeps['zustand']) {
           detectedTools.add('Zustand');
         }
+        if (allDeps['@reduxjs/toolkit'] || allDeps['redux']) {
+          detectedTools.add('Redux');
+        }
         if (allDeps['radix-ui'] || Object.keys(allDeps).some(k => k.startsWith('@radix-ui/'))) {
           detectedTools.add('Radix UI');
         }
         if (allDeps['shadcn-ui'] || allDeps['@shadcn/ui']) {
           detectedTools.add('Shadcn UI');
         }
+        if (allDeps['axios']) {
+          detectedTools.add('Axios');
+        }
+        if (allDeps['zod']) {
+          detectedTools.add('Zod');
+        }
+        if (allDeps['@tanstack/react-query'] || allDeps['react-query']) {
+          detectedTools.add('TanStack Query');
+        }
+        if (allDeps['socket.io'] || allDeps['socket.io-client']) {
+          detectedTools.add('Socket.IO');
+        }
+        if (allDeps['graphql'] || allDeps['@apollo/client']) {
+          detectedTools.add('GraphQL');
+        }
+        if (allDeps['@trpc/server'] || allDeps['@trpc/client']) {
+          detectedTools.add('tRPC');
+        }
+        if (allDeps['next-auth'] || allDeps['@auth/core']) {
+          detectedTools.add('Auth.js');
+        }
+        if (allDeps['@clerk/nextjs'] || allDeps['@clerk/clerk-react']) {
+          detectedTools.add('Clerk Auth');
+        }
+        if (allDeps['electron']) {
+          detectedTools.add('Electron');
+          devKitScore += 4;
+        }
+        if (allDeps['@tauri-apps/api']) {
+          detectedTools.add('Tauri');
+          devKitScore += 4;
+        }
+        if (allDeps['bootstrap']) {
+          detectedTools.add('Bootstrap');
+        }
+        if (allDeps['sass']) {
+          detectedTools.add('Sass');
+        }
+        if (allDeps['vitest']) {
+          detectedTools.add('Vitest');
+        }
+        if (allDeps['jest']) {
+          detectedTools.add('Jest');
+        }
+        if (allDeps['playwright'] || allDeps['@playwright/test']) {
+          detectedTools.add('Playwright');
+        }
+        if (allDeps['recharts'] || allDeps['chart.js']) {
+          detectedTools.add('Chart.js');
+        }
       } catch (e) {
         console.warn('Notice parsing package.json:', e);
       }
     }
 
-    // Deep multi-format version extraction if not found in package.json
+    // 5. Inspect composer.json (PHP / Laravel / WordPress)
+    if (composerJsonEntry) {
+      try {
+        const comp = JSON.parse(zip.readAsText(composerJsonEntry));
+        detectedTools.add('PHP');
+        if (comp.require?.['laravel/framework']) {
+          detectedTools.add('Laravel');
+          devKitScore += 6;
+        }
+        if (comp.require?.['symfony/framework-bundle'] || Object.keys(comp.require || {}).some(k => k.startsWith('symfony/'))) {
+          detectedTools.add('Symfony');
+          devKitScore += 4;
+        }
+        if (comp.require?.['roots/bedrock'] || comp.require?.['johnpbloch/wordpress']) {
+          detectedTools.add('WordPress');
+          templateScore += 5;
+        }
+        if (comp.version && (suggestedVersion === '1.0.0' || !suggestedVersion)) {
+          suggestedVersion = String(comp.version).replace(/^v/i, '');
+        }
+      } catch {}
+    }
+
+    // 6. Inspect Python (pyproject.toml / requirements.txt)
+    if (pyprojectEntry || requirementsEntry) {
+      detectedTools.add('Python');
+      devKitScore += 4;
+      try {
+        const txt = (pyprojectEntry ? zip.readAsText(pyprojectEntry) : '') + '\n' + (requirementsEntry ? zip.readAsText(requirementsEntry) : '');
+        if (/django/i.test(txt)) detectedTools.add('Django');
+        if (/fastapi/i.test(txt)) detectedTools.add('FastAPI');
+        if (/flask/i.test(txt)) detectedTools.add('Flask');
+        if (/torch|pytorch/i.test(txt)) detectedTools.add('PyTorch');
+        if (/tensorflow/i.test(txt)) detectedTools.add('TensorFlow');
+        if (/pandas/i.test(txt)) detectedTools.add('Pandas');
+      } catch {}
+    }
+
+    // 7. Inspect Rust (Cargo.toml)
+    if (cargoEntry) {
+      detectedTools.add('Rust');
+      devKitScore += 4;
+      try {
+        const txt = zip.readAsText(cargoEntry);
+        if (/actix/i.test(txt)) detectedTools.add('Actix Web');
+        if (/axum/i.test(txt)) detectedTools.add('Axum');
+        if (/tokio/i.test(txt)) detectedTools.add('Tokio');
+        if (/tauri/i.test(txt)) detectedTools.add('Tauri');
+      } catch {}
+    }
+
+    // 8. Inspect Go (go.mod)
+    if (goModEntry) {
+      detectedTools.add('Go');
+      devKitScore += 4;
+      try {
+        const txt = zip.readAsText(goModEntry);
+        if (/gin-gonic\/gin/i.test(txt)) detectedTools.add('Gin');
+        if (/gofiber\/fiber/i.test(txt)) detectedTools.add('Fiber');
+        if (/labstack\/echo/i.test(txt)) detectedTools.add('Echo');
+      } catch {}
+    }
+
+    // 9. Inspect Flutter (pubspec.yaml)
+    if (pubspecEntry) {
+      detectedTools.add('Flutter');
+      detectedTools.add('Dart');
+      devKitScore += 5;
+    }
+
+    // 10. Deep multi-format version extraction if still default
     if (suggestedVersion === '1.0.0') {
-      for (const entry of entries) {
-        if (entry.isDirectory) continue;
-        const entryName = entry.entryName;
-        if (entryName.includes('node_modules/') || entryName.includes('vendor/')) continue;
-        const baseName = path.basename(entryName).toLowerCase();
-
-        // 1. composer.json
-        if (baseName === 'composer.json') {
-          try {
-            const comp = JSON.parse(zip.readAsText(entry));
-            if (comp.version && typeof comp.version === 'string') {
-              suggestedVersion = comp.version.replace(/^v/i, '');
-              break;
-            }
-          } catch {}
-        }
-
-        // 2. pubspec.yaml (Flutter / Dart)
-        if (baseName === 'pubspec.yaml') {
-          try {
-            const txt = zip.readAsText(entry);
-            const m = txt.match(/^version:\s*([0-9]+\.[0-9]+(?:\.[0-9]+)?)/m);
-            if (m && m[1]) {
-              suggestedVersion = m[1];
-              break;
-            }
-          } catch {}
-        }
-
-        // 3. pyproject.toml / setup.cfg / setup.py
-        if (baseName === 'pyproject.toml' || baseName === 'setup.cfg' || baseName === 'setup.py') {
-          try {
-            const txt = zip.readAsText(entry);
-            const m = txt.match(/version\s*=\s*["']([0-9]+\.[0-9]+(?:\.[0-9]+)?)/i);
-            if (m && m[1]) {
-              suggestedVersion = m[1];
-              break;
-            }
-          } catch {}
-        }
-
-        // 4. Cargo.toml (Rust)
-        if (baseName === 'cargo.toml') {
-          try {
-            const txt = zip.readAsText(entry);
-            const m = txt.match(/version\s*=\s*["']([0-9]+\.[0-9]+(?:\.[0-9]+)?)/i);
-            if (m && m[1]) {
-              suggestedVersion = m[1];
-              break;
-            }
-          } catch {}
-        }
-
-        // 5. style.css (WordPress Themes)
-        if (baseName === 'style.css') {
-          try {
-            const txt = zip.readAsText(entry);
-            const m = txt.match(/Version:\s*([0-9]+\.[0-9]+(?:\.[0-9]+)?)/i);
-            if (m && m[1]) {
-              suggestedVersion = m[1];
-              break;
-            }
-          } catch {}
-        }
+      if (pubspecEntry) {
+        try {
+          const txt = zip.readAsText(pubspecEntry);
+          const m = txt.match(/^version:\s*([0-9]+\.[0-9]+(?:\.[0-9]+)?)/m);
+          if (m && m[1]) suggestedVersion = m[1];
+        } catch {}
+      }
+      if (suggestedVersion === '1.0.0' && pyprojectEntry) {
+        try {
+          const txt = zip.readAsText(pyprojectEntry);
+          const m = txt.match(/version\s*=\s*["']([0-9]+\.[0-9]+(?:\.[0-9]+)?)/i);
+          if (m && m[1]) suggestedVersion = m[1];
+        } catch {}
+      }
+      if (suggestedVersion === '1.0.0' && cargoEntry) {
+        try {
+          const txt = zip.readAsText(cargoEntry);
+          const m = txt.match(/version\s*=\s*["']([0-9]+\.[0-9]+(?:\.[0-9]+)?)/i);
+          if (m && m[1]) suggestedVersion = m[1];
+        } catch {}
+      }
+      if (suggestedVersion === '1.0.0' && styleCssEntry) {
+        try {
+          const txt = zip.readAsText(styleCssEntry);
+          const m = txt.match(/Version:\s*([0-9]+\.[0-9]+(?:\.[0-9]+)?)/i);
+          if (m && m[1]) {
+            suggestedVersion = m[1];
+            detectedTools.add('WordPress');
+          }
+        } catch {}
       }
     }
 
@@ -1057,55 +1220,55 @@ function inspectZipBuffer(buffer: Buffer, originalName = 'package.zip'): ZipScan
     if (totalUncompressedBytes > 2.5 * 1024 * 1024 * 1024) {
       threats.push('Total uncompressed package payload exceeds 2.5 GB safety envelope');
     }
+
+    // 11. Intelligent Multi-Factor Category Resolution
+    detectedCategory = 'Dev Kits';
+    const scores = [
+      { cat: 'UI & Figma', score: figmaScore },
+      { cat: '3D & Spatial', score: threeDScore },
+      { cat: 'Motion & Audio', score: audioMotionScore },
+      { cat: 'Templates', score: templateScore },
+      { cat: 'Dev Kits', score: devKitScore }
+    ];
+    scores.sort((a, b) => b.score - a.score);
+
+    if (scores[0].score > 0) {
+      detectedCategory = scores[0].cat;
+    } else {
+      // Fallback based on detected tools
+      if (detectedTools.has('Figma') || detectedTools.has('Sketch')) {
+        detectedCategory = 'UI & Figma';
+      } else if (detectedTools.has('Blender 3D') || detectedTools.has('Three.js / WebGL')) {
+        detectedCategory = '3D & Spatial';
+      } else if (detectedTools.has('Lottie Animation') || detectedTools.has('Audio UI Engine')) {
+        detectedCategory = 'Motion & Audio';
+      } else if (detectedTools.has('WordPress') || detectedTools.has('HTML5')) {
+        detectedCategory = 'Templates';
+      } else {
+        detectedCategory = 'Dev Kits';
+      }
+    }
+
+    // Always ensure format-based tools are included if present
+    for (const fmt of detectedFormats) {
+      if (['.ts', '.tsx'].includes(fmt)) detectedTools.add('TypeScript');
+      else if (['.js', '.jsx'].includes(fmt)) detectedTools.add('JavaScript');
+      else if (['.py'].includes(fmt)) detectedTools.add('Python');
+      else if (['.rs'].includes(fmt)) detectedTools.add('Rust');
+      else if (['.go'].includes(fmt)) detectedTools.add('Go');
+      else if (['.php'].includes(fmt)) detectedTools.add('PHP');
+      else if (['.html', '.htm'].includes(fmt)) detectedTools.add('HTML5');
+      else if (['.css'].includes(fmt)) detectedTools.add('CSS3');
+      else if (['.scss', '.sass'].includes(fmt)) detectedTools.add('Sass');
+      else if (['.fig'].includes(fmt)) detectedTools.add('Figma');
+      else if (['.sketch'].includes(fmt)) detectedTools.add('Sketch');
+      else if (['.blend'].includes(fmt)) detectedTools.add('Blender 3D');
+    }
   } catch (err: any) {
     threats.push(`Archive header corrupted or invalid ZIP structure: ${err.message}`);
   }
 
-  // 5. Intelligent Multi-Factor Category Resolution
-  let detectedCategory = 'Dev Kits';
-  const scores = [
-    { cat: 'UI & Figma', score: figmaScore },
-    { cat: '3D & Spatial', score: threeDScore },
-    { cat: 'Motion & Audio', score: audioMotionScore },
-    { cat: 'Templates', score: templateScore },
-    { cat: 'Dev Kits', score: devKitScore }
-  ];
-  scores.sort((a, b) => b.score - a.score);
 
-  if (scores[0].score > 0) {
-    detectedCategory = scores[0].cat;
-  } else {
-    // Fallback based on detected tools
-    if (detectedTools.has('Figma') || detectedTools.has('Sketch')) {
-      detectedCategory = 'UI & Figma';
-    } else if (detectedTools.has('Blender 3D') || detectedTools.has('Three.js / WebGL')) {
-      detectedCategory = '3D & Spatial';
-    } else if (detectedTools.has('Lottie Animation') || detectedTools.has('Audio UI Engine')) {
-      detectedCategory = 'Motion & Audio';
-    } else if (detectedTools.has('WordPress') || detectedTools.has('HTML5')) {
-      detectedCategory = 'Templates';
-    } else {
-      detectedCategory = 'Dev Kits';
-    }
-  }
-
-  // Fallback tools if still empty
-  if (detectedTools.size === 0) {
-    if (detectedCategory === 'UI & Figma') {
-      detectedTools.add('Figma');
-      detectedTools.add('Vector UI Components');
-    } else if (detectedCategory === '3D & Spatial') {
-      detectedTools.add('3D Models / Assets');
-    } else if (detectedCategory === 'Motion & Audio') {
-      detectedTools.add('Audio & Motion Assets');
-    } else if (detectedCategory === 'Templates') {
-      detectedTools.add('Responsive Web Template');
-      detectedTools.add('HTML / CSS');
-    } else {
-      detectedTools.add('Universal Code Package');
-      detectedTools.add('TypeScript / JavaScript');
-    }
-  }
 
   // Add rich category and tool keywords
   detectedTags.add(detectedCategory.toLowerCase());
