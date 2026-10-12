@@ -15,12 +15,19 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
   const displayPrice = product.salePrice ?? product.basePrice;
   const hasDiscount = product.salePrice && product.salePrice < product.basePrice;
 
+  // Formatted tag label (e.g. "Featured", "Verified", "Hot Release")
+  const pillTag = product.isNew 
+    ? 'New Release' 
+    : product.featured 
+    ? 'Verified Asset' 
+    : product.category;
+
   return (
-    <div className="group flex flex-col overflow-hidden rounded-xl border border-zinc-200 bg-white transition-all duration-200 hover:border-orange-400/60 hover:shadow-md">
+    <div className="group flex flex-col overflow-hidden rounded-xl border border-zinc-200/90 bg-white transition-all duration-200 hover:border-teal-400/80 hover:shadow-lg hover:shadow-teal-900/5">
       {/* Product Image Stage */}
       <div 
         onClick={() => setSelectedProduct(product)}
-        className="relative aspect-[4/3] w-full overflow-hidden bg-zinc-100 cursor-pointer"
+        className="relative aspect-[16/10] w-full overflow-hidden bg-zinc-100 cursor-pointer"
       >
         <img
           src={product.coverImage}
@@ -29,9 +36,16 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
           className="h-full w-full object-cover object-center transition-transform duration-300 group-hover:scale-[1.03]"
         />
 
-        {/* Clean format tag */}
+        {/* Top-Left: Light Purple Pill Tag as seen in the screenshot */}
+        <div className="absolute top-3 left-3">
+          <span className="inline-flex items-center rounded-full bg-purple-50/95 backdrop-blur-xs px-2.5 py-0.5 text-[11px] font-semibold text-purple-700 border border-purple-200/90 shadow-2xs">
+            {pillTag}
+          </span>
+        </div>
+
+        {/* Top-Right: Clean format tag */}
         <div className="absolute top-3 right-3">
-          <span className="rounded bg-white/90 backdrop-blur-sm px-2 py-0.5 text-[11px] font-medium text-zinc-700 border border-zinc-200/80 shadow-xs">
+          <span className="rounded bg-white/95 backdrop-blur-sm px-2 py-0.5 text-[11px] font-medium text-zinc-700 border border-zinc-200/80 shadow-2xs font-mono">
             {product.format}
           </span>
         </div>
@@ -40,7 +54,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
       {/* Card Content & Metadata */}
       <div className="flex flex-1 flex-col p-4 sm:p-5">
         <div className="flex items-center gap-1.5 text-xs text-zinc-500">
-          <span>{product.category}</span>
+          <span className="font-medium text-zinc-700">{product.category}</span>
           <span aria-hidden="true">·</span>
           <span>v{product.version}</span>
           <span aria-hidden="true">·</span>
@@ -50,7 +64,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
         {/* Product Title */}
         <h3
           onClick={() => setSelectedProduct(product)}
-          className="mt-2 text-base font-semibold text-zinc-950 group-hover:text-orange-600 transition-colors line-clamp-1 cursor-pointer"
+          className="mt-2 text-base font-semibold text-zinc-950 group-hover:text-teal-600 transition-colors line-clamp-1 cursor-pointer tracking-tight"
         >
           {product.title}
         </h3>
@@ -91,7 +105,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
             <span className="text-zinc-400">({product.reviewCount})</span>
           </div>
 
-          <span className="text-zinc-500">
+          <span className="text-zinc-500 font-medium">
             {product.salesCount.toLocaleString()} sales
           </span>
         </div>
@@ -99,7 +113,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
         {/* Price & Action Row */}
         <div className="mt-4 flex items-center justify-between gap-3">
           <div className="flex items-baseline gap-2">
-            <span className="text-xl font-bold text-zinc-950 tabular-nums">
+            <span className="text-xl font-bold text-zinc-950 tabular-nums tracking-tight">
               ${displayPrice}
             </span>
             {hasDiscount && (
@@ -112,17 +126,17 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
           <div className="flex items-center gap-2">
             <button
               onClick={() => setSelectedProduct(product)}
-              className="rounded-lg border border-zinc-200 px-3 py-2 text-xs font-medium text-zinc-700 hover:bg-zinc-50 hover:text-zinc-950 transition-colors"
+              className="rounded-lg border border-zinc-200 px-3 py-2 text-xs font-medium text-zinc-700 hover:bg-zinc-50 hover:text-zinc-950 transition-colors cursor-pointer"
             >
               Details
             </button>
 
             <button
               onClick={() => addToCart(product, 'personal')}
-              className={`flex items-center gap-1.5 rounded-lg px-3.5 py-2 text-xs font-semibold transition-all ${
+              className={`flex items-center gap-1.5 rounded-lg px-3.5 py-2 text-xs font-semibold transition-all cursor-pointer ${
                 isAlreadyInCart
-                  ? 'bg-zinc-100 text-orange-600 border border-orange-200'
-                  : 'bg-orange-600 text-white hover:bg-orange-700 active:scale-95 shadow-sm'
+                  ? 'bg-zinc-100 text-teal-700 border border-teal-200'
+                  : 'bg-teal-600 text-white hover:bg-teal-700 active:scale-95 shadow-sm shadow-teal-600/20'
               }`}
             >
               {isAlreadyInCart ? (

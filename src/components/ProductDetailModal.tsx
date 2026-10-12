@@ -39,7 +39,7 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({ product,
   const allImages = [product.coverImage, ...(product.galleryImages || [])].filter(Boolean);
 
   // Interactive UI Kit demo state
-  const [demoActiveTheme, setDemoActiveTheme] = useState<'orange' | 'dark' | 'white'>('orange');
+  const [demoActiveTheme, setDemoActiveTheme] = useState<'teal' | 'dark' | 'white'>('teal');
   const [demoSwitchState, setDemoSwitchState] = useState(true);
   const [demoSliderVal, setDemoSliderVal] = useState(75);
 
@@ -180,7 +180,7 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({ product,
                         onClick={() => setSelectedImage(imgUrl)}
                         className={`relative h-16 w-20 flex-shrink-0 rounded-lg overflow-hidden border transition-all ${
                           selectedImage === imgUrl
-                            ? 'border-orange-500 ring-2 ring-orange-500/20 shadow-sm'
+                            ? 'border-teal-500 ring-2 ring-teal-500/20 shadow-sm'
                             : 'border-zinc-200 opacity-70 hover:opacity-100 hover:border-zinc-300'
                         }`}
                       >
@@ -200,7 +200,7 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({ product,
               <div className="rounded-xl border border-zinc-200 bg-zinc-50 p-5">
                 <div className="flex items-center justify-between mb-4 pb-3 border-b border-zinc-200">
                   <div className="flex items-center gap-2">
-                    <Sparkles className="h-4 w-4 text-orange-600" />
+                    <Sparkles className="h-4 w-4 text-teal-600" />
                     <span className="text-xs font-bold uppercase tracking-wider text-zinc-900">
                       Live Asset Preview
                     </span>
@@ -219,10 +219,10 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({ product,
                     <div className="flex items-center gap-2">
                       <span className="text-xs text-zinc-500">Theme:</span>
                       <button
-                        onClick={() => setDemoActiveTheme('orange')}
+                        onClick={() => setDemoActiveTheme('teal')}
                         className={`px-3 py-1 text-xs rounded-md font-medium transition-all ${
-                          demoActiveTheme === 'orange'
-                            ? 'bg-orange-600 text-white shadow-sm'
+                          demoActiveTheme === 'teal'
+                            ? 'bg-teal-600 text-white shadow-sm'
                             : 'bg-white border border-zinc-200 text-zinc-700 hover:bg-zinc-100'
                         }`}
                       >
@@ -242,7 +242,7 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({ product,
                         onClick={() => setDemoActiveTheme('white')}
                         className={`px-3 py-1 text-xs rounded-md font-medium transition-all ${
                           demoActiveTheme === 'white'
-                            ? 'bg-white border border-orange-500 text-orange-600 shadow-sm'
+                            ? 'bg-white border border-teal-500 text-teal-600 shadow-sm'
                             : 'bg-white border border-zinc-200 text-zinc-700 hover:bg-zinc-100'
                         }`}
                       >
@@ -253,8 +253,8 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({ product,
                     {/* Interactive Component Sandbox */}
                     <div
                       className={`p-5 rounded-xl border transition-all ${
-                        demoActiveTheme === 'orange'
-                          ? 'border-orange-200 bg-orange-50/50'
+                        demoActiveTheme === 'teal'
+                          ? 'border-teal-200 bg-teal-50/50'
                           : demoActiveTheme === 'dark'
                           ? 'border-zinc-800 bg-zinc-900 text-white'
                           : 'border-zinc-200 bg-white text-zinc-900'
@@ -264,8 +264,8 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({ product,
                         <button
                           onClick={() => playSynthesizedSound('tap')}
                           className={`px-4 py-2 rounded-lg text-xs font-semibold shadow-sm transition-all active:scale-95 ${
-                            demoActiveTheme === 'orange'
-                              ? 'bg-orange-600 text-white hover:bg-orange-700'
+                            demoActiveTheme === 'teal'
+                              ? 'bg-teal-600 text-white hover:bg-teal-700'
                               : demoActiveTheme === 'dark'
                               ? 'bg-white text-zinc-950 hover:bg-zinc-200'
                               : 'bg-zinc-900 text-white hover:bg-zinc-800'
@@ -292,7 +292,7 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({ product,
                             playSynthesizedSound('toggle');
                           }}
                           className={`w-11 h-6 flex items-center rounded-full p-1 cursor-pointer transition-colors ${
-                            demoSwitchState ? 'bg-orange-600' : 'bg-zinc-300'
+                            demoSwitchState ? 'bg-teal-600' : 'bg-zinc-300'
                           }`}
                         >
                           <div
@@ -317,7 +317,7 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({ product,
                           max="24"
                           value={demoSliderVal}
                           onChange={(e) => setDemoSliderVal(Number(e.target.value))}
-                          className="w-full accent-orange-600 cursor-pointer"
+                          className="w-full accent-teal-600 cursor-pointer"
                         />
                       </div>
                     </div>
@@ -335,7 +335,7 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({ product,
                             onClick={() => setSelectedCodeFile(file)}
                             className={`px-3 py-1 text-xs rounded-md font-mono transition-colors ${
                               selectedCodeFile === file
-                                ? 'bg-orange-600 text-white font-semibold'
+                                ? 'bg-teal-600 text-white font-semibold'
                                 : 'bg-white border border-zinc-200 text-zinc-600 hover:bg-zinc-100'
                             }`}
                           >
@@ -356,7 +356,7 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({ product,
                               : `// Enterprise Auth Provider\nexport async function verifySession(token: string) {\n  return jwt.verify(token, process.env.SECRET_KEY!);\n}`
                           )
                         }
-                        className="flex items-center gap-1 text-xs text-orange-600 hover:text-orange-700 font-medium"
+                        className="flex items-center gap-1 text-xs text-teal-600 hover:text-teal-700 font-medium"
                       >
                         {copiedCode ? <Check className="h-3.5 w-3.5" /> : <Copy className="h-3.5 w-3.5" />}
                         <span>{copiedCode ? 'Copied' : 'Copy'}</span>
@@ -425,7 +425,7 @@ export async function POST(req: NextRequest) {
                       <span>Interactive Spatial Orbit (Click & drag sliders):</span>
                       <button
                         onClick={() => setIsWireframe(!isWireframe)}
-                        className="text-orange-600 font-semibold hover:underline"
+                        className="text-teal-600 font-semibold hover:underline"
                       >
                         {isWireframe ? 'View Solid Render' : 'View Wireframe Mesh'}
                       </button>
@@ -443,8 +443,8 @@ export async function POST(req: NextRequest) {
                         <div
                           className={`absolute inset-0 flex items-center justify-center text-xs font-mono font-bold transition-all ${
                             isWireframe
-                              ? 'border-2 border-orange-500 bg-transparent text-orange-400'
-                              : 'bg-orange-600 text-white border border-white/20'
+                              ? 'border-2 border-teal-500 bg-transparent text-teal-400'
+                              : 'bg-teal-600 text-white border border-white/20'
                           }`}
                           style={{ transform: 'translateZ(56px)' }}
                         >
@@ -453,7 +453,7 @@ export async function POST(req: NextRequest) {
                         <div
                           className={`absolute inset-0 flex items-center justify-center text-xs font-mono font-bold transition-all ${
                             isWireframe
-                              ? 'border-2 border-orange-500 bg-transparent text-orange-400'
+                              ? 'border-2 border-teal-500 bg-transparent text-teal-400'
                               : 'bg-zinc-800 text-zinc-300 border border-white/10'
                           }`}
                           style={{ transform: 'rotateY(180deg) translateZ(56px)' }}
@@ -463,8 +463,8 @@ export async function POST(req: NextRequest) {
                         <div
                           className={`absolute inset-0 flex items-center justify-center text-xs font-mono font-bold transition-all ${
                             isWireframe
-                              ? 'border-2 border-orange-500 bg-transparent text-orange-400'
-                              : 'bg-orange-700 text-white border border-white/10'
+                              ? 'border-2 border-teal-500 bg-transparent text-teal-400'
+                              : 'bg-teal-700 text-white border border-white/10'
                           }`}
                           style={{ transform: 'rotateY(-90deg) translateZ(56px)' }}
                         >
@@ -473,7 +473,7 @@ export async function POST(req: NextRequest) {
                         <div
                           className={`absolute inset-0 flex items-center justify-center text-xs font-mono font-bold transition-all ${
                             isWireframe
-                              ? 'border-2 border-orange-500 bg-transparent text-orange-400'
+                              ? 'border-2 border-teal-500 bg-transparent text-teal-400'
                               : 'bg-zinc-700 text-zinc-200 border border-white/10'
                           }`}
                           style={{ transform: 'rotateY(90deg) translateZ(56px)' }}
@@ -496,7 +496,7 @@ export async function POST(req: NextRequest) {
                           max="90"
                           value={rotation.x}
                           onChange={(e) => setRotation({ ...rotation, x: Number(e.target.value) })}
-                          className="w-full accent-orange-600 cursor-pointer"
+                          className="w-full accent-teal-600 cursor-pointer"
                         />
                       </div>
                       <div>
@@ -507,7 +507,7 @@ export async function POST(req: NextRequest) {
                           max="180"
                           value={rotation.y}
                           onChange={(e) => setRotation({ ...rotation, y: Number(e.target.value) })}
-                          className="w-full accent-orange-600 cursor-pointer"
+                          className="w-full accent-teal-600 cursor-pointer"
                         />
                       </div>
                     </div>
@@ -526,11 +526,11 @@ export async function POST(req: NextRequest) {
                         onClick={() => playSynthesizedSound('tap')}
                         className={`p-3 rounded-lg border text-left transition-all ${
                           activeSoundName === 'tap'
-                            ? 'border-orange-500 bg-orange-100'
-                            : 'border-zinc-200 bg-white hover:border-orange-300'
+                            ? 'border-teal-500 bg-teal-100'
+                            : 'border-zinc-200 bg-white hover:border-teal-300'
                         }`}
                       >
-                        <Volume2 className="h-4 w-4 text-orange-600 mb-1" />
+                        <Volume2 className="h-4 w-4 text-teal-600 mb-1" />
                         <div className="text-xs font-semibold text-zinc-900">Button Click</div>
                         <div className="text-[10px] text-zinc-500">Subtle tap</div>
                       </button>
@@ -539,11 +539,11 @@ export async function POST(req: NextRequest) {
                         onClick={() => playSynthesizedSound('confirm')}
                         className={`p-3 rounded-lg border text-left transition-all ${
                           activeSoundName === 'confirm'
-                            ? 'border-orange-500 bg-orange-100'
-                            : 'border-zinc-200 bg-white hover:border-orange-300'
+                            ? 'border-teal-500 bg-teal-100'
+                            : 'border-zinc-200 bg-white hover:border-teal-300'
                         }`}
                       >
-                        <Volume2 className="h-4 w-4 text-orange-600 mb-1" />
+                        <Volume2 className="h-4 w-4 text-teal-600 mb-1" />
                         <div className="text-xs font-semibold text-zinc-900">Success Bell</div>
                         <div className="text-[10px] text-zinc-500">Dual chime</div>
                       </button>
@@ -552,11 +552,11 @@ export async function POST(req: NextRequest) {
                         onClick={() => playSynthesizedSound('toggle')}
                         className={`p-3 rounded-lg border text-left transition-all ${
                           activeSoundName === 'toggle'
-                            ? 'border-orange-500 bg-orange-100'
-                            : 'border-zinc-200 bg-white hover:border-orange-300'
+                            ? 'border-teal-500 bg-teal-100'
+                            : 'border-zinc-200 bg-white hover:border-teal-300'
                         }`}
                       >
-                        <Volume2 className="h-4 w-4 text-orange-600 mb-1" />
+                        <Volume2 className="h-4 w-4 text-teal-600 mb-1" />
                         <div className="text-xs font-semibold text-zinc-900">Switch Haptic</div>
                         <div className="text-[10px] text-zinc-500">Low latency</div>
                       </button>
@@ -565,11 +565,11 @@ export async function POST(req: NextRequest) {
                         onClick={() => playSynthesizedSound('ambient')}
                         className={`p-3 rounded-lg border text-left transition-all ${
                           activeSoundName === 'ambient'
-                            ? 'border-orange-500 bg-orange-100'
-                            : 'border-zinc-200 bg-white hover:border-orange-300'
+                            ? 'border-teal-500 bg-teal-100'
+                            : 'border-zinc-200 bg-white hover:border-teal-300'
                         }`}
                       >
-                        <Volume2 className="h-4 w-4 text-orange-600 mb-1" />
+                        <Volume2 className="h-4 w-4 text-teal-600 mb-1" />
                         <div className="text-xs font-semibold text-zinc-900">Accent Chime</div>
                         <div className="text-[10px] text-zinc-500">Ambient swell</div>
                       </button>
@@ -584,22 +584,22 @@ export async function POST(req: NextRequest) {
                       Hover and interact with sample 60fps micro-animation tokens:
                     </div>
                     <div className="grid grid-cols-3 gap-3">
-                      <div className="p-4 rounded-lg bg-white border border-zinc-200 flex flex-col items-center justify-center text-center group cursor-pointer hover:border-orange-500">
-                        <div className="h-8 w-8 rounded-full bg-orange-100 text-orange-600 flex items-center justify-center group-hover:scale-125 transition-transform duration-300">
+                      <div className="p-4 rounded-lg bg-white border border-zinc-200 flex flex-col items-center justify-center text-center group cursor-pointer hover:border-teal-500">
+                        <div className="h-8 w-8 rounded-full bg-teal-100 text-teal-600 flex items-center justify-center group-hover:scale-125 transition-transform duration-300">
                           <CheckCircle2 className="h-5 w-5" />
                         </div>
                         <span className="text-[11px] font-medium text-zinc-800 mt-2">Verified State</span>
                       </div>
 
-                      <div className="p-4 rounded-lg bg-white border border-zinc-200 flex flex-col items-center justify-center text-center group cursor-pointer hover:border-orange-500">
-                        <div className="h-8 w-8 rounded-full bg-orange-100 text-orange-600 flex items-center justify-center group-hover:rotate-180 transition-transform duration-500">
+                      <div className="p-4 rounded-lg bg-white border border-zinc-200 flex flex-col items-center justify-center text-center group cursor-pointer hover:border-teal-500">
+                        <div className="h-8 w-8 rounded-full bg-teal-100 text-teal-600 flex items-center justify-center group-hover:rotate-180 transition-transform duration-500">
                           <RotateCcw className="h-5 w-5" />
                         </div>
                         <span className="text-[11px] font-medium text-zinc-800 mt-2">Sync Loader</span>
                       </div>
 
-                      <div className="p-4 rounded-lg bg-white border border-zinc-200 flex flex-col items-center justify-center text-center group cursor-pointer hover:border-orange-500">
-                        <div className="h-8 w-8 rounded-full bg-orange-100 text-orange-600 flex items-center justify-center group-hover:translate-y-[-4px] transition-transform duration-300">
+                      <div className="p-4 rounded-lg bg-white border border-zinc-200 flex flex-col items-center justify-center text-center group cursor-pointer hover:border-teal-500">
+                        <div className="h-8 w-8 rounded-full bg-teal-100 text-teal-600 flex items-center justify-center group-hover:translate-y-[-4px] transition-transform duration-300">
                           <Download className="h-5 w-5" />
                         </div>
                         <span className="text-[11px] font-medium text-zinc-800 mt-2">Download Bounce</span>
@@ -615,7 +615,7 @@ export async function POST(req: NextRequest) {
               <div className="space-y-5">
                 {/* Title & Ratings */}
                 <div>
-                  <div className="text-xs text-orange-600 font-semibold mb-1">
+                  <div className="text-xs text-teal-600 font-semibold mb-1">
                     {product.category}
                   </div>
 
@@ -671,7 +671,7 @@ export async function POST(req: NextRequest) {
                           onClick={() => setSelectedTier(tierKey)}
                           className={`p-3.5 rounded-lg border cursor-pointer transition-all ${
                             isSelected
-                              ? 'border-orange-500 bg-orange-50/50 ring-1 ring-orange-500'
+                              ? 'border-teal-500 bg-teal-50/50 ring-1 ring-teal-500'
                               : 'border-zinc-200 bg-white hover:border-zinc-300'
                           }`}
                         >
@@ -680,7 +680,7 @@ export async function POST(req: NextRequest) {
                               <div
                                 className={`h-4 w-4 rounded-full border flex items-center justify-center ${
                                   isSelected
-                                    ? 'border-orange-600 bg-orange-600'
+                                    ? 'border-teal-600 bg-teal-600'
                                     : 'border-zinc-300'
                                 }`}
                               >
@@ -708,7 +708,7 @@ export async function POST(req: NextRequest) {
                   <ul className="space-y-1.5">
                     {currentLicense.features.map((feat, idx) => (
                       <li key={idx} className="flex items-center gap-2 text-xs text-zinc-600">
-                        <Check className="h-3.5 w-3.5 text-orange-600 shrink-0" />
+                        <Check className="h-3.5 w-3.5 text-teal-600 shrink-0" />
                         <span>{feat}</span>
                       </li>
                     ))}
@@ -735,8 +735,8 @@ export async function POST(req: NextRequest) {
                     }}
                     className={`flex items-center justify-center gap-2 rounded-lg py-3 px-4 text-sm font-semibold shadow-sm transition-all min-h-[44px] ${
                       isItemInCart
-                        ? 'bg-zinc-100 text-orange-600 border border-orange-200'
-                        : 'bg-orange-600 text-white hover:bg-orange-700 active:scale-98'
+                        ? 'bg-zinc-100 text-teal-600 border border-teal-200'
+                        : 'bg-teal-600 text-white hover:bg-teal-700 active:scale-98'
                     }`}
                   >
                     <ShoppingBag className="h-4 w-4" />
@@ -767,7 +767,7 @@ export async function POST(req: NextRequest) {
                 onClick={() => setActiveTab('preview')}
                 className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition-colors ${
                   activeTab === 'preview'
-                    ? 'bg-orange-600 text-white'
+                    ? 'bg-teal-600 text-white'
                     : 'text-zinc-600 hover:text-zinc-900'
                 }`}
               >
@@ -777,7 +777,7 @@ export async function POST(req: NextRequest) {
                 onClick={() => setActiveTab('includes')}
                 className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition-colors ${
                   activeTab === 'includes'
-                    ? 'bg-orange-600 text-white'
+                    ? 'bg-teal-600 text-white'
                     : 'text-zinc-600 hover:text-zinc-900'
                 }`}
               >
@@ -787,7 +787,7 @@ export async function POST(req: NextRequest) {
                 onClick={() => setActiveTab('specs')}
                 className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition-colors ${
                   activeTab === 'specs'
-                    ? 'bg-orange-600 text-white'
+                    ? 'bg-teal-600 text-white'
                     : 'text-zinc-600 hover:text-zinc-900'
                 }`}
               >
@@ -797,7 +797,7 @@ export async function POST(req: NextRequest) {
                 onClick={() => setActiveTab('reviews')}
                 className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition-colors ${
                   activeTab === 'reviews'
-                    ? 'bg-orange-600 text-white'
+                    ? 'bg-teal-600 text-white'
                     : 'text-zinc-600 hover:text-zinc-900'
                 }`}
               >
@@ -814,7 +814,7 @@ export async function POST(req: NextRequest) {
                       key={idx}
                       className="flex items-start gap-2.5 p-3 rounded-lg border border-zinc-200 bg-white"
                     >
-                      <Check className="h-4 w-4 text-orange-600 mt-0.5 shrink-0" />
+                      <Check className="h-4 w-4 text-teal-600 mt-0.5 shrink-0" />
                       <span className="text-xs text-zinc-700 leading-relaxed">{item}</span>
                     </div>
                   ))}
@@ -829,7 +829,7 @@ export async function POST(req: NextRequest) {
                   <ul className="space-y-2">
                     {product.includes.map((file, idx) => (
                       <li key={idx} className="flex items-center gap-2 text-xs text-zinc-700 font-mono">
-                        <Download className="h-3.5 w-3.5 text-orange-600" />
+                        <Download className="h-3.5 w-3.5 text-teal-600" />
                         <span>{file}</span>
                       </li>
                     ))}

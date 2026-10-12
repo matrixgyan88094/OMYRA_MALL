@@ -9,8 +9,8 @@ export const HERO_IMAGE = heroImg;
 export const INITIAL_PRODUCTS: DigitalProduct[] = [
   {
     id: 'prod-01',
-    slug: 'kroma-ui-design-system',
-    title: 'Kroma UI — Master Design System 2.0',
+    slug: 'omyra-ui-design-system',
+    title: 'Omyra UI — Master Design System 2.0',
     tagline: 'Comprehensive Figma system with 1,200+ auto-layout components & dark-first tokens',
     description:
       'Engineered from the ground up for modern enterprise and indie builders. Features exhaustive typography scales, fluid color variables (including Obsidian Dark & Radiant Orange), 1,200+ auto-layout 5.0 components, 140 pre-built page layouts, and an interactive prototype playground.',
@@ -72,7 +72,7 @@ export const INITIAL_PRODUCTS: DigitalProduct[] = [
     },
     demoType: 'ui-kit',
     status: 'published',
-    downloadFileName: 'kroma-ui-master-v2.4.zip',
+    downloadFileName: 'omyra-ui-master-v2.4.zip',
     reviews: [
       {
         id: 'rev-01',
@@ -80,7 +80,7 @@ export const INITIAL_PRODUCTS: DigitalProduct[] = [
         role: 'Head of Product Design at Veloce',
         rating: 5,
         date: 'Sept 18, 2026',
-        content: 'The token architecture and dark/orange palette are impeccably organized. We ported our entire SaaS platform to Kroma UI in under 3 days.',
+        content: 'The token architecture and dark/orange palette are impeccably organized. We ported our entire SaaS platform to Omyra UI in under 3 days.',
         verified: true,
       },
       {
@@ -338,7 +338,7 @@ export const INITIAL_PRODUCTS: DigitalProduct[] = [
   {
     id: 'prod-05',
     slug: 'lottie-motion-interactions-kit',
-    title: 'Kroma Motion — 80+ Lottie & Rive Animations',
+    title: 'Omyra Motion — 80+ Lottie & Rive Animations',
     tagline: 'Delightful 60fps micro-animations for buttons, loaders, badges & empty states',
     description:
       'Elevate user satisfaction with smooth 60fps vector micro-animations. Fully customizable colors via JSON/CSS variables. Features animated icons, success celebrations, futuristic loaders, cart animations, and toggle interactions.',
@@ -418,7 +418,7 @@ export const INITIAL_PRODUCTS: DigitalProduct[] = [
     title: 'Founder & Creator OS — Notion Workspace Pro',
     tagline: 'Complete operating system for digital creators, roadmaps, CRM, and revenue tracking',
     description:
-      'The exact operating system Marc Vance uses to run Kroma Studio. Includes connected databases for digital product pipelines, sprint planners, customer feedback intake, invoice tracking, brand asset manager, and monthly financial balance sheets.',
+      'The exact operating system Marc Vance uses to run OMYRA MALL. Includes connected databases for digital product pipelines, sprint planners, customer feedback intake, invoice tracking, brand asset manager, and monthly financial balance sheets.',
     category: 'Templates',
     format: '.fig',
     fileSize: '12 MB',
@@ -688,13 +688,13 @@ export const INITIAL_ORDERS = [
     items: [
       {
         productId: 'prod-01',
-        productTitle: 'Kroma UI — Master Design System 2.0',
+        productTitle: 'Omyra UI — Master Design System 2.0',
         format: '.fig',
         tier: 'team' as const,
         tierLabel: 'Team & Studio',
         price: 99,
         licenseKey: 'KRM-UI-8429-9481-TM',
-        downloadFileName: 'kroma-ui-master-v2.4.zip',
+        downloadFileName: 'omyra-ui-master-v2.4.zip',
         fileSize: '142 MB',
         version: '2.4.0',
       },

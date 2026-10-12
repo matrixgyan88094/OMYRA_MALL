@@ -47,12 +47,12 @@ export const OrderConfirmationModal: React.FC = () => {
 
         {/* Celebration Header */}
         <div className="flex flex-col items-center text-center space-y-2">
-          <div className="h-14 w-14 rounded-full bg-orange-100 text-orange-600 flex items-center justify-center">
-            <CheckCircle2 className="h-8 w-8 text-orange-600" />
+          <div className="h-14 w-14 rounded-full bg-teal-100 text-teal-600 flex items-center justify-center">
+            <CheckCircle2 className="h-8 w-8 text-teal-600" />
           </div>
 
           <div>
-            <div className="text-xs font-semibold uppercase tracking-wider text-orange-600">
+            <div className="text-xs font-semibold uppercase tracking-wider text-teal-600">
               Order Confirmed
             </div>
             <h2 className="text-2xl font-bold text-zinc-950 mt-1">
@@ -81,7 +81,7 @@ export const OrderConfirmationModal: React.FC = () => {
                   <div>
                     <h4 className="text-sm font-semibold text-zinc-900">{item.productTitle}</h4>
                     <div className="flex items-center gap-2 text-xs text-zinc-500 mt-0.5">
-                      <span className="text-orange-600 font-medium">{item.tierLabel}</span>
+                      <span className="text-teal-600 font-medium">{item.tierLabel}</span>
                       <span aria-hidden="true">·</span>
                       <span className="font-mono">{item.format}</span>
                       <span aria-hidden="true">·</span>
@@ -91,7 +91,7 @@ export const OrderConfirmationModal: React.FC = () => {
 
                   <button
                     onClick={() => simulateDownload(item)}
-                    className="flex items-center justify-center gap-2 rounded-lg bg-orange-600 px-4 py-2 text-xs font-semibold text-white hover:bg-orange-700 shadow-sm active:scale-95 transition-all min-h-[40px]"
+                    className="flex items-center justify-center gap-2 rounded-lg bg-teal-600 px-4 py-2 text-xs font-semibold text-white hover:bg-teal-700 shadow-sm active:scale-95 transition-all min-h-[40px]"
                   >
                     <Download className="h-4 w-4" />
                     <span>Download Package</span>
@@ -109,7 +109,7 @@ export const OrderConfirmationModal: React.FC = () => {
 
                   <button
                     onClick={() => handleCopyKey(item.licenseKey)}
-                    className="flex items-center gap-1 text-xs text-orange-600 hover:text-orange-700 font-medium"
+                    className="flex items-center gap-1 text-xs text-teal-600 hover:text-teal-700 font-medium"
                   >
                     {copiedKey === item.licenseKey ? (
                       <>

@@ -105,7 +105,7 @@ export const VendorDashboard: React.FC = () => {
       {/* Header zone */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-zinc-200">
         <div>
-          <div className="text-xs font-semibold uppercase tracking-wider text-orange-600 mb-1">
+          <div className="text-xs font-semibold uppercase tracking-wider text-teal-600 mb-1">
             Studio Management
           </div>
           <h1 className="text-2xl sm:text-3xl font-bold text-zinc-950">
@@ -119,7 +119,7 @@ export const VendorDashboard: React.FC = () => {
         <div className="flex items-center gap-2">
           <button
             onClick={() => setIsAddModalOpen(true)}
-            className="flex items-center gap-2 rounded-lg bg-orange-600 px-4 py-2.5 text-xs font-semibold text-white hover:bg-orange-700 transition-colors shadow-sm min-h-[44px]"
+            className="flex items-center gap-2 rounded-lg bg-teal-600 px-4 py-2.5 text-xs font-semibold text-white hover:bg-teal-700 transition-colors shadow-sm min-h-[44px]"
           >
             <Plus className="h-4 w-4" />
             <span>New Asset</span>
@@ -135,7 +135,7 @@ export const VendorDashboard: React.FC = () => {
             onClick={() => setActiveTab(tab)}
             className={`px-4 py-2 text-xs font-semibold rounded-lg capitalize transition-colors whitespace-nowrap ${
               activeTab === tab
-                ? 'bg-orange-600 text-white shadow-sm'
+                ? 'bg-teal-600 text-white shadow-sm'
                 : 'bg-white border border-zinc-200 text-zinc-700 hover:bg-zinc-50'
             }`}
           >
@@ -154,7 +154,7 @@ export const VendorDashboard: React.FC = () => {
                 <span className="text-xs font-semibold uppercase tracking-wider text-zinc-500">
                   Gross Revenue
                 </span>
-                <div className="h-8 w-8 rounded-lg bg-orange-50 text-orange-600 flex items-center justify-center">
+                <div className="h-8 w-8 rounded-lg bg-teal-50 text-teal-600 flex items-center justify-center">
                   <DollarSign className="h-4 w-4" />
                 </div>
               </div>
@@ -171,7 +171,7 @@ export const VendorDashboard: React.FC = () => {
                 <span className="text-xs font-semibold uppercase tracking-wider text-zinc-500">
                   Total Orders
                 </span>
-                <div className="h-8 w-8 rounded-lg bg-orange-50 text-orange-600 flex items-center justify-center">
+                <div className="h-8 w-8 rounded-lg bg-teal-50 text-teal-600 flex items-center justify-center">
                   <ShoppingBag className="h-4 w-4" />
                 </div>
               </div>
@@ -188,7 +188,7 @@ export const VendorDashboard: React.FC = () => {
                 <span className="text-xs font-semibold uppercase tracking-wider text-zinc-500">
                   Average Order Value
                 </span>
-                <div className="h-8 w-8 rounded-lg bg-orange-50 text-orange-600 flex items-center justify-center">
+                <div className="h-8 w-8 rounded-lg bg-teal-50 text-teal-600 flex items-center justify-center">
                   <TrendingUp className="h-4 w-4" />
                 </div>
               </div>
@@ -205,7 +205,7 @@ export const VendorDashboard: React.FC = () => {
                 <span className="text-xs font-semibold uppercase tracking-wider text-zinc-500">
                   Active Catalog
                 </span>
-                <div className="h-8 w-8 rounded-lg bg-orange-50 text-orange-600 flex items-center justify-center">
+                <div className="h-8 w-8 rounded-lg bg-teal-50 text-teal-600 flex items-center justify-center">
                   <Package className="h-4 w-4" />
                 </div>
               </div>
@@ -272,7 +272,7 @@ export const VendorDashboard: React.FC = () => {
 
             <button
               onClick={() => setIsAddModalOpen(true)}
-              className="flex items-center gap-1.5 rounded-lg bg-orange-600 px-3 py-2 text-xs font-semibold text-white hover:bg-orange-700 transition-colors shadow-sm"
+              className="flex items-center gap-1.5 rounded-lg bg-teal-600 px-3 py-2 text-xs font-semibold text-white hover:bg-teal-700 transition-colors shadow-sm"
             >
               <Plus className="h-3.5 w-3.5" />
               <span>Add Product</span>
@@ -350,7 +350,7 @@ export const VendorDashboard: React.FC = () => {
 
             <button
               onClick={() => setIsCouponModalOpen(true)}
-              className="flex items-center gap-1.5 rounded-lg bg-orange-600 px-3 py-2 text-xs font-semibold text-white hover:bg-orange-700 transition-colors shadow-sm"
+              className="flex items-center gap-1.5 rounded-lg bg-teal-600 px-3 py-2 text-xs font-semibold text-white hover:bg-teal-700 transition-colors shadow-sm"
             >
               <Plus className="h-3.5 w-3.5" />
               <span>Create Promo Code</span>
@@ -365,7 +365,7 @@ export const VendorDashboard: React.FC = () => {
               >
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <Tag className="h-4 w-4 text-orange-600" />
+                    <Tag className="h-4 w-4 text-teal-600" />
                     <span className="font-mono font-bold text-sm text-zinc-950">
                       {c.code}
                     </span>
@@ -473,7 +473,7 @@ export const VendorDashboard: React.FC = () => {
                   value={newTitle}
                   onChange={(e) => setNewTitle(e.target.value)}
                   placeholder="e.g. Apex 3D Icon Toolkit"
-                  className="w-full rounded-lg border border-zinc-200 bg-white px-3 py-2 text-xs text-zinc-900 focus:border-orange-500 focus:outline-none"
+                  className="w-full rounded-lg border border-zinc-200 bg-white px-3 py-2 text-xs text-zinc-900 focus:border-teal-500 focus:outline-none"
                 />
               </div>
 
@@ -484,7 +484,7 @@ export const VendorDashboard: React.FC = () => {
                   value={newTagline}
                   onChange={(e) => setNewTagline(e.target.value)}
                   placeholder="1-sentence value hook"
-                  className="w-full rounded-lg border border-zinc-200 bg-white px-3 py-2 text-xs text-zinc-900 focus:border-orange-500 focus:outline-none"
+                  className="w-full rounded-lg border border-zinc-200 bg-white px-3 py-2 text-xs text-zinc-900 focus:border-teal-500 focus:outline-none"
                 />
               </div>
 
@@ -494,7 +494,7 @@ export const VendorDashboard: React.FC = () => {
                   <select
                     value={newCategory}
                     onChange={(e) => setNewCategory(e.target.value as any)}
-                    className="w-full rounded-lg border border-zinc-200 bg-white px-3 py-2 text-xs text-zinc-900 focus:border-orange-500 focus:outline-none"
+                    className="w-full rounded-lg border border-zinc-200 bg-white px-3 py-2 text-xs text-zinc-900 focus:border-teal-500 focus:outline-none"
                   >
                     <option value="UI & Figma">UI & Figma</option>
                     <option value="Dev Kits">Dev Kits</option>
@@ -509,7 +509,7 @@ export const VendorDashboard: React.FC = () => {
                   <select
                     value={newFormat}
                     onChange={(e) => setNewFormat(e.target.value as any)}
-                    className="w-full rounded-lg border border-zinc-200 bg-white px-3 py-2 text-xs text-zinc-900 focus:border-orange-500 focus:outline-none"
+                    className="w-full rounded-lg border border-zinc-200 bg-white px-3 py-2 text-xs text-zinc-900 focus:border-teal-500 focus:outline-none"
                   >
                     <option value=".fig">.fig (Figma)</option>
                     <option value=".tsx">.tsx (React/Next)</option>
@@ -527,7 +527,7 @@ export const VendorDashboard: React.FC = () => {
                     type="number"
                     value={newBasePrice}
                     onChange={(e) => setNewBasePrice(e.target.value)}
-                    className="w-full rounded-lg border border-zinc-200 bg-white px-3 py-2 text-xs text-zinc-900 focus:border-orange-500 focus:outline-none"
+                    className="w-full rounded-lg border border-zinc-200 bg-white px-3 py-2 text-xs text-zinc-900 focus:border-teal-500 focus:outline-none"
                   />
                 </div>
 
@@ -538,7 +538,7 @@ export const VendorDashboard: React.FC = () => {
                     value={newSalePrice}
                     onChange={(e) => setNewSalePrice(e.target.value)}
                     placeholder="Optional discount"
-                    className="w-full rounded-lg border border-zinc-200 bg-white px-3 py-2 text-xs text-zinc-900 focus:border-orange-500 focus:outline-none"
+                    className="w-full rounded-lg border border-zinc-200 bg-white px-3 py-2 text-xs text-zinc-900 focus:border-teal-500 focus:outline-none"
                   />
                 </div>
               </div>
@@ -553,7 +553,7 @@ export const VendorDashboard: React.FC = () => {
                 </button>
                 <button
                   type="submit"
-                  className="rounded-lg bg-orange-600 px-4 py-2 text-xs font-semibold text-white hover:bg-orange-700 shadow-sm"
+                  className="rounded-lg bg-teal-600 px-4 py-2 text-xs font-semibold text-white hover:bg-teal-700 shadow-sm"
                 >
                   Publish Asset
                 </button>
@@ -586,7 +586,7 @@ export const VendorDashboard: React.FC = () => {
                   value={newCouponCode}
                   onChange={(e) => setNewCouponCode(e.target.value.toUpperCase())}
                   placeholder="e.g. FLASH30"
-                  className="w-full rounded-lg border border-zinc-200 bg-white px-3 py-2 text-xs uppercase text-zinc-900 focus:border-orange-500 focus:outline-none font-mono"
+                  className="w-full rounded-lg border border-zinc-200 bg-white px-3 py-2 text-xs uppercase text-zinc-900 focus:border-teal-500 focus:outline-none font-mono"
                 />
               </div>
 
@@ -596,7 +596,7 @@ export const VendorDashboard: React.FC = () => {
                   <select
                     value={newCouponType}
                     onChange={(e) => setNewCouponType(e.target.value as any)}
-                    className="w-full rounded-lg border border-zinc-200 bg-white px-3 py-2 text-xs text-zinc-900 focus:border-orange-500 focus:outline-none"
+                    className="w-full rounded-lg border border-zinc-200 bg-white px-3 py-2 text-xs text-zinc-900 focus:border-teal-500 focus:outline-none"
                   >
                     <option value="percentage">Percentage (%)</option>
                     <option value="fixed">Fixed ($)</option>
@@ -609,7 +609,7 @@ export const VendorDashboard: React.FC = () => {
                     type="number"
                     value={newCouponVal}
                     onChange={(e) => setNewCouponVal(e.target.value)}
-                    className="w-full rounded-lg border border-zinc-200 bg-white px-3 py-2 text-xs text-zinc-900 focus:border-orange-500 focus:outline-none"
+                    className="w-full rounded-lg border border-zinc-200 bg-white px-3 py-2 text-xs text-zinc-900 focus:border-teal-500 focus:outline-none"
                   />
                 </div>
               </div>
@@ -624,7 +624,7 @@ export const VendorDashboard: React.FC = () => {
                 </button>
                 <button
                   type="submit"
-                  className="rounded-lg bg-orange-600 px-4 py-2 text-xs font-semibold text-white hover:bg-orange-700 shadow-sm"
+                  className="rounded-lg bg-teal-600 px-4 py-2 text-xs font-semibold text-white hover:bg-teal-700 shadow-sm"
                 >
                   Save Code
                 </button>

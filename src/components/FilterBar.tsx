@@ -1,6 +1,7 @@
 import React from 'react';
-import { Search, X, LayoutGrid, Layers, Code2, Box, Music, LayoutTemplate, Sparkles } from 'lucide-react';
+import { Search, X, LayoutGrid, Layers, Code2, Box, Music, Globe, Sparkles } from 'lucide-react';
 import { useStore } from '../context/StoreContext';
+import { TechToolIcon } from './TechToolIcon';
 
 interface FilterBarProps {
   searchInputRef?: React.RefObject<HTMLInputElement | null>;
@@ -9,13 +10,29 @@ interface FilterBarProps {
 
 const getCategoryIcon = (cat: string) => {
   switch (cat) {
-    case 'All': return <LayoutGrid className="w-3.5 h-3.5 shrink-0" />;
-    case 'UI & Figma': return <Layers className="w-3.5 h-3.5 shrink-0" />;
-    case 'Dev Kits': return <Code2 className="w-3.5 h-3.5 shrink-0" />;
-    case '3D & Spatial': return <Box className="w-3.5 h-3.5 shrink-0" />;
-    case 'Motion & Audio': return <Music className="w-3.5 h-3.5 shrink-0" />;
-    case 'Templates': return <LayoutTemplate className="w-3.5 h-3.5 shrink-0" />;
-    default: return <Sparkles className="w-3.5 h-3.5 shrink-0" />;
+    case 'All': 
+      return <LayoutGrid className="w-3.5 h-3.5 shrink-0" />;
+    case 'UI & Figma': 
+      return (
+        <span className="w-3.5 h-3.5 shrink-0 flex items-center justify-center">
+          <TechToolIcon toolName="Figma" className="w-3.5 h-3.5" />
+        </span>
+      );
+    case 'Dev Kits': 
+      return <Code2 className="w-3.5 h-3.5 shrink-0" />;
+    case '3D & Spatial': 
+      return <Box className="w-3.5 h-3.5 shrink-0" />;
+    case 'Templates': 
+    case 'WordPress & Themes':
+      return (
+        <span className="w-3.5 h-3.5 shrink-0 flex items-center justify-center">
+          <TechToolIcon toolName="WordPress" className="w-3.5 h-3.5" />
+        </span>
+      );
+    case 'Motion & Audio': 
+      return <Music className="w-3.5 h-3.5 shrink-0" />;
+    default: 
+      return <Sparkles className="w-3.5 h-3.5 shrink-0" />;
   }
 };
 
@@ -33,7 +50,7 @@ export const FilterBar: React.FC<FilterBarProps> = ({ searchInputRef, totalCount
   } = useStore();
 
   const categories = React.useMemo(() => {
-    const list = ['All', 'UI & Figma', 'Dev Kits', '3D & Spatial', 'Motion & Audio', 'Templates'];
+    const list = ['All', 'UI & Figma', 'Dev Kits', '3D & Spatial', 'Templates', 'Motion & Audio'];
     products.forEach(p => {
       if (p.category && !list.includes(p.category)) {
         list.push(p.category);
@@ -42,7 +59,12 @@ export const FilterBar: React.FC<FilterBarProps> = ({ searchInputRef, totalCount
     return list;
   }, [products]);
 
-  const formats = ['All', '.fig', '.tsx', '.blend', '.lottie', '.mp3', '.zip'];
+  const formats = ['All', '.fig', '.tsx', '.blend', '.zip', '.php', '.mp3'];
+
+  const getCategoryLabel = (cat: string) => {
+    if (cat === 'Templates') return 'WordPress & Themes';
+    return cat;
+  };
 
   return (
     <div id="marketplace-catalog" className="w-full pt-8 pb-6 scroll-mt-20">
@@ -59,12 +81,12 @@ export const FilterBar: React.FC<FilterBarProps> = ({ searchInputRef, totalCount
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Search UI systems, boilerplates, 3D assets, WordPress..."
-            className="w-full rounded-lg border border-zinc-200 bg-white py-2.5 pl-10 pr-10 text-sm text-zinc-900 placeholder-zinc-400 focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500 transition-all min-h-[44px] shadow-sm"
+            className="w-full rounded-lg border border-zinc-200 bg-white py-2.5 pl-10 pr-10 text-sm text-zinc-900 placeholder-zinc-400 focus:border-teal-600 focus:outline-none focus:ring-1 focus:ring-teal-600 transition-all min-h-[44px] shadow-2xs"
           />
           {searchQuery && (
             <button
               onClick={() => setSearchQuery('')}
-              className="absolute inset-y-0 right-0 flex items-center pr-3 text-zinc-400 hover:text-zinc-600"
+              className="absolute inset-y-0 right-0 flex items-center pr-3 text-zinc-400 hover:text-zinc-600 cursor-pointer"
             >
               <X className="h-4 w-4" />
             </button>
@@ -82,7 +104,7 @@ export const FilterBar: React.FC<FilterBarProps> = ({ searchInputRef, totalCount
             <select
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value as any)}
-              className="rounded-lg border border-zinc-200 bg-white px-3 py-2 text-xs font-medium text-zinc-700 focus:border-orange-500 focus:outline-none min-h-[44px] cursor-pointer shadow-sm"
+              className="rounded-lg border border-zinc-200 bg-white px-3 py-2 text-xs font-medium text-zinc-700 focus:border-teal-600 focus:outline-none min-h-[44px] cursor-pointer shadow-2xs"
             >
               <option value="popular">Most Popular</option>
               <option value="newest">Newest Releases</option>
@@ -93,7 +115,7 @@ export const FilterBar: React.FC<FilterBarProps> = ({ searchInputRef, totalCount
         </div>
       </div>
 
-      {/* Category Segmented Filter Tabs with Distinctive Icons */}
+      {/* Category Segmented Filter Tabs with Authentic Logos & Icons */}
       <div className="mt-4 flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none">
         {categories.map((cat) => {
           const isActive = selectedCategory === cat;
@@ -101,14 +123,14 @@ export const FilterBar: React.FC<FilterBarProps> = ({ searchInputRef, totalCount
             <button
               key={cat}
               onClick={() => setSelectedCategory(cat)}
-              className={`inline-flex items-center gap-2 min-h-[38px] px-3.5 py-1.5 text-xs font-medium rounded-lg transition-all whitespace-nowrap shrink-0 ${
+              className={`inline-flex items-center gap-2 min-h-[38px] px-3.5 py-1.5 text-xs font-medium rounded-lg transition-all whitespace-nowrap shrink-0 cursor-pointer ${
                 isActive
-                  ? 'bg-orange-600 text-white font-semibold shadow-sm'
+                  ? 'bg-teal-600 text-white font-semibold shadow-sm shadow-teal-600/25'
                   : 'bg-white text-zinc-600 hover:text-zinc-900 hover:bg-zinc-50 border border-zinc-200'
               }`}
             >
               {getCategoryIcon(cat)}
-              <span>{cat}</span>
+              <span>{getCategoryLabel(cat)}</span>
             </button>
           );
         })}
@@ -116,16 +138,16 @@ export const FilterBar: React.FC<FilterBarProps> = ({ searchInputRef, totalCount
 
       {/* Format Filter Bar */}
       <div className="mt-3 flex items-center gap-2 text-xs text-zinc-500 flex-wrap">
-        <span className="font-medium">Format:</span>
+        <span className="font-medium text-zinc-700">Format:</span>
         {formats.map((fmt) => {
           const isActive = selectedFormat === fmt;
           return (
             <button
               key={fmt}
               onClick={() => setSelectedFormat(fmt)}
-              className={`px-2.5 py-1 rounded text-xs transition-colors ${
+              className={`px-2.5 py-1 rounded text-xs transition-colors cursor-pointer font-mono ${
                 isActive
-                  ? 'bg-zinc-900 text-white font-medium'
+                  ? 'bg-zinc-900 text-white font-medium shadow-xs'
                   : 'text-zinc-600 hover:text-zinc-950 hover:bg-zinc-100'
               }`}
             >
@@ -141,7 +163,7 @@ export const FilterBar: React.FC<FilterBarProps> = ({ searchInputRef, totalCount
               setSelectedFormat('All');
               setSearchQuery('');
             }}
-            className="ml-auto text-xs text-orange-600 hover:text-orange-700 font-medium"
+            className="ml-auto text-xs text-teal-600 hover:text-teal-700 font-medium cursor-pointer"
           >
             Reset Filters
           </button>

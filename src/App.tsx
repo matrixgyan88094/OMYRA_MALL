@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { StoreProvider, useStore } from './context/StoreContext';
 import { Header } from './components/Header';
 import { HeroBanner } from './components/HeroBanner';
+import { HeroCategoryCards } from './components/HeroCategoryCards';
 import { FilterBar } from './components/FilterBar';
 import { ProductCard } from './components/ProductCard';
 import { ProductDetailModal } from './components/ProductDetailModal';
@@ -75,6 +76,9 @@ const StorefrontContent: React.FC = () => {
     <>
       {/* Hero Showcase */}
       <HeroBanner />
+
+      {/* Colorful Category Cards (Exact matching screenshot at bottom of hero) */}
+      <HeroCategoryCards />
 
       {/* Main Catalog Container */}
       <main className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 pb-16">

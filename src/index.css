@@ -34,7 +34,7 @@
   border-radius: 3px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #ea580c;
+  background: #0d9488;
 }
 
 /* Safe area bottom padding for mobile touch devices */

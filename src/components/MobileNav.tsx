@@ -17,7 +17,7 @@ export const MobileNav: React.FC<MobileNavProps> = ({ onSearchFocus }) => {
         <button
           onClick={() => setActiveView('store')}
           className={`flex min-h-[44px] flex-col items-center justify-center transition-colors ${
-            activeView === 'store' ? 'text-orange-600 font-semibold' : 'text-zinc-500 hover:text-zinc-900'
+            activeView === 'store' ? 'text-teal-600 font-semibold' : 'text-zinc-500 hover:text-zinc-900'
           }`}
         >
           <Store className="h-5 w-5" />
@@ -42,7 +42,7 @@ export const MobileNav: React.FC<MobileNavProps> = ({ onSearchFocus }) => {
         <button
           onClick={() => setActiveView('library')}
           className={`flex min-h-[44px] flex-col items-center justify-center transition-colors ${
-            activeView === 'library' ? 'text-orange-600 font-semibold' : 'text-zinc-500 hover:text-zinc-900'
+            activeView === 'library' ? 'text-teal-600 font-semibold' : 'text-zinc-500 hover:text-zinc-900'
           }`}
         >
           <Download className="h-5 w-5" />
@@ -57,7 +57,7 @@ export const MobileNav: React.FC<MobileNavProps> = ({ onSearchFocus }) => {
           <div className="relative">
             <ShoppingBag className="h-5 w-5" />
             {cartItemCount > 0 && (
-              <span className="absolute -top-1.5 -right-2.5 flex h-4 min-w-[16px] items-center justify-center rounded-full bg-orange-600 px-1 text-[9px] font-bold text-white">
+              <span className="absolute -top-1.5 -right-2.5 flex h-4 min-w-[16px] items-center justify-center rounded-full bg-teal-600 px-1 text-[9px] font-bold text-white">
                 {cartItemCount}
               </span>
             )}
@@ -69,7 +69,7 @@ export const MobileNav: React.FC<MobileNavProps> = ({ onSearchFocus }) => {
         <button
           onClick={() => setActiveView('vendor')}
           className={`flex min-h-[44px] flex-col items-center justify-center transition-colors ${
-            activeView === 'vendor' ? 'text-orange-600 font-semibold' : 'text-zinc-500 hover:text-zinc-900'
+            activeView === 'vendor' ? 'text-teal-600 font-semibold' : 'text-zinc-500 hover:text-zinc-900'
           }`}
         >
           <BarChart3 className="h-5 w-5" />

@@ -31,7 +31,7 @@ export const CustomerLibrary: React.FC = () => {
       {/* Header zone */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-zinc-200">
         <div>
-          <div className="text-xs font-semibold uppercase tracking-wider text-orange-600 mb-1">
+          <div className="text-xs font-semibold uppercase tracking-wider text-teal-600 mb-1">
             Customer Library
           </div>
           <h1 className="text-2xl sm:text-3xl font-bold text-zinc-950">
@@ -44,7 +44,7 @@ export const CustomerLibrary: React.FC = () => {
 
         <button
           onClick={() => setActiveView('store')}
-          className="flex items-center gap-2 rounded-lg bg-orange-600 px-4 py-2.5 text-xs font-semibold text-white hover:bg-orange-700 transition-colors self-start sm:self-auto min-h-[44px]"
+          className="flex items-center gap-2 rounded-lg bg-teal-600 px-4 py-2.5 text-xs font-semibold text-white hover:bg-teal-700 transition-colors self-start sm:self-auto min-h-[44px]"
         >
           <span>Browse More Assets</span>
           <ArrowRight className="h-4 w-4" />
@@ -61,7 +61,7 @@ export const CustomerLibrary: React.FC = () => {
               value={searchFilter}
               onChange={(e) => setSearchFilter(e.target.value)}
               placeholder="Search your library..."
-              className="w-full rounded-lg border border-zinc-200 bg-white py-2 pl-9 pr-4 text-xs text-zinc-900 placeholder-zinc-400 focus:border-orange-500 focus:outline-none min-h-[40px] shadow-sm"
+              className="w-full rounded-lg border border-zinc-200 bg-white py-2 pl-9 pr-4 text-xs text-zinc-900 placeholder-zinc-400 focus:border-teal-500 focus:outline-none min-h-[40px] shadow-sm"
             />
           </div>
 
@@ -77,7 +77,7 @@ export const CustomerLibrary: React.FC = () => {
       {/* Library Grid or Empty State */}
       {purchasedItems.length === 0 ? (
         <div className="rounded-2xl border border-zinc-200 bg-zinc-50 p-12 text-center max-w-lg mx-auto space-y-4">
-          <div className="h-16 w-16 rounded-2xl bg-orange-100 flex items-center justify-center text-orange-600 mx-auto">
+          <div className="h-16 w-16 rounded-2xl bg-teal-100 flex items-center justify-center text-teal-600 mx-auto">
             <FolderArchive className="h-8 w-8" />
           </div>
           <h3 className="text-base font-bold text-zinc-900">No Assets in Your Library Yet</h3>
@@ -86,7 +86,7 @@ export const CustomerLibrary: React.FC = () => {
           </p>
           <button
             onClick={() => setActiveView('store')}
-            className="rounded-lg bg-orange-600 px-5 py-2.5 text-xs font-semibold text-white hover:bg-orange-700 transition-colors inline-block"
+            className="rounded-lg bg-teal-600 px-5 py-2.5 text-xs font-semibold text-white hover:bg-teal-700 transition-colors inline-block"
           >
             Visit Marketplace Storefront
           </button>
@@ -96,7 +96,7 @@ export const CustomerLibrary: React.FC = () => {
           {filteredPurchases.map((item) => (
             <div
               key={item.licenseKey}
-              className="rounded-xl border border-zinc-200 bg-white p-5 space-y-4 shadow-xs hover:border-orange-300 transition-all"
+              className="rounded-xl border border-zinc-200 bg-white p-5 space-y-4 shadow-xs hover:border-teal-300 transition-all"
             >
               {/* Top row */}
               <div className="flex items-start justify-between gap-4">
@@ -105,7 +105,7 @@ export const CustomerLibrary: React.FC = () => {
                     {item.productTitle}
                   </h3>
                   <div className="flex items-center gap-2 text-xs text-zinc-500 mt-1">
-                    <span className="text-orange-600 font-medium">{item.tierLabel}</span>
+                    <span className="text-teal-600 font-medium">{item.tierLabel}</span>
                     <span>·</span>
                     <span className="font-mono">{item.format}</span>
                     <span>·</span>
@@ -115,7 +115,7 @@ export const CustomerLibrary: React.FC = () => {
 
                 <button
                   onClick={() => simulateDownload(item)}
-                  className="flex items-center gap-1.5 rounded-lg bg-orange-600 px-3.5 py-2 text-xs font-semibold text-white hover:bg-orange-700 transition-colors shadow-sm shrink-0"
+                  className="flex items-center gap-1.5 rounded-lg bg-teal-600 px-3.5 py-2 text-xs font-semibold text-white hover:bg-teal-700 transition-colors shadow-sm shrink-0"
                 >
                   <Download className="h-3.5 w-3.5" />
                   <span>Download</span>
@@ -128,7 +128,7 @@ export const CustomerLibrary: React.FC = () => {
                   <span className="text-[11px] text-zinc-500 font-medium">Commercial License Key:</span>
                   <button
                     onClick={() => handleCopyKey(item.licenseKey)}
-                    className="flex items-center gap-1 text-[11px] text-orange-600 hover:text-orange-700 font-semibold"
+                    className="flex items-center gap-1 text-[11px] text-teal-600 hover:text-teal-700 font-semibold"
                   >
                     {copiedKey === item.licenseKey ? (
                       <>

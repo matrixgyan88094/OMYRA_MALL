@@ -64,10 +64,10 @@ interface StoreContextType {
 
 const StoreContext = createContext<StoreContextType | undefined>(undefined);
 
-const PRODUCTS_STORAGE_KEY = 'kroma_products_v1';
-const CART_STORAGE_KEY = 'kroma_cart_v1';
-const ORDERS_STORAGE_KEY = 'kroma_orders_v1';
-const COUPONS_STORAGE_KEY = 'kroma_coupons_v1';
+const PRODUCTS_STORAGE_KEY = 'omyra_products_v2';
+const CART_STORAGE_KEY = 'omyra_cart_v2';
+const ORDERS_STORAGE_KEY = 'omyra_orders_v2';
+const COUPONS_STORAGE_KEY = 'omyra_coupons_v2';
 
 export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [products, setProducts] = useState<DigitalProduct[]>(() => {
@@ -488,7 +488,7 @@ COMMERCIAL RIGHTS & PERMISSIONS:
 
 DOCUMENTATION & RELEASES:
 Support: matrixgyan88094@gmail.com
-Registry: https://kroma.studio
+Registry: https://mall.omyra.org
 ========================================================`;
 
     const blob = new Blob([fileContent], { type: 'text/plain;charset=utf-8' });

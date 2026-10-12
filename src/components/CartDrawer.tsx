@@ -92,7 +92,7 @@ export const CartDrawer: React.FC = () => {
           {/* Drawer Header */}
           <div className="flex items-center justify-between px-6 py-4 border-b border-zinc-200 bg-white">
             <div className="flex items-center gap-2">
-              <ShoppingBag className="h-5 w-5 text-orange-600" />
+              <ShoppingBag className="h-5 w-5 text-teal-600" />
               <h2 className="text-base font-bold text-zinc-950">
                 Shopping Bag ({cart.reduce((s, i) => s + i.quantity, 0)})
               </h2>
@@ -110,7 +110,7 @@ export const CartDrawer: React.FC = () => {
           <div className="flex-1 overflow-y-auto p-6 space-y-6">
             {cart.length === 0 ? (
               <div className="py-16 text-center space-y-3">
-                <div className="mx-auto h-12 w-12 rounded-full bg-orange-50 text-orange-600 flex items-center justify-center">
+                <div className="mx-auto h-12 w-12 rounded-full bg-teal-50 text-teal-600 flex items-center justify-center">
                   <ShoppingBag className="h-6 w-6" />
                 </div>
                 <h3 className="text-sm font-semibold text-zinc-900">Your bag is empty</h3>
@@ -119,7 +119,7 @@ export const CartDrawer: React.FC = () => {
                 </p>
                 <button
                   onClick={() => setIsCartOpen(false)}
-                  className="mt-3 rounded-lg bg-orange-600 px-4 py-2 text-xs font-semibold text-white shadow-sm hover:bg-orange-700 transition-colors"
+                  className="mt-3 rounded-lg bg-teal-600 px-4 py-2 text-xs font-semibold text-white shadow-sm hover:bg-teal-700 transition-colors"
                 >
                   Browse Marketplace
                 </button>
@@ -160,7 +160,7 @@ export const CartDrawer: React.FC = () => {
                               </button>
                             </div>
 
-                            <span className="text-[11px] font-medium text-orange-600">
+                            <span className="text-[11px] font-medium text-teal-600">
                               {item.product.licenses[item.selectedTier].label}
                             </span>
                           </div>
@@ -204,21 +204,21 @@ export const CartDrawer: React.FC = () => {
                 {/* Promo Code Box */}
                 <div className="pt-2">
                   {appliedCoupon ? (
-                    <div className="flex items-center justify-between p-2.5 rounded-lg border border-orange-200 bg-orange-50 text-xs">
+                    <div className="flex items-center justify-between p-2.5 rounded-lg border border-teal-200 bg-teal-50 text-xs">
                       <div className="flex items-center gap-2">
-                        <Tag className="h-3.5 w-3.5 text-orange-600" />
+                        <Tag className="h-3.5 w-3.5 text-teal-600" />
                         <div>
-                          <span className="font-semibold text-orange-900 font-mono">
+                          <span className="font-semibold text-teal-900 font-mono">
                             {appliedCoupon.code}
                           </span>
-                          <span className="text-orange-700 ml-1.5">
+                          <span className="text-teal-700 ml-1.5">
                             ({appliedCoupon.discountType === 'percentage' ? `${appliedCoupon.discountValue}% off` : `$${appliedCoupon.discountValue} off`})
                           </span>
                         </div>
                       </div>
                       <button
                         onClick={removeCoupon}
-                        className="text-xs text-orange-700 hover:text-orange-900 font-semibold"
+                        className="text-xs text-teal-700 hover:text-teal-900 font-semibold"
                       >
                         Remove
                       </button>
@@ -230,7 +230,7 @@ export const CartDrawer: React.FC = () => {
                         value={couponCodeInput}
                         onChange={(e) => setCouponCodeInput(e.target.value)}
                         placeholder="Promo code (try LAUNCH20)"
-                        className="flex-1 rounded-lg border border-zinc-200 bg-white px-3 py-2 text-xs uppercase placeholder:normal-case placeholder-zinc-400 text-zinc-900 focus:border-orange-500 focus:outline-none"
+                        className="flex-1 rounded-lg border border-zinc-200 bg-white px-3 py-2 text-xs uppercase placeholder:normal-case placeholder-zinc-400 text-zinc-900 focus:border-teal-500 focus:outline-none"
                       />
                       <button
                         type="submit"
@@ -266,7 +266,7 @@ export const CartDrawer: React.FC = () => {
                         setCustomerName(e.target.value);
                         if (formErrors.name) setFormErrors({ ...formErrors, name: undefined });
                       }}
-                      className="w-full rounded-lg border border-zinc-200 bg-white px-3 py-2 text-xs text-zinc-900 focus:border-orange-500 focus:outline-none"
+                      className="w-full rounded-lg border border-zinc-200 bg-white px-3 py-2 text-xs text-zinc-900 focus:border-teal-500 focus:outline-none"
                     />
                     {formErrors.name && (
                       <span className="text-[10px] text-rose-500">{formErrors.name}</span>
@@ -284,7 +284,7 @@ export const CartDrawer: React.FC = () => {
                         setCustomerEmail(e.target.value);
                         if (formErrors.email) setFormErrors({ ...formErrors, email: undefined });
                       }}
-                      className="w-full rounded-lg border border-zinc-200 bg-white px-3 py-2 text-xs text-zinc-900 focus:border-orange-500 focus:outline-none"
+                      className="w-full rounded-lg border border-zinc-200 bg-white px-3 py-2 text-xs text-zinc-900 focus:border-teal-500 focus:outline-none"
                     />
                     {formErrors.email && (
                       <span className="text-[10px] text-rose-500">{formErrors.email}</span>
@@ -299,7 +299,7 @@ export const CartDrawer: React.FC = () => {
                         onClick={() => setPaymentMethod('credit_card')}
                         className={`py-2 px-2 rounded-lg border text-center text-xs font-medium transition-colors ${
                           paymentMethod === 'credit_card'
-                            ? 'border-orange-500 bg-orange-50 text-orange-900 font-semibold'
+                            ? 'border-teal-500 bg-teal-50 text-teal-900 font-semibold'
                             : 'border-zinc-200 bg-white text-zinc-700 hover:bg-zinc-50'
                         }`}
                       >
@@ -311,7 +311,7 @@ export const CartDrawer: React.FC = () => {
                         onClick={() => setPaymentMethod('apple_pay')}
                         className={`py-2 px-2 rounded-lg border text-center text-xs font-medium transition-colors ${
                           paymentMethod === 'apple_pay'
-                            ? 'border-orange-500 bg-orange-50 text-orange-900 font-semibold'
+                            ? 'border-teal-500 bg-teal-50 text-teal-900 font-semibold'
                             : 'border-zinc-200 bg-white text-zinc-700 hover:bg-zinc-50'
                         }`}
                       >
@@ -323,7 +323,7 @@ export const CartDrawer: React.FC = () => {
                         onClick={() => setPaymentMethod('paypal')}
                         className={`py-2 px-2 rounded-lg border text-center text-xs font-medium transition-colors ${
                           paymentMethod === 'paypal'
-                            ? 'border-orange-500 bg-orange-50 text-orange-900 font-semibold'
+                            ? 'border-teal-500 bg-teal-50 text-teal-900 font-semibold'
                             : 'border-zinc-200 bg-white text-zinc-700 hover:bg-zinc-50'
                         }`}
                       >
@@ -356,7 +356,7 @@ export const CartDrawer: React.FC = () => {
                 </div>
 
                 {discount > 0 && (
-                  <div className="flex justify-between text-orange-600 font-medium">
+                  <div className="flex justify-between text-teal-600 font-medium">
                     <span>Discount</span>
                     <span className="font-mono tabular-nums">-${discount}</span>
                   </div>
@@ -373,7 +373,7 @@ export const CartDrawer: React.FC = () => {
               <button
                 disabled={isSubmitting}
                 onClick={() => handleCompleteOrder()}
-                className="w-full flex items-center justify-center gap-2 rounded-lg bg-orange-600 py-3.5 px-4 text-sm font-semibold text-white shadow-sm hover:bg-orange-700 active:scale-98 transition-all min-h-[44px]"
+                className="w-full flex items-center justify-center gap-2 rounded-lg bg-teal-600 py-3.5 px-4 text-sm font-semibold text-white shadow-sm hover:bg-teal-700 active:scale-98 transition-all min-h-[44px]"
               >
                 {isSubmitting ? (
                   <span>Generating Licenses...</span>
