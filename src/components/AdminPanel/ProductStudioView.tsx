@@ -1017,8 +1017,6 @@ export const ProductStudioView: React.FC<ProductStudioViewProps> = ({
     }
   };
 
-  const cleanSlug = title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || 'new-digital-asset';
-
   return (
     <div className="space-y-6">
       {/* Top Navigation Bar: Breadcrumb + Step Indicator (Discard/Save Draft/Publish Live REMOVED) */}
@@ -1075,7 +1073,7 @@ export const ProductStudioView: React.FC<ProductStudioViewProps> = ({
             <div>
               <h2 className="text-lg font-bold text-slate-900 tracking-tight">Step 1: Asset Identity & Market Positioning</h2>
               <p className="text-xs text-slate-500 mt-1">
-                Enter your product title and value tagline. Categories, tools, and keywords will be 100% automatically detected when you upload the ZIP archive in Step 4.
+                Enter your product title and value tagline.
               </p>
             </div>
 
@@ -1113,36 +1111,6 @@ export const ProductStudioView: React.FC<ProductStudioViewProps> = ({
                 placeholder="e.g. Production-ready boilerplate with Tailwind CSS, Prisma, authentication, and Stripe payments"
                 className="w-full px-4 py-3 bg-slate-50/50 border border-slate-200 rounded-xl text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all"
               />
-            </div>
-
-            {/* 100% Automated Category Notice */}
-            <div className="p-4 bg-orange-50/60 border border-orange-200/80 rounded-2xl flex items-start gap-3">
-              <Sparkles className="w-5 h-5 text-orange-600 shrink-0 mt-0.5" />
-              <div>
-                <span className="text-xs font-bold text-orange-950 block">100% Automatic Category & Stack Intelligence</span>
-                <p className="text-xs text-orange-800/90 mt-0.5 leading-relaxed">
-                  No manual category selection needed. When you upload your project ZIP archive in Step 4, our system inspects the code structure and dependencies, automatically detects whether it's UI & Figma, Dev Kits, 3D & Spatial, Templates, or Motion & Audio, and extracts all tools and keywords.
-                </p>
-                {category && (
-                  <div className="mt-2.5 flex items-center gap-2">
-                    <span className="text-[11px] font-semibold text-orange-900">Current Auto-Assigned Category:</span>
-                    <span className="px-2.5 py-0.5 rounded-lg bg-white border border-orange-200 text-xs font-bold text-orange-700 shadow-2xs">
-                      {category}
-                    </span>
-                  </div>
-                )}
-              </div>
-            </div>
-
-            {/* Storefront URL Slug Preview */}
-            <div className="p-4 bg-slate-50 border border-slate-200/60 rounded-2xl flex items-center justify-between">
-              <div>
-                <span className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">Storefront URL Slug</span>
-                <span className="text-xs font-mono text-slate-700">kroma.store/products/<strong className="text-orange-600 font-bold">{cleanSlug}</strong></span>
-              </div>
-              <span className="px-2.5 py-1 rounded-md bg-white border border-slate-200 text-[10px] font-mono font-medium text-slate-600">
-                auto-generated
-              </span>
             </div>
           </div>
         )}
