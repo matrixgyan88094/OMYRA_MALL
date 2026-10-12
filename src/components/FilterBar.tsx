@@ -1,70 +1,21 @@
 import React from 'react';
-import { Search, X, LayoutGrid, Layers, Code2, Box, Music, Globe, Sparkles } from 'lucide-react';
+import { Search, X } from 'lucide-react';
 import { useStore } from '../context/StoreContext';
-import { TechToolIcon } from './TechToolIcon';
 
 interface FilterBarProps {
   searchInputRef?: React.RefObject<HTMLInputElement | null>;
   totalCount: number;
 }
 
-const getCategoryIcon = (cat: string) => {
-  switch (cat) {
-    case 'All': 
-      return <LayoutGrid className="w-3.5 h-3.5 shrink-0" />;
-    case 'UI & Figma': 
-      return (
-        <span className="w-3.5 h-3.5 shrink-0 flex items-center justify-center">
-          <TechToolIcon toolName="Figma" className="w-3.5 h-3.5" />
-        </span>
-      );
-    case 'Dev Kits': 
-      return <Code2 className="w-3.5 h-3.5 shrink-0" />;
-    case '3D & Spatial': 
-      return <Box className="w-3.5 h-3.5 shrink-0" />;
-    case 'Templates': 
-    case 'WordPress & Themes':
-      return (
-        <span className="w-3.5 h-3.5 shrink-0 flex items-center justify-center">
-          <TechToolIcon toolName="WordPress" className="w-3.5 h-3.5" />
-        </span>
-      );
-    case 'Motion & Audio': 
-      return <Music className="w-3.5 h-3.5 shrink-0" />;
-    default: 
-      return <Sparkles className="w-3.5 h-3.5 shrink-0" />;
-  }
-};
-
 export const FilterBar: React.FC<FilterBarProps> = ({ searchInputRef, totalCount }) => {
   const {
-    products,
     searchQuery,
     setSearchQuery,
     selectedCategory,
     setSelectedCategory,
-    selectedFormat,
-    setSelectedFormat,
     sortBy,
     setSortBy,
   } = useStore();
-
-  const categories = React.useMemo(() => {
-    const list = ['All', 'UI & Figma', 'Dev Kits', '3D & Spatial', 'Templates', 'Motion & Audio'];
-    products.forEach(p => {
-      if (p.category && !list.includes(p.category)) {
-        list.push(p.category);
-      }
-    });
-    return list;
-  }, [products]);
-
-  const formats = ['All', '.fig', '.tsx', '.blend', '.zip', '.php', '.mp3'];
-
-  const getCategoryLabel = (cat: string) => {
-    if (cat === 'Templates') return 'WordPress & Themes';
-    return cat;
-  };
 
   return (
     <div id="marketplace-catalog" className="w-full pt-8 pb-6 scroll-mt-20">
@@ -80,13 +31,13 @@ export const FilterBar: React.FC<FilterBarProps> = ({ searchInputRef, totalCount
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Search UI systems, boilerplates, 3D assets, WordPress..."
-            className="w-full rounded-lg border border-zinc-200 bg-white py-2.5 pl-10 pr-10 text-sm text-zinc-900 placeholder-zinc-400 focus:border-teal-600 focus:outline-none focus:ring-1 focus:ring-teal-600 transition-all min-h-[44px] shadow-2xs"
+            placeholder="Search products, brands, templates, assets..."
+            className="w-full rounded-lg border border-zinc-200 bg-white py-2.5 pl-10 pr-10 text-sm text-zinc-900 placeholder-zinc-400 focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500 transition-all min-h-[44px] shadow-xs"
           />
           {searchQuery && (
             <button
               onClick={() => setSearchQuery('')}
-              className="absolute inset-y-0 right-0 flex items-center pr-3 text-zinc-400 hover:text-zinc-600 cursor-pointer"
+              className="absolute inset-y-0 right-0 flex items-center pr-3 text-zinc-400 hover:text-zinc-600"
             >
               <X className="h-4 w-4" />
             </button>
@@ -104,7 +55,7 @@ export const FilterBar: React.FC<FilterBarProps> = ({ searchInputRef, totalCount
             <select
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value as any)}
-              className="rounded-lg border border-zinc-200 bg-white px-3 py-2 text-xs font-medium text-zinc-700 focus:border-teal-600 focus:outline-none min-h-[44px] cursor-pointer shadow-2xs"
+              className="rounded-lg border border-zinc-200 bg-white px-3 py-2 text-xs font-medium text-zinc-700 focus:border-orange-500 focus:outline-none min-h-[44px] cursor-pointer shadow-xs"
             >
               <option value="popular">Most Popular</option>
               <option value="newest">Newest Releases</option>
@@ -115,60 +66,44 @@ export const FilterBar: React.FC<FilterBarProps> = ({ searchInputRef, totalCount
         </div>
       </div>
 
-      {/* Category Segmented Filter Tabs with Authentic Logos & Icons */}
-      <div className="mt-4 flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none">
-        {categories.map((cat) => {
-          const isActive = selectedCategory === cat;
-          return (
-            <button
-              key={cat}
-              onClick={() => setSelectedCategory(cat)}
-              className={`inline-flex items-center gap-2 min-h-[38px] px-3.5 py-1.5 text-xs font-medium rounded-lg transition-all whitespace-nowrap shrink-0 cursor-pointer ${
-                isActive
-                  ? 'bg-teal-600 text-white font-semibold shadow-sm shadow-teal-600/25'
-                  : 'bg-white text-zinc-600 hover:text-zinc-900 hover:bg-zinc-50 border border-zinc-200'
-              }`}
-            >
-              {getCategoryIcon(cat)}
-              <span>{getCategoryLabel(cat)}</span>
-            </button>
-          );
-        })}
-      </div>
-
-      {/* Format Filter Bar */}
-      <div className="mt-3 flex items-center gap-2 text-xs text-zinc-500 flex-wrap">
-        <span className="font-medium text-zinc-700">Format:</span>
-        {formats.map((fmt) => {
-          const isActive = selectedFormat === fmt;
-          return (
-            <button
-              key={fmt}
-              onClick={() => setSelectedFormat(fmt)}
-              className={`px-2.5 py-1 rounded text-xs transition-colors cursor-pointer font-mono ${
-                isActive
-                  ? 'bg-zinc-900 text-white font-medium shadow-xs'
-                  : 'text-zinc-600 hover:text-zinc-950 hover:bg-zinc-100'
-              }`}
-            >
-              {fmt}
-            </button>
-          );
-        })}
-
-        {(selectedCategory !== 'All' || selectedFormat !== 'All' || searchQuery) && (
+      {/* Active Filter Badge if selected from Hero category cards or search query */}
+      {(selectedCategory !== 'All' || searchQuery) && (
+        <div className="mt-3 flex items-center gap-2 flex-wrap">
+          {selectedCategory !== 'All' && (
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-orange-50 text-orange-700 border border-orange-200 shadow-2xs">
+              <span>Category: <strong>{selectedCategory}</strong></span>
+              <button
+                onClick={() => setSelectedCategory('All')}
+                className="hover:text-orange-950 transition-colors cursor-pointer"
+                title="Clear category filter"
+              >
+                <X className="w-3.5 h-3.5" />
+              </button>
+            </span>
+          )}
+          {searchQuery && (
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-zinc-100 text-zinc-700 border border-zinc-200 shadow-2xs">
+              <span>Search: &ldquo;{searchQuery}&rdquo;</span>
+              <button
+                onClick={() => setSearchQuery('')}
+                className="hover:text-zinc-950 transition-colors cursor-pointer"
+                title="Clear search query"
+              >
+                <X className="w-3.5 h-3.5" />
+              </button>
+            </span>
+          )}
           <button
             onClick={() => {
               setSelectedCategory('All');
-              setSelectedFormat('All');
               setSearchQuery('');
             }}
-            className="ml-auto text-xs text-teal-600 hover:text-teal-700 font-medium cursor-pointer"
+            className="text-xs text-orange-600 hover:text-orange-700 hover:underline cursor-pointer ml-1"
           >
-            Reset Filters
+            Clear filter
           </button>
-        )}
-      </div>
+        </div>
+      )}
     </div>
   );
 };
