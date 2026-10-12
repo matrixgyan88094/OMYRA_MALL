@@ -581,7 +581,6 @@ export const ProductStudioView: React.FC<ProductStudioViewProps> = ({
 
   // Hidden file input refs
   const thumbInputRef = useRef<HTMLInputElement>(null);
-  const galleryMultiInputRef = useRef<HTMLInputElement>(null);
   const zipInputRef = useRef<HTMLInputElement>(null);
 
   // Auto-generate SKU if blank
@@ -643,116 +642,42 @@ export const ProductStudioView: React.FC<ProductStudioViewProps> = ({
     return previewBlobMap[url] || url;
   };
 
-  // Dedicated Cover Thumbnail Upload
-  const handleUploadCoverImage = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    setErrorNotice(null);
-    setActiveUploadFile(file.name);
-
-    // Instant local blob URL: 100% reliable, zero latency
-    const localBlob = URL.createObjectURL(file);
-    setThumbnail(localBlob);
-    setGallery(prev => (prev.includes(localBlob) ? prev : [localBlob, ...prev]));
-
-    const effectiveToken = token || localStorage.getItem('kroma_admin_token') || 'admin_primary';
-    const xhr = new XMLHttpRequest();
-    const formData = new FormData();
-    formData.append('file', file);
-    formData.append('userId', 'admin_primary');
-    formData.append('folderType', 'thumbnails');
-
-    setMediaUploadProgress({
-      active: true,
-      percent: 15,
-      loaded: Math.round(file.size * 0.15),
-      total: file.size,
-      statusText: 'Streaming cover image to asset store...',
-      isComplete: false
-    });
-
-    xhr.upload.onprogress = (event) => {
-      if (event.lengthComputable) {
-        const rawPercent = (event.loaded / event.total) * 100;
-        setMediaUploadProgress({
-          active: true,
-          percent: Math.min(rawPercent, 90),
-          loaded: event.loaded,
-          total: event.total,
-          statusText: 'Streaming cover image to asset store...',
-          isComplete: false
-        });
-      }
-    };
-
-    xhr.onload = () => {
-      if (xhr.status >= 200 && xhr.status < 300) {
-        try {
-          const data = JSON.parse(xhr.responseText);
-          const serverUrl = data.publicUrl || `/uploads/thumbnails/${data.filename || file.name}`;
-
-          // Map serverUrl -> localBlob so preview remains razor sharp
-          setPreviewBlobMap(prev => ({ ...prev, [serverUrl]: localBlob }));
-
-          setMediaUploadProgress(prev => (prev ? { ...prev, percent: 100, loaded: file.size, isComplete: true } : null));
-
-          setTimeout(() => {
-            setMediaUploadProgress(null);
-            setThumbnail(serverUrl);
-            setGallery(prev => {
-              const cleaned = prev.filter(x => x !== localBlob);
-              return Array.from(new Set([serverUrl, ...cleaned]));
-            });
-          }, 600);
-        } catch {
-          setMediaUploadProgress(null);
-        }
-      } else {
-        setMediaUploadProgress(null);
-      }
-    };
-
-    xhr.onerror = () => {
-      setMediaUploadProgress(null);
-    };
-
-    xhr.open('POST', '/api/admin/r2/upload');
-    xhr.setRequestHeader('Authorization', `Bearer ${effectiveToken}`);
-    xhr.send(formData);
-
-    if (thumbInputRef.current) thumbInputRef.current.value = '';
-  };
-
-  // Upload Multiple Gallery Screenshots at once
-  const handleUploadMultipleGallery = (e: React.ChangeEvent<HTMLInputElement>) => {
+  // Production-Ready Unified Thumbnail & Gallery Image Uploader
+  const handleUploadImages = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (!files || files.length === 0) return;
 
     setErrorNotice(null);
     const fileList = Array.from(files);
-
     const totalBatchBytes = fileList.reduce((acc, f) => acc + f.size, 0);
-    setActiveUploadFile(`${fileList.length} gallery images`);
+
+    setActiveUploadFile(
+      fileList.length === 1 ? fileList[0].name : `${fileList.length} images`
+    );
 
     setMediaUploadProgress({
       active: true,
       percent: 15,
       loaded: Math.round(totalBatchBytes * 0.15),
       total: totalBatchBytes,
-      statusText: `Uploading ${fileList.length} gallery images...`,
+      statusText: `Uploading ${fileList.length} image${fileList.length > 1 ? 's' : ''}...`,
       isComplete: false
     });
 
     const effectiveToken = token || localStorage.getItem('kroma_admin_token') || 'admin_primary';
 
-    fileList.forEach(file => {
-      const localBlob = URL.createObjectURL(file);
+    // 1. Instant local blob URLs for zero-latency, 100% reliable preview
+    const newBlobs: string[] = fileList.map(file => URL.createObjectURL(file));
 
-      // Instant preview in gallery array
-      setGallery(prev => [...prev, localBlob]);
-      if (!thumbnail) setThumbnail(localBlob);
+    setGallery(prev => [...prev, ...newBlobs]);
+    if (!thumbnail && newBlobs.length > 0) {
+      setThumbnail(newBlobs[0]);
+    }
 
+    // 2. Real XHR upload to Cloudflare R2 / Server storage for persistence
+    let completedCount = 0;
+    fileList.forEach((file, idx) => {
+      const localBlob = newBlobs[idx];
       const xhr = new XMLHttpRequest();
       const formData = new FormData();
       formData.append('file', file);
@@ -760,6 +685,7 @@ export const ProductStudioView: React.FC<ProductStudioViewProps> = ({
       formData.append('folderType', 'thumbnails');
 
       xhr.onload = () => {
+        completedCount++;
         if (xhr.status >= 200 && xhr.status < 300) {
           try {
             const data = JSON.parse(xhr.responseText);
@@ -775,6 +701,18 @@ export const ProductStudioView: React.FC<ProductStudioViewProps> = ({
             setThumbnail(current => (current === localBlob ? serverUrl : current));
           } catch {}
         }
+
+        if (completedCount === fileList.length) {
+          setMediaUploadProgress(prev => (prev ? { ...prev, percent: 100, isComplete: true } : null));
+          setTimeout(() => setMediaUploadProgress(null), 600);
+        }
+      };
+
+      xhr.onerror = () => {
+        completedCount++;
+        if (completedCount === fileList.length) {
+          setMediaUploadProgress(null);
+        }
       };
 
       xhr.open('POST', '/api/admin/r2/upload');
@@ -782,12 +720,7 @@ export const ProductStudioView: React.FC<ProductStudioViewProps> = ({
       xhr.send(formData);
     });
 
-    setTimeout(() => {
-      setMediaUploadProgress(prev => (prev ? { ...prev, percent: 100, isComplete: true } : null));
-      setTimeout(() => setMediaUploadProgress(null), 700);
-    }, 900);
-
-    if (galleryMultiInputRef.current) galleryMultiInputRef.current.value = '';
+    if (thumbInputRef.current) thumbInputRef.current.value = '';
   };
 
   // Real ZIP Package Ingestion + 5-Layer Security Scan + Auto-Categorization & Stack Extraction
@@ -1206,32 +1139,23 @@ export const ProductStudioView: React.FC<ProductStudioViewProps> = ({
         )}
 
         {/* ========================================================================= */}
-        {/* STEP 3: MEDIA, THUMBNAIL COVER & MULTIPLE PRODUCT GALLERY                 */}
+        {/* STEP 3: MEDIA, THUMBNAIL COVER & GALLERY                                  */}
         {/* ========================================================================= */}
         {currentStep === 3 && (
-          <div className="space-y-8 max-w-3xl">
+          <div className="space-y-6 max-w-3xl">
             <div>
               <h2 className="text-lg font-bold text-slate-900 tracking-tight">Step 3: Media, Thumbnail Cover & Gallery</h2>
-              <p className="text-xs text-slate-500 mt-1">Upload the primary showcase thumbnail and multiple screenshot gallery slides for prospective buyers.</p>
+              <p className="text-xs text-slate-500 mt-1">Upload product showcase images. You can select multiple images and choose any image as the primary thumbnail in one click.</p>
             </div>
 
-            {/* Hidden Input for Primary Cover */}
+            {/* Hidden Input for Thumbnail & Gallery Images (Supports Multiple Selection) */}
             <input
               ref={thumbInputRef}
-              type="file"
-              accept="image/png,image/jpeg,image/webp,image/gif"
-              className="hidden"
-              onChange={handleUploadCoverImage}
-            />
-
-            {/* Hidden Input for Multiple Gallery Images */}
-            <input
-              ref={galleryMultiInputRef}
               type="file"
               multiple
               accept="image/png,image/jpeg,image/webp,image/gif"
               className="hidden"
-              onChange={handleUploadMultipleGallery}
+              onChange={handleUploadImages}
             />
 
             {/* Uploading with Smooth Circular Progress Ring */}
@@ -1246,108 +1170,43 @@ export const ProductStudioView: React.FC<ProductStudioViewProps> = ({
               />
             )}
 
-            {/* 1. PRIMARY STOREFRONT COVER CARD */}
-            <div className="space-y-3">
-              <div className="flex items-center justify-between">
-                <span className="text-xs font-bold text-slate-900 uppercase tracking-wider flex items-center gap-1.5">
-                  <Star className="w-3.5 h-3.5 text-amber-500 fill-amber-500" />
-                  Primary Storefront Thumbnail & Cover
-                </span>
-                <span className="text-[11px] text-slate-500">Main card image shown in store catalog</span>
+            {/* Unified Upload Dropzone */}
+            <div
+              onClick={() => thumbInputRef.current?.click()}
+              className="p-8 border-2 border-dashed border-slate-200 hover:border-orange-500/60 rounded-3xl bg-slate-50/40 hover:bg-orange-50/20 text-center cursor-pointer transition-all group"
+            >
+              <div className="w-12 h-12 rounded-2xl bg-white border border-slate-200 text-slate-600 group-hover:text-orange-600 group-hover:border-orange-200 flex items-center justify-center mx-auto transition-colors shadow-xs">
+                <UploadCloud className="w-6 h-6" />
               </div>
-
-              {thumbnail ? (
-                <div className="p-5 bg-slate-50/80 border border-slate-200 rounded-3xl space-y-4">
-                  {/* High-Res Preview Canvas */}
-                  <div className="relative aspect-[16/10] sm:aspect-[16/9] w-full rounded-2xl overflow-hidden border border-slate-200/90 shadow-sm bg-slate-950/5 group">
-                    <img
-                      src={getDisplayImageUrl(thumbnail)}
-                      alt="Primary Cover Thumbnail"
-                      referrerPolicy="no-referrer"
-                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-[1.01]"
-                      onError={(e) => {
-                        const target = e.currentTarget;
-                        if (!target.src.includes('/api/')) {
-                          target.src = `/api${thumbnail}`;
-                        }
-                      }}
-                    />
-                    <div className="absolute top-3 left-3 px-3 py-1 rounded-xl bg-slate-950/80 backdrop-blur-md text-white text-xs font-bold flex items-center gap-1.5 shadow-md">
-                      <Star className="w-3.5 h-3.5 text-amber-400 fill-amber-400" />
-                      <span>Primary Cover Thumbnail</span>
-                    </div>
-                  </div>
-
-                  <div className="flex items-center justify-between pt-1">
-                    <span className="text-xs text-slate-500">
-                      Recommended: 1200×750px PNG, JPG, or WEBP (16:10 / 16:9 ratio)
-                    </span>
-                    <div className="flex items-center gap-2">
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setThumbnail('');
-                          setGallery(prev => prev.filter(x => x !== thumbnail));
-                        }}
-                        className="px-3.5 py-2 text-xs font-semibold text-rose-600 hover:text-rose-700 hover:bg-rose-50 rounded-xl transition-colors border border-rose-200"
-                      >
-                        Remove
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => thumbInputRef.current?.click()}
-                        className="flex items-center gap-1.5 px-4 py-2 bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold rounded-xl transition-all shadow-xs"
-                      >
-                        <RefreshCw className="w-3.5 h-3.5" />
-                        <span>Change Cover</span>
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              ) : (
-                <div
-                  onClick={() => thumbInputRef.current?.click()}
-                  className="p-8 border-2 border-dashed border-slate-200 hover:border-orange-500/60 rounded-3xl bg-slate-50/40 hover:bg-orange-50/20 text-center cursor-pointer transition-all group"
-                >
-                  <div className="w-12 h-12 rounded-2xl bg-white border border-slate-200 text-slate-600 group-hover:text-orange-600 group-hover:border-orange-200 flex items-center justify-center mx-auto transition-colors shadow-xs">
-                    <UploadCloud className="w-6 h-6" />
-                  </div>
-                  <h3 className="text-sm font-bold text-slate-900 mt-3">Upload Primary Cover Thumbnail</h3>
-                  <p className="text-xs text-slate-500 mt-1">PNG, JPG, or WEBP up to 25MB. Click to browse.</p>
-                  <button
-                    type="button"
-                    className="mt-4 px-4 py-2 bg-white border border-slate-200 text-slate-700 text-xs font-bold rounded-xl shadow-xs hover:bg-slate-50"
-                  >
-                    Select Cover Image
-                  </button>
-                </div>
-              )}
+              <h3 className="text-sm font-bold text-slate-900 mt-3">Upload product Thumbnail & Gallery images</h3>
+              <p className="text-xs text-slate-500 mt-1">PNG, JPG, or WEBP up to 25MB. Click to browse.</p>
+              <button
+                type="button"
+                className="mt-4 px-4 py-2 bg-white border border-slate-200 text-slate-700 text-xs font-bold rounded-xl shadow-xs hover:bg-slate-50 pointer-events-none"
+              >
+                Select Cover Image
+              </button>
             </div>
 
-            {/* 2. MULTIPLE PRODUCT GALLERY IMAGES SECTION */}
-            <div className="space-y-4 pt-4 border-t border-slate-200">
-              <div className="flex items-center justify-between">
-                <div>
-                  <h3 className="text-sm font-bold text-slate-900 flex items-center gap-2">
-                    <ImageIcon className="w-4 h-4 text-orange-600" />
-                    <span>Product Gallery Screenshots ({gallery.length})</span>
-                  </h3>
-                  <p className="text-xs text-slate-500 mt-0.5">Upload multiple screenshots to showcase features, dark mode, or mobile views.</p>
+            {/* Uploaded Gallery Grid with 1-Click Primary Thumbnail Selection */}
+            {gallery.length > 0 && (
+              <div className="space-y-3 pt-2">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-bold text-slate-900 uppercase tracking-wider flex items-center gap-1.5">
+                    <Star className="w-3.5 h-3.5 text-amber-500 fill-amber-500" />
+                    Uploaded Images ({gallery.length}) — Click any image to choose as primary thumbnail
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => thumbInputRef.current?.click()}
+                    className="text-xs font-semibold text-orange-600 hover:text-orange-700 hover:underline flex items-center gap-1"
+                  >
+                    <Plus className="w-3.5 h-3.5" />
+                    <span>Upload more</span>
+                  </button>
                 </div>
 
-                <button
-                  type="button"
-                  onClick={() => galleryMultiInputRef.current?.click()}
-                  className="flex items-center gap-1.5 px-4 py-2 bg-orange-600 hover:bg-orange-700 text-white text-xs font-bold rounded-xl shadow-xs transition-colors"
-                >
-                  <Plus className="w-4 h-4" />
-                  <span>Add Gallery Images</span>
-                </button>
-              </div>
-
-              {/* Gallery Grid */}
-              {gallery.length > 0 ? (
-                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3.5">
                   {gallery.map((imgUrl, idx) => {
                     const isCover = thumbnail === imgUrl;
                     const displaySrc = getDisplayImageUrl(imgUrl);
@@ -1355,13 +1214,16 @@ export const ProductStudioView: React.FC<ProductStudioViewProps> = ({
                     return (
                       <div
                         key={idx}
-                        className={`relative aspect-[16/10] rounded-2xl overflow-hidden border transition-all group bg-slate-100 ${
-                          isCover ? 'border-orange-500 ring-2 ring-orange-500/20 shadow-sm' : 'border-slate-200 hover:border-slate-300'
+                        onClick={() => setThumbnail(imgUrl)}
+                        className={`relative aspect-[16/10] rounded-2xl overflow-hidden border cursor-pointer transition-all group bg-slate-100 ${
+                          isCover
+                            ? 'border-orange-500 ring-2 ring-orange-500/30 shadow-md'
+                            : 'border-slate-200 hover:border-orange-300 hover:shadow-xs'
                         }`}
                       >
                         <img
                           src={displaySrc}
-                          alt={`Gallery screenshot ${idx + 1}`}
+                          alt={`Product media ${idx + 1}`}
                           referrerPolicy="no-referrer"
                           className="w-full h-full object-cover"
                           onError={(e) => {
@@ -1372,28 +1234,25 @@ export const ProductStudioView: React.FC<ProductStudioViewProps> = ({
                           }}
                         />
 
-                        {/* Primary Cover Badge */}
-                        {isCover && (
-                          <div className="absolute top-2 left-2 px-2 py-0.5 rounded-md bg-orange-600 text-white text-[10px] font-bold uppercase tracking-wider shadow-sm flex items-center gap-1">
-                            <Star className="w-3 h-3 fill-white" />
-                            <span>Cover</span>
+                        {/* Primary Thumbnail Status Badge */}
+                        {isCover ? (
+                          <div className="absolute top-2.5 left-2.5 px-2.5 py-1 rounded-xl bg-orange-600 text-white text-[10px] font-bold uppercase tracking-wider shadow-md flex items-center gap-1">
+                            <Star className="w-3.5 h-3.5 fill-white text-white" />
+                            <span>Primary Thumbnail</span>
+                          </div>
+                        ) : (
+                          <div className="absolute top-2.5 left-2.5 px-2 py-0.5 rounded-lg bg-slate-950/75 backdrop-blur-xs text-white text-[10px] font-medium opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1">
+                            <Star className="w-3 h-3 text-amber-400" />
+                            <span>Click to set as thumbnail</span>
                           </div>
                         )}
 
-                        {/* Hover Overlay Actions */}
-                        <div className="absolute inset-0 bg-slate-950/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2 p-2">
-                          {!isCover && (
-                            <button
-                              type="button"
-                              onClick={() => setThumbnail(imgUrl)}
-                              className="px-2.5 py-1 bg-white hover:bg-orange-50 text-slate-900 rounded-lg text-xs font-bold shadow-sm transition-colors"
-                            >
-                              Set as Cover
-                            </button>
-                          )}
+                        {/* Delete Action Button */}
+                        <div className="absolute top-2.5 right-2.5 opacity-0 group-hover:opacity-100 transition-opacity">
                           <button
                             type="button"
-                            onClick={() => {
+                            onClick={(e) => {
+                              e.stopPropagation();
                               const remaining = gallery.filter((_, i) => i !== idx);
                               setGallery(remaining);
                               if (isCover && remaining.length > 0) {
@@ -1412,15 +1271,8 @@ export const ProductStudioView: React.FC<ProductStudioViewProps> = ({
                     );
                   })}
                 </div>
-              ) : (
-                <div
-                  onClick={() => galleryMultiInputRef.current?.click()}
-                  className="p-6 border-2 border-dashed border-slate-200 hover:border-slate-300 rounded-2xl bg-slate-50/50 text-center cursor-pointer transition-colors"
-                >
-                  <p className="text-xs text-slate-500">No additional screenshots yet. Click "Add Gallery Images" to upload multiple files.</p>
-                </div>
-              )}
-            </div>
+              </div>
+            )}
           </div>
         )}
 
