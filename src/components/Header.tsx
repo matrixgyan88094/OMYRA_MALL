@@ -11,13 +11,15 @@ export const Header: React.FC = () => {
     setIsCartOpen, 
     searchQuery, 
     setSearchQuery, 
-    setSelectedCategory 
+    setSelectedCategory,
+    setSelectedProduct 
   } = useStore();
   const cartItemCount = cart.reduce((sum, item) => sum + item.quantity, 0);
   const [activeMenuTab, setActiveMenuTab] = useState<'Home' | 'Digital Products' | 'Creator Hub' | 'Deals' | 'Support'>('Home');
 
   const handleMenuClick = (tab: 'Home' | 'Digital Products' | 'Creator Hub' | 'Deals' | 'Support') => {
     setActiveMenuTab(tab);
+    setSelectedProduct(null);
     if (tab === 'Home') {
       setActiveView('store');
       setSelectedCategory('All');
@@ -43,6 +45,7 @@ export const Header: React.FC = () => {
           {/* 1. Left Brand Logo */}
           <button
             onClick={() => {
+              setSelectedProduct(null);
               setActiveView('store');
               setSelectedCategory('All');
               setActiveMenuTab('Home');

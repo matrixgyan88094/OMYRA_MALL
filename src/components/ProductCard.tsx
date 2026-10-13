@@ -23,10 +23,13 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
     : product.category;
 
   return (
-    <div className="group flex flex-col overflow-hidden rounded-xl border border-zinc-200/90 bg-white transition-all duration-200 hover:border-teal-400/80 hover:shadow-lg hover:shadow-teal-900/5">
+    <div className="group flex flex-col overflow-hidden rounded-xl border border-zinc-200/90 bg-white transition-all duration-200 hover:border-orange-400/80 hover:shadow-lg hover:shadow-orange-950/5">
       {/* Product Image Stage */}
       <div 
-        onClick={() => setSelectedProduct(product)}
+        onClick={() => {
+          setSelectedProduct(product);
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        }}
         className="relative aspect-[16/10] w-full overflow-hidden bg-zinc-100 cursor-pointer"
       >
         <img
@@ -63,8 +66,11 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
 
         {/* Product Title */}
         <h3
-          onClick={() => setSelectedProduct(product)}
-          className="mt-2 text-base font-semibold text-zinc-950 group-hover:text-teal-600 transition-colors line-clamp-1 cursor-pointer tracking-tight"
+          onClick={() => {
+            setSelectedProduct(product);
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+          }}
+          className="mt-2 text-base font-semibold text-zinc-950 group-hover:text-[#f95a12] transition-colors line-clamp-1 cursor-pointer tracking-tight"
         >
           {product.title}
         </h3>
@@ -125,8 +131,11 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
 
           <div className="flex items-center gap-2">
             <button
-              onClick={() => setSelectedProduct(product)}
-              className="rounded-lg border border-zinc-200 px-3 py-2 text-xs font-medium text-zinc-700 hover:bg-zinc-50 hover:text-zinc-950 transition-colors cursor-pointer"
+              onClick={() => {
+                setSelectedProduct(product);
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+              }}
+              className="rounded-lg border border-zinc-200 px-3 py-2 text-xs font-semibold text-zinc-700 hover:bg-zinc-50 hover:text-zinc-950 hover:border-zinc-300 transition-colors cursor-pointer"
             >
               Details
             </button>
@@ -135,13 +144,13 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
               onClick={() => addToCart(product, 'personal')}
               className={`flex items-center gap-1.5 rounded-lg px-3.5 py-2 text-xs font-semibold transition-all cursor-pointer ${
                 isAlreadyInCart
-                  ? 'bg-zinc-100 text-teal-700 border border-teal-200'
-                  : 'bg-teal-600 text-white hover:bg-teal-700 active:scale-95 shadow-sm shadow-teal-600/20'
+                  ? 'bg-orange-50 text-[#f95a12] border border-orange-200'
+                  : 'bg-[#f95a12] text-white hover:bg-[#e04a07] active:scale-95 shadow-xs'
               }`}
             >
               {isAlreadyInCart ? (
                 <>
-                  <Check className="h-3.5 w-3.5" />
+                  <Check className="h-3.5 w-3.5 stroke-[2.5]" />
                   <span>In Bag</span>
                 </>
               ) : (

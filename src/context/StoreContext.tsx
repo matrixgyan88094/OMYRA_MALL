@@ -17,7 +17,7 @@ interface StoreContextType {
   appliedCoupon: Coupon | null;
   selectedProduct: DigitalProduct | null;
   isCartOpen: boolean;
-  activeView: 'store' | 'library' | 'vendor';
+  activeView: 'store' | 'library' | 'vendor' | 'product-detail';
   searchQuery: string;
   selectedCategory: string;
   selectedFormat: string;
@@ -29,7 +29,7 @@ interface StoreContextType {
   // Actions
   setSelectedProduct: (product: DigitalProduct | null) => void;
   setIsCartOpen: (open: boolean) => void;
-  setActiveView: (view: 'store' | 'library' | 'vendor') => void;
+  setActiveView: (view: 'store' | 'library' | 'vendor' | 'product-detail') => void;
   setSearchQuery: (query: string) => void;
   setSelectedCategory: (category: string) => void;
   setSelectedFormat: (format: string) => void;
@@ -110,7 +110,7 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   const [appliedCoupon, setAppliedCoupon] = useState<Coupon | null>(null);
   const [selectedProduct, setSelectedProduct] = useState<DigitalProduct | null>(null);
   const [isCartOpen, setIsCartOpen] = useState(false);
-  const [activeView, setActiveView] = useState<'store' | 'library' | 'vendor'>('store');
+  const [activeView, setActiveView] = useState<'store' | 'library' | 'vendor' | 'product-detail'>('store');
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [selectedFormat, setSelectedFormat] = useState('All');

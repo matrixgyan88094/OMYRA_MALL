@@ -14,6 +14,7 @@ import { Footer } from './components/Footer';
 import { AdminLayout } from './components/AdminPanel/AdminLayout';
 import { AdminLogin } from './components/AdminPanel/AdminLogin';
 import { NotFoundPage } from './components/NotFoundPage';
+import { SingleProductDetailPage } from './components/SingleProductDetailPage';
 import { Shield, Zap, CheckCircle2, Lock } from 'lucide-react';
 
 const ADMIN_TOKEN_KEY = 'omyra_admin_token';
@@ -35,57 +36,57 @@ const StorefrontContent: React.FC = () => {
         <ProductSections />
 
         {/* Standards & Enterprise Reliability */}
-        <section id="about" className="mt-20 pt-14 border-t border-zinc-200">
+        <section id="about" className="mt-14 pt-10 border-t border-zinc-200">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
-            <div className="lg:col-span-5 space-y-3">
-              <div className="text-xs font-semibold uppercase tracking-wider text-orange-600">
+            <div className="lg:col-span-5 space-y-2">
+              <span className="inline-flex items-center text-[11px] font-medium text-orange-600 bg-orange-50 border border-orange-200/60 px-2 py-0.5 rounded-md">
                 Quality Assurance
-              </div>
-              <h2 className="text-2xl sm:text-3xl font-bold text-zinc-950 tracking-tight">
+              </span>
+              <h2 className="text-base sm:text-lg font-semibold text-zinc-900 tracking-tight">
                 Enterprise Standards in Every File
               </h2>
-              <p className="text-sm text-zinc-600 leading-relaxed">
+              <p className="text-xs text-zinc-500 leading-relaxed">
                 Unlike open marketplaces filled with abandoned files and messy codebases, every asset on OMYRA MALL is engineered to high production standards, thoroughly documented, and actively updated.
               </p>
             </div>
 
-            <div className="lg:col-span-7 grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div className="rounded-xl border border-zinc-200 bg-white p-5 space-y-2 shadow-xs">
-                <div className="h-8 w-8 rounded-lg bg-orange-50 text-orange-600 flex items-center justify-center">
-                  <Zap className="h-4 w-4" />
+            <div className="lg:col-span-7 grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+              <div className="rounded-xl border border-zinc-200 bg-white p-4 space-y-1.5 shadow-xs">
+                <div className="h-7 w-7 rounded-lg bg-orange-50 text-orange-600 flex items-center justify-center">
+                  <Zap className="h-3.5 w-3.5" />
                 </div>
-                <h3 className="text-sm font-semibold text-zinc-950">Zero Unnecessary Bloat</h3>
-                <p className="text-xs text-zinc-600 leading-relaxed">
+                <h3 className="text-xs font-semibold text-zinc-900">Zero Unnecessary Bloat</h3>
+                <p className="text-xs text-zinc-500 leading-relaxed">
                   Clean, production-grade files without extraneous packages or messy layers.
                 </p>
               </div>
 
-              <div className="rounded-xl border border-zinc-200 bg-white p-5 space-y-2 shadow-xs">
-                <div className="h-8 w-8 rounded-lg bg-orange-50 text-orange-600 flex items-center justify-center">
-                  <Shield className="h-4 w-4" />
+              <div className="rounded-xl border border-zinc-200 bg-white p-4 space-y-1.5 shadow-xs">
+                <div className="h-7 w-7 rounded-lg bg-orange-50 text-orange-600 flex items-center justify-center">
+                  <Shield className="h-3.5 w-3.5" />
                 </div>
-                <h3 className="text-sm font-semibold text-zinc-950">Direct Author Support</h3>
-                <p className="text-xs text-zinc-600 leading-relaxed">
+                <h3 className="text-xs font-semibold text-zinc-900">Direct Author Support</h3>
+                <p className="text-xs text-zinc-500 leading-relaxed">
                   Architecture questions or token adjustments? Get prompt, direct technical support.
                 </p>
               </div>
 
-              <div className="rounded-xl border border-zinc-200 bg-white p-5 space-y-2 shadow-xs">
-                <div className="h-8 w-8 rounded-lg bg-orange-50 text-orange-600 flex items-center justify-center">
-                  <CheckCircle2 className="h-4 w-4" />
+              <div className="rounded-xl border border-zinc-200 bg-white p-4 space-y-1.5 shadow-xs">
+                <div className="h-7 w-7 rounded-lg bg-orange-50 text-orange-600 flex items-center justify-center">
+                  <CheckCircle2 className="h-3.5 w-3.5" />
                 </div>
-                <h3 className="text-sm font-semibold text-zinc-950">Continuous Updates</h3>
-                <p className="text-xs text-zinc-600 leading-relaxed">
+                <h3 className="text-xs font-semibold text-zinc-900">Continuous Updates</h3>
+                <p className="text-xs text-zinc-500 leading-relaxed">
                   Whenever Figma, Tailwind, or Next.js update major versions, new builds are provided free.
                 </p>
               </div>
 
-              <div className="rounded-xl border border-zinc-200 bg-white p-5 space-y-2 shadow-xs">
-                <div className="h-8 w-8 rounded-lg bg-orange-50 text-orange-600 flex items-center justify-center">
-                  <Lock className="h-4 w-4" />
+              <div className="rounded-xl border border-zinc-200 bg-white p-4 space-y-1.5 shadow-xs">
+                <div className="h-7 w-7 rounded-lg bg-orange-50 text-orange-600 flex items-center justify-center">
+                  <Lock className="h-3.5 w-3.5" />
                 </div>
-                <h3 className="text-sm font-semibold text-zinc-950">Clear Commercial Rights</h3>
-                <p className="text-xs text-zinc-600 leading-relaxed">
+                <h3 className="text-xs font-semibold text-zinc-900">Clear Commercial Rights</h3>
+                <p className="text-xs text-zinc-500 leading-relaxed">
                   Transparent multi-tier licenses with itemized rights for individuals and agencies.
                 </p>
               </div>
@@ -98,22 +99,28 @@ const StorefrontContent: React.FC = () => {
 };
 
 const MarketplaceShell: React.FC = () => {
-  const { activeView, selectedProduct, setSelectedProduct } = useStore();
+  const { activeView, setActiveView, selectedProduct, setSelectedProduct } = useStore();
 
   return (
     <div className="min-h-screen bg-white text-zinc-900 font-sans selection:bg-orange-500 selection:text-white flex flex-col">
       <Header />
       <div className="flex-1">
-        {activeView === 'store' && <StorefrontContent />}
-        {activeView === 'library' && <CustomerLibrary />}
-        {activeView === 'vendor' && <VendorDashboard />}
+        {activeView === 'product-detail' || (selectedProduct && activeView === 'store') ? (
+          <SingleProductDetailPage
+            product={selectedProduct}
+            onBack={() => {
+              setSelectedProduct(null);
+              setActiveView('store');
+            }}
+          />
+        ) : (
+          <>
+            {activeView === 'store' && <StorefrontContent />}
+            {activeView === 'library' && <CustomerLibrary />}
+            {activeView === 'vendor' && <VendorDashboard />}
+          </>
+        )}
       </div>
-      {selectedProduct && (
-        <ProductDetailModal
-          product={selectedProduct}
-          onClose={() => setSelectedProduct(null)}
-        />
-      )}
       <CartDrawer />
       <OrderConfirmationModal />
       <Footer />

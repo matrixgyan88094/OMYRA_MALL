@@ -70,10 +70,10 @@ export const ProductSections: React.FC = () => {
                   {filteredProducts.length} {filteredProducts.length === 1 ? 'product' : 'products'} found
                 </span>
               </div>
-              <h2 className="text-2xl sm:text-3xl font-extrabold text-zinc-950 tracking-tight mt-2">
+              <h2 className="text-base sm:text-lg font-semibold text-zinc-900 tracking-tight mt-1">
                 {selectedCategory !== 'All' ? `${selectedCategory}` : `Search Results`}
               </h2>
-              <p className="mt-1 text-sm text-zinc-600">
+              <p className="mt-0.5 text-xs text-zinc-500">
                 {searchQuery
                   ? `Showing results matching "${searchQuery}"`
                   : `Curated digital products in the ${selectedCategory} category`}
@@ -124,29 +124,29 @@ export const ProductSections: React.FC = () => {
           {/* ========================================================= */}
           <section className="relative">
             {/* Header matching exact user requirements */}
-            <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 pb-6 border-b border-zinc-100">
+            <div className="flex flex-col md:flex-row md:items-end justify-between gap-3 pb-3 border-b border-zinc-100">
               <div className="max-w-2xl">
-                <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-bold uppercase tracking-wider bg-orange-50 text-[#f95a12] border border-orange-200/80 mb-2 shadow-2xs">
-                  <Star className="w-3.5 h-3.5 fill-current" />
+                <div className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md text-[11px] font-medium bg-orange-50 text-[#f95a12] border border-orange-200/60 mb-1">
+                  <Star className="w-3 h-3 fill-current" />
                   Staff Picked Quality
                 </div>
-                <h2 className="text-2xl sm:text-3xl font-extrabold text-zinc-950 tracking-tight">
+                <h2 className="text-base sm:text-lg font-semibold text-zinc-900 tracking-tight">
                   Featured Products
                 </h2>
-                <p className="mt-1.5 text-sm sm:text-base text-zinc-600 leading-relaxed font-normal">
+                <p className="mt-0.5 text-xs text-zinc-500 leading-normal">
                   Handpicked digital products for creators, developers and businesses.
                 </p>
               </div>
 
-              <div className="flex items-center gap-2 text-xs font-medium text-zinc-500 shrink-0">
+              <div className="flex items-center gap-2 text-xs text-zinc-500 shrink-0">
                 <span className="hidden sm:inline">Guaranteed instant download</span>
                 <span className="h-1.5 w-1.5 rounded-full bg-emerald-500"></span>
-                <span className="text-zinc-700 font-semibold">{featuredProducts.length} Featured Items</span>
+                <span className="text-zinc-700 font-medium">{featuredProducts.length} Featured Items</span>
               </div>
             </div>
 
             {/* Products Grid */}
-            <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            <div className="mt-5 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
               {featuredProducts.map((product) => (
                 <ProductCard key={product.id} product={product} />
               ))}
@@ -156,30 +156,30 @@ export const ProductSections: React.FC = () => {
           {/* ========================================================= */}
           {/* 2. TRENDING PRODUCTS SECTION                              */}
           {/* ========================================================= */}
-          <section className="relative pt-4">
-            <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 pb-6 border-b border-zinc-100">
+          <section className="relative pt-2">
+            <div className="flex flex-col md:flex-row md:items-end justify-between gap-3 pb-3 border-b border-zinc-100">
               <div className="max-w-2xl">
-                <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-bold uppercase tracking-wider bg-amber-50 text-amber-700 border border-amber-200/80 mb-2 shadow-2xs">
-                  <Flame className="w-3.5 h-3.5 fill-amber-500 text-amber-500" />
+                <div className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md text-[11px] font-medium bg-amber-50 text-amber-700 border border-amber-200/60 mb-1">
+                  <Flame className="w-3 h-3 fill-amber-500 text-amber-500" />
                   Top Community Demand
                 </div>
-                <h2 className="text-2xl sm:text-3xl font-extrabold text-zinc-950 tracking-tight">
+                <h2 className="text-base sm:text-lg font-semibold text-zinc-900 tracking-tight">
                   Trending Products
                 </h2>
-                <p className="mt-1.5 text-sm sm:text-base text-zinc-600 leading-relaxed font-normal">
+                <p className="mt-0.5 text-xs text-zinc-500 leading-normal">
                   Most popular digital assets, high-velocity developer kits, and bestsellers this week.
                 </p>
               </div>
 
-              <div className="flex items-center gap-2 text-xs font-medium text-zinc-500 shrink-0">
+              <div className="flex items-center gap-2 text-xs text-zinc-500 shrink-0">
                 <span className="hidden sm:inline">Updated hourly by sales velocity</span>
                 <span className="h-1.5 w-1.5 rounded-full bg-amber-500"></span>
-                <span className="text-zinc-700 font-semibold">{trendingProducts.length} Trending Items</span>
+                <span className="text-zinc-700 font-medium">{trendingProducts.length} Trending Items</span>
               </div>
             </div>
 
             {/* Products Grid */}
-            <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            <div className="mt-5 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
               {trendingProducts.map((product) => (
                 <ProductCard key={product.id} product={product} />
               ))}
@@ -189,30 +189,30 @@ export const ProductSections: React.FC = () => {
           {/* ========================================================= */}
           {/* 3. NEWEST PRODUCTS SECTION                                */}
           {/* ========================================================= */}
-          <section className="relative pt-4">
-            <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 pb-6 border-b border-zinc-100">
+          <section className="relative pt-2">
+            <div className="flex flex-col md:flex-row md:items-end justify-between gap-3 pb-3 border-b border-zinc-100">
               <div className="max-w-2xl">
-                <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-bold uppercase tracking-wider bg-purple-50 text-purple-700 border border-purple-200/80 mb-2 shadow-2xs">
-                  <Sparkles className="w-3.5 h-3.5 text-purple-600" />
+                <div className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md text-[11px] font-medium bg-purple-50 text-purple-700 border border-purple-200/60 mb-1">
+                  <Sparkles className="w-3 h-3 text-purple-600" />
                   Just Added To Store
                 </div>
-                <h2 className="text-2xl sm:text-3xl font-extrabold text-zinc-950 tracking-tight">
+                <h2 className="text-base sm:text-lg font-semibold text-zinc-900 tracking-tight">
                   Newest Products
                 </h2>
-                <p className="mt-1.5 text-sm sm:text-base text-zinc-600 leading-relaxed font-normal">
+                <p className="mt-0.5 text-xs text-zinc-500 leading-normal">
                   Freshly published UI systems, mobile application templates, and latest boilerplates.
                 </p>
               </div>
 
-              <div className="flex items-center gap-2 text-xs font-medium text-zinc-500 shrink-0">
+              <div className="flex items-center gap-2 text-xs text-zinc-500 shrink-0">
                 <span className="hidden sm:inline">Verified code & source files</span>
                 <span className="h-1.5 w-1.5 rounded-full bg-purple-500"></span>
-                <span className="text-zinc-700 font-semibold">{newestProducts.length} New Releases</span>
+                <span className="text-zinc-700 font-medium">{newestProducts.length} New Releases</span>
               </div>
             </div>
 
             {/* Products Grid */}
-            <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            <div className="mt-5 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
               {newestProducts.map((product) => (
                 <ProductCard key={product.id} product={product} />
               ))}
