@@ -442,7 +442,7 @@ export const ProductStudioView: React.FC<ProductStudioViewProps> = ({
       isComplete: false
     });
 
-    const effectiveToken = token || localStorage.getItem('kroma_admin_token') || 'admin_primary';
+    const effectiveToken = token || localStorage.getItem('omyra_admin_token') || localStorage.getItem('kroma_admin_token') || 'admin_primary';
 
     // 1. Instant local blob URLs for zero-latency preview
     const newBlobs: string[] = fileList.map(file => URL.createObjectURL(file));
@@ -704,7 +704,7 @@ export const ProductStudioView: React.FC<ProductStudioViewProps> = ({
     }
 
     // 2. Resilient file transmission: Get Strategy (presigned-r2 or chunked)
-    const effectiveToken = token || localStorage.getItem('kroma_admin_token') || 'admin_primary';
+    const effectiveToken = token || localStorage.getItem('omyra_admin_token') || localStorage.getItem('kroma_admin_token') || 'admin_primary';
 
     setZipUploadProgress({
       active: true,
@@ -1057,7 +1057,7 @@ export const ProductStudioView: React.FC<ProductStudioViewProps> = ({
     try {
       const url = initialProduct?.id ? `/api/products/${initialProduct.id}` : '/api/products';
       const method = initialProduct?.id ? 'PUT' : 'POST';
-      const effectiveToken = token || localStorage.getItem('kroma_admin_token') || 'admin_primary';
+      const effectiveToken = token || localStorage.getItem('omyra_admin_token') || localStorage.getItem('kroma_admin_token') || 'admin_primary';
 
       const res = await fetch(url, {
         method,

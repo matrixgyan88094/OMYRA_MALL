@@ -222,11 +222,11 @@ export const AdminLogin: React.FC<AdminLoginProps> = ({ onSuccess, onGoHome, cur
           {/* Header Brand */}
           <div className="relative z-10 flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-orange-600 flex items-center justify-center text-white font-black text-xl shadow-lg shadow-orange-600/30">
-                K
+              <div className="w-10 h-10 rounded-xl bg-[#f95a12] flex items-center justify-center text-white font-black text-xl shadow-lg shadow-orange-600/30">
+                M
               </div>
               <div>
-                <span className="font-extrabold text-white text-lg tracking-tight">Kroma Studio</span>
+                <span className="font-extrabold text-white text-lg tracking-tight">OMYRA <span className="text-[#f95a12]">MALL</span></span>
                 <div className="text-xs text-slate-400 font-medium">Enterprise Creator Infrastructure</div>
               </div>
             </div>
@@ -317,10 +317,10 @@ export const AdminLogin: React.FC<AdminLoginProps> = ({ onSuccess, onGoHome, cur
             {/* Header */}
             <div>
               <div className="lg:hidden flex items-center gap-2.5 mb-6">
-                <div className="w-9 h-9 rounded-xl bg-orange-600 flex items-center justify-center text-white font-black text-lg shadow-md shadow-orange-600/30">
-                  K
+                <div className="w-9 h-9 rounded-xl bg-[#f95a12] flex items-center justify-center text-white font-black text-lg shadow-md shadow-orange-600/30">
+                  M
                 </div>
-                <span className="font-extrabold text-slate-900 text-lg tracking-tight">Kroma Studio</span>
+                <span className="font-extrabold text-slate-900 text-lg tracking-tight">OMYRA <span className="text-[#f95a12]">MALL</span></span>
               </div>
 
               <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-slate-950">

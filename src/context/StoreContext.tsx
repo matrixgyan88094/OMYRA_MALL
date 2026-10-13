@@ -383,7 +383,7 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       id,
       slug: (productData.title || 'new-product').toLowerCase().replace(/\s+/g, '-'),
       title: productData.title || 'Untitled Digital Product',
-      tagline: productData.tagline || 'High-performance digital asset by Kroma Studio',
+      tagline: productData.tagline || 'High-performance digital asset by OMYRA MALL',
       description: productData.description || 'Crafted with precision for design and engineering workflows.',
       category: productData.category || 'UI & Figma',
       format: productData.format || '.fig',
@@ -472,7 +472,7 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   const downloadAsset = (item: OrderItem) => {
     // 1. Deliver signed commercial license certificate manifest
     const fileContent = `========================================================
-KROMA STUDIO — OFFICIAL COMMERCIAL LICENSE CERTIFICATE
+OMYRA MALL — OFFICIAL COMMERCIAL LICENSE CERTIFICATE
 ========================================================
 Product Title: ${item.productTitle}
 Format: ${item.format}

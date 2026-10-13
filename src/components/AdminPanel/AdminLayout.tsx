@@ -79,12 +79,14 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({
         <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-4">
           {/* Logo & Alias Badge */}
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl bg-orange-600 flex items-center justify-center text-white font-black text-lg shadow-sm shadow-orange-600/30">
-              K
+            <div className="w-9 h-9 rounded-xl bg-[#f95a12] flex items-center justify-center text-white font-black text-lg shadow-sm shadow-orange-600/30">
+              M
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <span className="font-extrabold text-slate-900 tracking-tight text-base">Kroma Studio</span>
+                <span className="font-extrabold text-slate-900 tracking-tight text-base">
+                  OMYRA <span className="text-[#f95a12]">MALL</span>
+                </span>
                 <span className="px-2 py-0.5 rounded-md bg-orange-100/70 border border-orange-200 text-orange-800 text-[10px] font-mono font-bold">
                   /{currentAlias}
                 </span>
@@ -214,7 +216,7 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({
 
       {/* Admin Minimal Footer */}
       <footer className="border-t border-slate-200 bg-white py-4 px-6 text-center text-xs text-slate-400">
-        Kroma Studio Admin Gateway • Neon PostgreSQL & Resend.com Integrated Engine
+        OMYRA MALL Admin Gateway • Neon PostgreSQL & Resend.com Integrated Engine
       </footer>
     </div>
   );

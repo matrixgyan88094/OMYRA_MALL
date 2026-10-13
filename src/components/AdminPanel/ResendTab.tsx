@@ -19,7 +19,7 @@ export const ResendTab: React.FC<ResendTabProps> = ({ token }) => {
   const [apiKey, setApiKey] = useState('');
   const [domain, setDomain] = useState('omyra.org');
   const [fromEmail, setFromEmail] = useState('orders@omyra.org');
-  const [senderName, setSenderName] = useState('Kroma Studio');
+  const [senderName, setSenderName] = useState('OMYRA MALL');
   const [isApiKeySet, setIsApiKeySet] = useState(false);
   const [savingConfig, setSavingConfig] = useState(false);
   const [configNotice, setConfigNotice] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
@@ -87,7 +87,7 @@ export const ResendTab: React.FC<ResendTabProps> = ({ token }) => {
 
     const cleanDomain = domain.trim().toLowerCase().replace(/^https?:\/\//, '').replace(/\/$/, '');
     const cleanFromEmail = fromEmail.trim().toLowerCase();
-    const cleanSenderName = senderName.trim() || 'Kroma Studio';
+    const cleanSenderName = senderName.trim() || 'OMYRA MALL';
 
     try {
       const res = await fetch('/api/admin/resend/config', {
@@ -353,7 +353,7 @@ export const ResendTab: React.FC<ResendTabProps> = ({ token }) => {
                   <Building className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
                   <input
                     type="text"
-                    placeholder="Kroma Studio"
+                    placeholder="OMYRA MALL"
                     value={senderName}
                     onChange={(e) => setSenderName(e.target.value)}
                     required
@@ -361,7 +361,7 @@ export const ResendTab: React.FC<ResendTabProps> = ({ token }) => {
                   />
                 </div>
                 <span className="text-[11px] text-slate-500 mt-1 block">
-                  Name shown in customer inbox (e.g. "Kroma Studio").
+                  Name shown in customer inbox (e.g. "OMYRA MALL").
                 </span>
               </div>
             </div>
@@ -397,7 +397,7 @@ export const ResendTab: React.FC<ResendTabProps> = ({ token }) => {
               <div>
                 <span className="font-semibold">Current Active Sender Header: </span>
                 <code className="bg-white px-2 py-0.5 rounded text-orange-800 font-mono border border-orange-200 ml-1">
-                  {senderName || 'Kroma Studio'} &lt;{fromEmail || `orders@${domain}`}&gt;
+                  {senderName || 'OMYRA MALL'} &lt;{fromEmail || `orders@${domain}`}&gt;
                 </code>
               </div>
               <Sparkles className="w-4 h-4 text-orange-600 shrink-0" />

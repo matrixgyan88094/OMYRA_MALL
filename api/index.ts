@@ -55,7 +55,7 @@ function getSafeUploadDir(folderType: string): string {
     }
   }
 
-  const tmpDir = path.join(os.tmpdir(), 'kroma_uploads', folderType);
+  const tmpDir = path.join(os.tmpdir(), 'omyra_uploads', folderType);
   try {
     if (!fs.existsSync(tmpDir)) {
       fs.mkdirSync(tmpDir, { recursive: true });
@@ -109,7 +109,7 @@ const chunkDiskStorage = multer.diskStorage({
   destination: (req, file, cb) => {
     const rawId = req.query.uploadId || (req.headers['x-upload-id'] as string) || req.body?.uploadId || 'temp_' + Date.now();
     const uploadId = String(rawId).replace(/[^a-zA-Z0-9_-]/g, '_');
-    const targetDir = path.join(os.tmpdir(), 'kroma_chunks', uploadId);
+    const targetDir = path.join(os.tmpdir(), 'omyra_chunks', uploadId);
     try {
       if (!fs.existsSync(targetDir)) {
         fs.mkdirSync(targetDir, { recursive: true });
@@ -243,13 +243,19 @@ interface LocalStore {
 }
 
 function hashPassword(password: string): string {
-  return crypto.createHash('sha256').update(password + '_salt_kroma_marketplace').digest('hex');
+  return crypto.createHash('sha256').update(password + '_salt_omyra_marketplace').digest('hex');
+}
+
+function verifyPassword(password: string, storedHash: string): boolean {
+  const omyraHash = crypto.createHash('sha256').update(password + '_salt_omyra_marketplace').digest('hex');
+  const legacyHash = crypto.createHash('sha256').update(password + '_salt_kroma_marketplace').digest('hex');
+  return storedHash === omyraHash || storedHash === legacyHash;
 }
 
 const DEFAULT_PRODUCTS: ProductRecord[] = [
   {
-    id: 'kroma-ui-core',
-    title: 'Kroma UI Design System v4',
+    id: 'omyra-ui-core',
+    title: 'OMYRA UI Design System v4',
     subtitle: 'Enterprise-grade Figma library with 1,200+ production components',
     description: 'A complete, highly structured design system built on Figma Auto-Layout 5.0, Variables, responsive breakpoints, and WCAG AAA compliance. Includes dark, light, and high-contrast color palettes with automated design tokens ready for Tailwind CSS v4.',
     category: 'UI & Figma',
@@ -262,11 +268,11 @@ const DEFAULT_PRODUCTS: ProductRecord[] = [
     reviews_count: 248,
     sales_count: 1420,
     status: 'published',
-    file_url: 'https://downloads.kroma.studio/releases/kroma-ui-core-v4.zip',
+    file_url: 'https://downloads.omyra.org/releases/omyra-ui-core-v4.zip',
     created_at: new Date().toISOString()
   },
   {
-    id: 'kroma-next15-starter',
+    id: 'omyra-next15-starter',
     title: 'Next.js 15 Fullstack SaaS Starter',
     subtitle: 'Ship production apps in days with TypeScript, React 19, and Neon DB',
     description: 'Battle-tested Next.js 15 App Router boilerplate with server components, Postgres connection pooling, modern authentication, Resend transactional emails, and Stripe checkout integration.',
@@ -280,11 +286,11 @@ const DEFAULT_PRODUCTS: ProductRecord[] = [
     reviews_count: 182,
     sales_count: 980,
     status: 'published',
-    file_url: 'https://downloads.kroma.studio/releases/kroma-next15-starter-v2.zip',
+    file_url: 'https://downloads.omyra.org/releases/omyra-next15-starter-v2.zip',
     created_at: new Date().toISOString()
   },
   {
-    id: 'kroma-spatial-3d',
+    id: 'omyra-spatial-3d',
     title: 'Spatial Geometry 3D Assets Pack',
     subtitle: '60+ pristine matte & frosted 3D objects rendered for digital products',
     description: 'Ultra-high resolution 3D models and pre-rendered transparent assets engineered specifically for modern UI cards, hero sections, and marketing landing pages. Includes Blender master files.',
@@ -298,11 +304,11 @@ const DEFAULT_PRODUCTS: ProductRecord[] = [
     reviews_count: 114,
     sales_count: 650,
     status: 'published',
-    file_url: 'https://downloads.kroma.studio/releases/kroma-spatial-3d-v1.zip',
+    file_url: 'https://downloads.omyra.org/releases/omyra-spatial-3d-v1.zip',
     created_at: new Date().toISOString()
   },
   {
-    id: 'kroma-micro-motion',
+    id: 'omyra-micro-motion',
     title: 'Kinetic Motion & Audio Soundscape',
     subtitle: '45+ clean micro-interactions and tactile Web Audio sound bites',
     description: 'Subtle, hyper-responsive UI micro-animations and crisp acoustic UI audio tokens (clicks, confirmations, errors, and ambient hums) optimized for web and mobile touch apps.',
@@ -316,7 +322,7 @@ const DEFAULT_PRODUCTS: ProductRecord[] = [
     reviews_count: 89,
     sales_count: 412,
     status: 'published',
-    file_url: 'https://downloads.kroma.studio/releases/kroma-micro-motion-v1.zip',
+    file_url: 'https://downloads.omyra.org/releases/omyra-micro-motion-v1.zip',
     created_at: new Date().toISOString()
   }
 ];
@@ -338,7 +344,7 @@ function loadLocalStore(): LocalStore {
         if (!data.admin.resend_from_email || data.admin.resend_from_email === 'onboarding@resend.dev') {
           data.admin.resend_from_email = 'orders@omyra.org';
         }
-        if (!data.admin.resend_sender_name) data.admin.resend_sender_name = 'Kroma Studio';
+        if (!data.admin.resend_sender_name || data.admin.resend_sender_name === 'Kroma Studio') data.admin.resend_sender_name = 'OMYRA MALL';
       }
       inMemoryStore = data;
       return data;
@@ -356,7 +362,7 @@ function loadLocalStore(): LocalStore {
       resend_api_key: '',
       resend_from_email: 'orders@omyra.org',
       resend_domain: 'omyra.org',
-      resend_sender_name: 'Kroma Studio',
+      resend_sender_name: 'OMYRA MALL',
       updated_at: new Date().toISOString()
     },
     passkeys: [],
@@ -500,18 +506,16 @@ async function initNeonDatabase() {
       if (existingAdmin.length === 0) {
         await sql`
           INSERT INTO admin_account (id, email, password_hash, access_alias, resend_from_email, resend_domain, resend_sender_name)
-          VALUES ('admin_primary', 'developer995500@gmail.com', ${hashPassword('admin')}, 'md1620', 'orders@omyra.org', 'omyra.org', 'Kroma Studio');
+          VALUES ('admin_primary', 'developer995500@gmail.com', ${hashPassword('admin')}, 'md1620', 'orders@omyra.org', 'omyra.org', 'OMYRA MALL');
         `;
       } else {
-        if (existingAdmin[0].resend_from_email === 'onboarding@resend.dev' || !existingAdmin[0].resend_domain) {
-          await sql`
-            UPDATE admin_account
-            SET resend_domain = COALESCE(resend_domain, 'omyra.org'),
-                resend_from_email = CASE WHEN resend_from_email = 'onboarding@resend.dev' THEN 'orders@omyra.org' ELSE COALESCE(resend_from_email, 'orders@omyra.org') END,
-                resend_sender_name = COALESCE(resend_sender_name, 'Kroma Studio')
-            WHERE id = 'admin_primary';
-          `;
-        }
+        await sql`
+          UPDATE admin_account
+          SET resend_domain = COALESCE(resend_domain, 'omyra.org'),
+              resend_from_email = CASE WHEN resend_from_email = 'onboarding@resend.dev' THEN 'orders@omyra.org' ELSE COALESCE(resend_from_email, 'orders@omyra.org') END,
+              resend_sender_name = CASE WHEN resend_sender_name = 'Kroma Studio' THEN 'OMYRA MALL' ELSE COALESCE(resend_sender_name, 'OMYRA MALL') END
+          WHERE id = 'admin_primary';
+        `;
       }
 
       // Seed initial products if not exists
@@ -557,7 +561,7 @@ async function getAdminAccount(): Promise<AdminAccount> {
           ...row,
           resend_domain: row.resend_domain || 'omyra.org',
           resend_from_email: row.resend_from_email === 'onboarding@resend.dev' ? 'orders@omyra.org' : (row.resend_from_email || 'orders@omyra.org'),
-          resend_sender_name: row.resend_sender_name || 'Kroma Studio'
+          resend_sender_name: (row.resend_sender_name === 'Kroma Studio' ? 'OMYRA MALL' : row.resend_sender_name) || 'OMYRA MALL'
         };
       }
     } catch (e) {
@@ -567,7 +571,7 @@ async function getAdminAccount(): Promise<AdminAccount> {
   const store = loadLocalStore();
   if (!store.admin.resend_domain) store.admin.resend_domain = 'omyra.org';
   if (!store.admin.resend_from_email || store.admin.resend_from_email === 'onboarding@resend.dev') store.admin.resend_from_email = 'orders@omyra.org';
-  if (!store.admin.resend_sender_name) store.admin.resend_sender_name = 'Kroma Studio';
+  if (!store.admin.resend_sender_name || store.admin.resend_sender_name === 'Kroma Studio') store.admin.resend_sender_name = 'OMYRA MALL';
   return store.admin;
 }
 
@@ -1596,7 +1600,7 @@ async function getEmailLogs(): Promise<EmailLog[]> {
 // ---------------------------------------------------------
 // AUTHENTICATION & WEBAUTHN SESSIONS (Stateless & Serverless Resilient)
 // ---------------------------------------------------------
-const SESSION_SECRET = process.env.ADMIN_SESSION_SECRET || 'kroma_admin_master_secret_88094_omyra_org_2026';
+const SESSION_SECRET = process.env.ADMIN_SESSION_SECRET || 'omyra_admin_master_secret_88094_omyra_org_2026';
 const CHALLENGE_SECRET = process.env.CHALLENGE_SECRET || SESSION_SECRET;
 
 const activeSessions: Map<string, { email: string; expires: number }> = new Map();
@@ -1645,7 +1649,7 @@ function verifyAuth(req: Request, res: Response, next: NextFunction) {
   }
 
   // Safe admin token bypass for local resilience
-  if (token === 'admin' || token === 'admin_primary' || token.startsWith('kroma_admin_')) {
+  if (token === 'admin' || token === 'admin_primary' || token.startsWith('omyra_admin_') || token.startsWith('kroma_admin_')) {
     (req as any).adminEmail = 'developer995500@gmail.com';
     return next();
   }
@@ -1756,7 +1760,7 @@ async function sendResendEmail(to: string, subject: string, htmlContent: string)
   }
 
   const fromEmail = admin.resend_from_email?.trim() || 'orders@omyra.org';
-  const senderName = admin.resend_sender_name?.trim() || 'Kroma Studio';
+  const senderName = admin.resend_sender_name?.trim() || 'OMYRA MALL';
 
   try {
     const response = await fetch('https://api.resend.com/emails', {
@@ -1847,9 +1851,9 @@ apiRouter.post('/admin/login', async (req: Request, res: Response) => {
   }
 
   const admin = await getAdminAccount();
-  const inputHash = hashPassword(password);
+  const isMatch = verifyPassword(password, admin.password_hash);
 
-  if (email.toLowerCase().trim() === admin.email.toLowerCase().trim() && inputHash === admin.password_hash) {
+  if (email.toLowerCase().trim() === admin.email.toLowerCase().trim() && isMatch) {
     const token = createSessionToken(admin.email);
     return res.json({
       success: true,
@@ -1872,7 +1876,7 @@ apiRouter.get('/admin/me', verifyAuth, async (req: Request, res: Response) => {
     resendApiKeySet: Boolean(admin.resend_api_key && admin.resend_api_key.length > 5),
     resendFromEmail: admin.resend_from_email || 'orders@omyra.org',
     resendDomain: admin.resend_domain || 'omyra.org',
-    resendSenderName: admin.resend_sender_name || 'Kroma Studio',
+    resendSenderName: admin.resend_sender_name || 'OMYRA MALL',
     passkeyCount: passkeys.length,
     neonConnected
   });
@@ -1953,7 +1957,7 @@ apiRouter.get('/admin/resend/domains', verifyAuth, async (req: Request, res: Res
       error: 'Resend API key is not configured. Please paste and save your Resend API key first.',
       configuredDomain: admin.resend_domain || 'omyra.org',
       fromEmail: admin.resend_from_email || 'orders@omyra.org',
-      senderName: admin.resend_sender_name || 'Kroma Studio'
+      senderName: admin.resend_sender_name || 'OMYRA MALL'
     });
   }
 
@@ -1971,7 +1975,7 @@ apiRouter.get('/admin/resend/domains', verifyAuth, async (req: Request, res: Res
         error: data.message || data.error || 'Failed to fetch domains from Resend API',
         configuredDomain: admin.resend_domain || 'omyra.org',
         fromEmail: admin.resend_from_email || 'orders@omyra.org',
-        senderName: admin.resend_sender_name || 'Kroma Studio'
+        senderName: admin.resend_sender_name || 'OMYRA MALL'
       });
     }
 
@@ -1980,14 +1984,14 @@ apiRouter.get('/admin/resend/domains', verifyAuth, async (req: Request, res: Res
       domains: data.data || [],
       configuredDomain: admin.resend_domain || 'omyra.org',
       fromEmail: admin.resend_from_email || 'orders@omyra.org',
-      senderName: admin.resend_sender_name || 'Kroma Studio'
+      senderName: admin.resend_sender_name || 'OMYRA MALL'
     });
   } catch (err: any) {
     res.status(500).json({
       error: err.message || 'Error communicating with Resend domains API',
       configuredDomain: admin.resend_domain || 'omyra.org',
       fromEmail: admin.resend_from_email || 'orders@omyra.org',
-      senderName: admin.resend_sender_name || 'Kroma Studio'
+      senderName: admin.resend_sender_name || 'OMYRA MALL'
     });
   }
 });
@@ -2002,12 +2006,12 @@ apiRouter.post('/admin/resend/test', verifyAuth, async (req: Request, res: Respo
   const admin = await getAdminAccount();
   const domain = admin.resend_domain || 'omyra.org';
   const fromEmail = admin.resend_from_email || 'orders@omyra.org';
-  const senderName = admin.resend_sender_name || 'Kroma Studio';
+  const senderName = admin.resend_sender_name || 'OMYRA MALL';
 
   const html = `
     <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 560px; margin: 0 auto; padding: 32px 24px; background: #ffffff; color: #0f172a; border-radius: 12px; border: 1px solid #e2e8f0;">
       <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 24px;">
-        <div style="background: #ea580c; width: 36px; height: 36px; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #ffffff; font-weight: bold; font-size: 20px; text-align: center; line-height: 36px;">K</div>
+        <div style="background: #f95a12; width: 36px; height: 36px; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #ffffff; font-weight: bold; font-size: 20px; text-align: center; line-height: 36px;">M</div>
         <span style="font-size: 20px; font-weight: 700; color: #0f172a;">${senderName}</span>
       </div>
       <h2 style="font-size: 22px; font-weight: 700; color: #0f172a; margin-top: 0;">Resend Provider Connected Successfully</h2>
@@ -2569,13 +2573,13 @@ apiRouter.post('/auth/webauthn/register-options', verifyAuth, async (req: Reques
     publicKey: {
       challenge,
       rp: {
-        name: 'Kroma Studio Admin Gateway',
+        name: 'OMYRA MALL Admin Gateway',
         id: rpId
       },
       user: {
         id: userId,
         name: admin.email,
-        displayName: 'Kroma Studio Master Admin'
+        displayName: 'OMYRA MALL Master Admin'
       },
       pubKeyCredParams: [
         { type: 'public-key', alg: -7 },   // ES256
@@ -2833,7 +2837,9 @@ apiRouter.post('/admin/products/assemble-and-inspect', verifyAuth, async (req: R
   }
 
   const safeUploadId = String(uploadId).replace(/[^a-zA-Z0-9_-]/g, '_');
-  const chunksDir = path.join(os.tmpdir(), 'kroma_chunks', safeUploadId);
+  const omyraChunksDir = path.join(os.tmpdir(), 'omyra_chunks', safeUploadId);
+  const kromaChunksDir = path.join(os.tmpdir(), 'kroma_chunks', safeUploadId);
+  const chunksDir = fs.existsSync(omyraChunksDir) ? omyraChunksDir : kromaChunksDir;
   const total = parseInt(String(totalChunks), 10);
 
   if (!fs.existsSync(chunksDir)) {
@@ -3210,7 +3216,7 @@ apiRouter.post('/orders', async (req: Request, res: Response) => {
   };
 
   const admin = await getAdminAccount();
-  const senderName = admin.resend_sender_name || 'Kroma Studio';
+  const senderName = admin.resend_sender_name || 'OMYRA MALL';
 
   // Attempt real email dispatch via Resend
   const itemsHtml = items.map((i: any) => `
@@ -3262,7 +3268,7 @@ apiRouter.post('/orders', async (req: Request, res: Response) => {
       </div>
 
       <div style="text-align: center; margin-top: 32px;">
-        <a href="${process.env.APP_URL || 'https://kroma.studio'}/#library" style="display: inline-block; background: #ea580c; color: #ffffff; text-decoration: none; padding: 12px 28px; font-weight: 600; border-radius: 8px; font-size: 15px;">Access My Downloads</a>
+        <a href="${process.env.APP_URL || 'https://mall.omyra.org'}/#library" style="display: inline-block; background: #ea580c; color: #ffffff; text-decoration: none; padding: 12px 28px; font-weight: 600; border-radius: 8px; font-size: 15px;">Access My Downloads</a>
       </div>
 
       <p style="font-size: 13px; color: #94a3b8; border-top: 1px solid #f1f5f9; padding-top: 24px; margin-top: 32px; text-align: center;">
@@ -3294,7 +3300,7 @@ apiRouter.post('/orders/:id/resend-email', verifyAuth, async (req: Request, res:
   }
 
   const admin = await getAdminAccount();
-  const senderName = admin.resend_sender_name || 'Kroma Studio';
+  const senderName = admin.resend_sender_name || 'OMYRA MALL';
 
   const orderEmailHtml = `
     <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 580px; margin: 0 auto; padding: 32px 24px; background: #ffffff; color: #0f172a; border-radius: 12px; border: 1px solid #e2e8f0;">
@@ -3337,9 +3343,13 @@ const handleUploadDelivery = (req: Request, res: Response) => {
   }
 
   // 3. Check /tmp fallback
-  const tmpPath = path.join(os.tmpdir(), 'kroma_uploads', safeFolder, safeFilename);
+  const tmpPath = path.join(os.tmpdir(), 'omyra_uploads', safeFolder, safeFilename);
   if (fs.existsSync(tmpPath)) {
     return res.sendFile(tmpPath);
+  }
+  const legacyTmpPath = path.join(os.tmpdir(), 'kroma_uploads', safeFolder, safeFilename);
+  if (fs.existsSync(legacyTmpPath)) {
+    return res.sendFile(legacyTmpPath);
   }
 
   res.status(404).json({ error: 'Uploaded file not found' });

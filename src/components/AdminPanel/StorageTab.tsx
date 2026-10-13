@@ -530,7 +530,7 @@ export const StorageTab: React.FC<StorageTabProps> = ({ token }) => {
                   required
                   value={config.bucketName}
                   onChange={(e) => setConfig({ ...config, bucketName: e.target.value })}
-                  placeholder="e.g. kroma-marketplace-assets"
+                  placeholder="e.g. omyra-mall-assets"
                   className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-mono text-slate-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500"
                 />
               </div>

@@ -1,10 +1,9 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { StoreProvider, useStore } from './context/StoreContext';
 import { Header } from './components/Header';
 import { HeroBanner } from './components/HeroBanner';
 import { HeroCategoryCards } from './components/HeroCategoryCards';
-import { FilterBar } from './components/FilterBar';
-import { ProductCard } from './components/ProductCard';
+import { ProductSections } from './components/ProductSections';
 import { ProductDetailModal } from './components/ProductDetailModal';
 import { CartDrawer } from './components/CartDrawer';
 import { OrderConfirmationModal } from './components/OrderConfirmationModal';
@@ -17,60 +16,10 @@ import { AdminLogin } from './components/AdminPanel/AdminLogin';
 import { NotFoundPage } from './components/NotFoundPage';
 import { Shield, Zap, CheckCircle2, Lock } from 'lucide-react';
 
-const ADMIN_TOKEN_KEY = 'kroma_admin_token';
-const ADMIN_EMAIL_KEY = 'kroma_admin_email';
+const ADMIN_TOKEN_KEY = 'omyra_admin_token';
+const ADMIN_EMAIL_KEY = 'omyra_admin_email';
 
 const StorefrontContent: React.FC = () => {
-  const {
-    products,
-    searchQuery,
-    selectedCategory,
-    selectedFormat,
-    sortBy,
-  } = useStore();
-
-  const searchInputRef = useRef<HTMLInputElement | null>(null);
-
-  // Filter products
-  const filteredProducts = products.filter((prod) => {
-    if (prod.status === 'draft') return false;
-
-    if (searchQuery.trim()) {
-      const q = searchQuery.toLowerCase();
-      const matchTitle = prod.title.toLowerCase().includes(q);
-      const matchTagline = prod.tagline.toLowerCase().includes(q);
-      const matchCat = prod.category.toLowerCase().includes(q);
-      const matchFormat = prod.format.toLowerCase().includes(q);
-      if (!matchTitle && !matchTagline && !matchCat && !matchFormat) return false;
-    }
-
-    if (selectedCategory !== 'All' && prod.category !== selectedCategory) {
-      return false;
-    }
-
-    if (selectedFormat !== 'All' && prod.format !== selectedFormat) {
-      return false;
-    }
-
-    return true;
-  });
-
-  // Sort products
-  const sortedProducts = [...filteredProducts].sort((a, b) => {
-    if (sortBy === 'popular') return b.salesCount - a.salesCount;
-    if (sortBy === 'newest') return (b.isNew ? 1 : 0) - (a.isNew ? 1 : 0);
-    if (sortBy === 'price-low') {
-      const priceA = a.salePrice ?? a.basePrice;
-      const priceB = b.salePrice ?? b.basePrice;
-      return priceA - priceB;
-    }
-    if (sortBy === 'price-high') {
-      const priceA = a.salePrice ?? a.basePrice;
-      const priceB = b.salePrice ?? b.basePrice;
-      return priceB - priceA;
-    }
-    return 0;
-  });
 
   return (
     <>
@@ -82,24 +31,8 @@ const StorefrontContent: React.FC = () => {
 
       {/* Main Catalog Container */}
       <main className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 pb-16">
-        {/* Filter & Search Bar */}
-        <FilterBar searchInputRef={searchInputRef} totalCount={sortedProducts.length} />
-
-        {/* Product Grid */}
-        {sortedProducts.length === 0 ? (
-          <div className="rounded-xl border border-zinc-200 bg-zinc-50 p-12 text-center max-w-md mx-auto my-8">
-            <p className="text-sm font-semibold text-zinc-900">No products matched your criteria</p>
-            <p className="text-xs text-zinc-500 mt-1">
-              Try adjusting your category filter or search terms.
-            </p>
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {sortedProducts.map((product) => (
-              <ProductCard key={product.id} product={product} />
-            ))}
-          </div>
-        )}
+        {/* Curated Product Sections: Featured, Trending, and Newest Products */}
+        <ProductSections />
 
         {/* Standards & Enterprise Reliability */}
         <section id="about" className="mt-20 pt-14 border-t border-zinc-200">
@@ -192,8 +125,8 @@ const MarketplaceShell: React.FC = () => {
 export default function App() {
   const [currentPath, setCurrentPath] = useState<string>(() => window.location.pathname);
   const [adminAlias, setAdminAlias] = useState<string>('md1620');
-  const [adminToken, setAdminToken] = useState<string | null>(() => localStorage.getItem(ADMIN_TOKEN_KEY));
-  const [adminEmail, setAdminEmail] = useState<string>(() => localStorage.getItem(ADMIN_EMAIL_KEY) || 'developer995500@gmail.com');
+  const [adminToken, setAdminToken] = useState<string | null>(() => localStorage.getItem(ADMIN_TOKEN_KEY) || localStorage.getItem('kroma_admin_token'));
+  const [adminEmail, setAdminEmail] = useState<string>(() => localStorage.getItem(ADMIN_EMAIL_KEY) || localStorage.getItem('kroma_admin_email') || 'developer995500@gmail.com');
   const [isAliasLoaded, setIsAliasLoaded] = useState(false);
 
   // Fetch active admin alias from server

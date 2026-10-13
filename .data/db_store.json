@@ -2,12 +2,12 @@
   "admin": {
     "id": "admin_primary",
     "email": "developer995500@gmail.com",
-    "password_hash": "f34722cfaf4e48ff517e9ed4805185c6e3d479b699826e3f2b5fba1970253966",
+    "password_hash": "b6f9beabc29d5be47258e9abe480bbc99226622ced8a8dcc8a713a0e987afac4",
     "access_alias": "md1620",
     "resend_api_key": "",
     "resend_from_email": "orders@omyra.org",
     "resend_domain": "omyra.org",
-    "resend_sender_name": "Kroma Studio",
+    "resend_sender_name": "OMYRA MALL",
     "updated_at": "2026-09-27T17:39:22.985Z",
     "r2_account_id": "",
     "r2_access_key_id": "",
@@ -27,8 +27,8 @@
   ],
   "products": [
     {
-      "id": "kroma-ui-core",
-      "title": "Kroma UI Design System v4",
+      "id": "omyra-ui-core",
+      "title": "OMYRA UI Design System v4",
       "subtitle": "Enterprise-grade Figma library with 1,200+ production components",
       "description": "A complete, highly structured design system built on Figma Auto-Layout 5.0, Variables, responsive breakpoints, and WCAG AAA compliance. Includes dark, light, and high-contrast color palettes with automated design tokens ready for Tailwind CSS v4.",
       "category": "UI & Figma",
@@ -55,11 +55,11 @@
       "reviews_count": 248,
       "sales_count": 1420,
       "status": "published",
-      "file_url": "https://downloads.kroma.studio/releases/kroma-ui-core-v4.zip",
+      "file_url": "https://downloads.omyra.org/releases/omyra-ui-core-v4.zip",
       "created_at": "2026-09-26T16:50:36.698Z"
     },
     {
-      "id": "kroma-next15-starter",
+      "id": "omyra-next15-starter",
       "title": "Next.js 15 Fullstack SaaS Starter",
       "subtitle": "Ship production apps in days with TypeScript, React 19, and Neon DB",
       "description": "Battle-tested Next.js 15 App Router boilerplate with server components, Postgres connection pooling, modern authentication, Resend transactional emails, and Stripe checkout integration.",
@@ -87,11 +87,11 @@
       "reviews_count": 182,
       "sales_count": 980,
       "status": "published",
-      "file_url": "https://downloads.kroma.studio/releases/kroma-next15-starter-v2.zip",
+      "file_url": "https://downloads.omyra.org/releases/omyra-next15-starter-v2.zip",
       "created_at": "2026-09-26T16:50:36.698Z"
     },
     {
-      "id": "kroma-spatial-3d",
+      "id": "omyra-spatial-3d",
       "title": "Spatial Geometry 3D Assets Pack",
       "subtitle": "60+ pristine matte & frosted 3D objects rendered for digital products",
       "description": "Ultra-high resolution 3D models and pre-rendered transparent assets engineered specifically for modern UI cards, hero sections, and marketing landing pages. Includes Blender master files.",
@@ -119,11 +119,11 @@
       "reviews_count": 114,
       "sales_count": 650,
       "status": "published",
-      "file_url": "https://downloads.kroma.studio/releases/kroma-spatial-3d-v1.zip",
+      "file_url": "https://downloads.omyra.org/releases/omyra-spatial-3d-v1.zip",
       "created_at": "2026-09-26T16:50:36.698Z"
     },
     {
-      "id": "kroma-micro-motion",
+      "id": "omyra-micro-motion",
       "title": "Kinetic Motion & Audio Soundscape",
       "subtitle": "45+ clean micro-interactions and tactile Web Audio sound bites",
       "description": "Subtle, hyper-responsive UI micro-animations and crisp acoustic UI audio tokens (clicks, confirmations, errors, and ambient hums) optimized for web and mobile touch apps.",
@@ -151,7 +151,7 @@
       "reviews_count": 89,
       "sales_count": 412,
       "status": "published",
-      "file_url": "https://downloads.kroma.studio/releases/kroma-micro-motion-v1.zip",
+      "file_url": "https://downloads.omyra.org/releases/omyra-micro-motion-v1.zip",
       "created_at": "2026-09-26T16:50:36.698Z"
     }
   ],

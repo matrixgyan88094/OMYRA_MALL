@@ -58,7 +58,7 @@ export const OverviewTab: React.FC<OverviewTabProps> = ({ token, onNavigateTab }
           <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-white/20 text-white backdrop-blur-sm mb-3">
             <Sparkles className="w-3.5 h-3.5" /> Single-Vendor Command Center
           </span>
-          <h2 className="text-2xl font-extrabold tracking-tight">Kroma Studio Executive Overview</h2>
+          <h2 className="text-2xl font-extrabold tracking-tight">OMYRA MALL Executive Overview</h2>
           <p className="text-orange-100 text-xs sm:text-sm mt-1 max-w-xl">
             Live database telemetry, real digital downloads, and transactional customer communications.
           </p>

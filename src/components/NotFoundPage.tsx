@@ -1,5 +1,6 @@
 import React from 'react';
 import { ArrowLeft, ShieldAlert, Home } from 'lucide-react';
+import { OmyraMallLogo } from './OmyraMallLogo';
 
 interface NotFoundPageProps {
   attemptedPath?: string;
@@ -12,12 +13,7 @@ export const NotFoundPage: React.FC<NotFoundPageProps> = ({ attemptedPath, onGoH
       {/* Top minimal header */}
       <header className="border-b border-slate-200 bg-white/80 backdrop-blur-md px-6 py-4">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
-          <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-lg bg-orange-600 flex items-center justify-center text-white font-bold text-lg shadow-sm shadow-orange-600/20">
-              K
-            </div>
-            <span className="font-bold text-slate-900 tracking-tight text-lg">Kroma Studio</span>
-          </div>
+          <OmyraMallLogo size="sm" />
 
           <button
             onClick={onGoHome}
@@ -76,7 +72,7 @@ export const NotFoundPage: React.FC<NotFoundPageProps> = ({ attemptedPath, onGoH
 
       {/* Footer minimal info */}
       <footer className="border-t border-slate-200 py-6 text-center text-xs text-slate-500">
-        Kroma Studio Single-Vendor Digital Ecosystem • Security Protected Gateway
+        OMYRA MALL Digital Ecosystem • Security Protected Gateway
       </footer>
     </div>
   );
