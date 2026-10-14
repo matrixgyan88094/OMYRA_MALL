@@ -25,7 +25,7 @@ export const Footer: React.FC = () => {
                 href="mailto:support@omyra.org"
                 className="flex items-center gap-1.5 text-zinc-900 hover:text-teal-600 transition-colors font-medium"
               >
-                <Mail className="h-3.5 w-3.5 text-[#f95a12]" />
+                <Mail className="h-3.5 w-3.5 text-teal-600" />
                 <span>support@omyra.org</span>
               </a>
               <span className="text-zinc-300">·</span>
@@ -40,15 +40,15 @@ export const Footer: React.FC = () => {
             </h4>
             <ul className="space-y-2 text-xs text-zinc-600">
               <li className="flex items-center gap-2">
-                <span className="h-1.5 w-1.5 rounded-full bg-[#f95a12]" />
+                <span className="h-1.5 w-1.5 rounded-full bg-teal-600" />
                 <span>Instant automated file delivery</span>
               </li>
               <li className="flex items-center gap-2">
-                <span className="h-1.5 w-1.5 rounded-full bg-[#f95a12]" />
+                <span className="h-1.5 w-1.5 rounded-full bg-teal-600" />
                 <span>Free lifetime version upgrades</span>
               </li>
               <li className="flex items-center gap-2">
-                <span className="h-1.5 w-1.5 rounded-full bg-[#f95a12]" />
+                <span className="h-1.5 w-1.5 rounded-full bg-teal-600" />
                 <span>Commercial client usage rights</span>
               </li>
             </ul>
@@ -63,7 +63,7 @@ export const Footer: React.FC = () => {
               <li>
                 <button
                   onClick={() => setActiveView('store')}
-                  className="hover:text-[#f95a12] transition-colors"
+                  className="hover:text-teal-600 transition-colors"
                 >
                   Storefront Catalog
                 </button>
@@ -71,7 +71,7 @@ export const Footer: React.FC = () => {
               <li>
                 <button
                   onClick={() => setActiveView('library')}
-                  className="hover:text-[#f95a12] transition-colors"
+                  className="hover:text-teal-600 transition-colors"
                 >
                   Customer Library
                 </button>
@@ -79,7 +79,7 @@ export const Footer: React.FC = () => {
               <li>
                 <button
                   onClick={() => setActiveView('vendor')}
-                  className="hover:text-[#f95a12] transition-colors"
+                  className="hover:text-teal-600 transition-colors"
                 >
                   Creator Studio Management
                 </button>
