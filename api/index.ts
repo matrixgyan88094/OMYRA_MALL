@@ -3358,6 +3358,23 @@ const handleUploadDelivery = (req: Request, res: Response) => {
 app.get('/uploads/:folder/:filename', handleUploadDelivery);
 apiRouter.get('/uploads/:folder/:filename', handleUploadDelivery);
 
+// Resilient static image delivery for /assets/images/:filename (Vercel Serverless & Docker support)
+const handleStaticImageDelivery = (req: Request, res: Response) => {
+  const filename = path.basename(req.params.filename);
+  const publicPath = path.resolve(process.cwd(), 'public', 'assets', 'images', filename);
+  if (fs.existsSync(publicPath)) {
+    return res.sendFile(publicPath);
+  }
+  const srcPath = path.resolve(process.cwd(), 'src', 'assets', 'images', filename);
+  if (fs.existsSync(srcPath)) {
+    return res.sendFile(srcPath);
+  }
+  res.status(404).json({ error: 'Asset not found' });
+};
+
+app.get('/assets/images/:filename', handleStaticImageDelivery);
+apiRouter.get('/assets/images/:filename', handleStaticImageDelivery);
+
 // Mount the apiRouter at both '/api' and '/'
 app.use('/api', apiRouter);
 app.use('/', apiRouter);

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ShoppingBag, Search, User } from 'lucide-react';
+import { ShoppingBag, Search, User, Menu, ChevronDown } from 'lucide-react';
 import { useStore } from '../context/StoreContext';
 import { OmyraMallLogo } from './OmyraMallLogo';
 
@@ -15,7 +15,8 @@ export const Header: React.FC = () => {
     setSelectedProduct 
   } = useStore();
   const cartItemCount = cart.reduce((sum, item) => sum + item.quantity, 0);
-  const [activeMenuTab, setActiveMenuTab] = useState<'Home' | 'Digital Products' | 'Creator Hub' | 'Deals' | 'Support'>('Home');
+  const [activeMenuTab, setActiveMenuTab] = useState<'Home' | 'Digital Products' | 'Creator Hub' | 'Deals' | 'Support'>('Digital Products');
+  const [isCategoryDropdownOpen, setIsCategoryDropdownOpen] = useState(false);
 
   const handleMenuClick = (tab: 'Home' | 'Digital Products' | 'Creator Hub' | 'Deals' | 'Support') => {
     setActiveMenuTab(tab);
@@ -133,10 +134,50 @@ export const Header: React.FC = () => {
       {/* ================= SECONDARY SUB-MENU BAR ================= */}
       <div className="border-t border-zinc-100 bg-white">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="flex h-12 items-center text-sm">
+          <div className="flex h-11 items-center gap-6 text-xs sm:text-sm">
             
+            {/* All Categories Dropdown with Hamburger Icon */}
+            <div className="relative">
+              <button
+                onClick={() => setIsCategoryDropdownOpen(!isCategoryDropdownOpen)}
+                className="flex items-center gap-2 font-bold text-zinc-900 hover:text-[#f95a12] transition-colors cursor-pointer py-2"
+              >
+                <Menu className="w-4 h-4 text-zinc-800" />
+                <span className="whitespace-nowrap">All Categories</span>
+                <ChevronDown className="w-3.5 h-3.5 text-zinc-500" />
+              </button>
+
+              {isCategoryDropdownOpen && (
+                <div className="absolute top-full left-0 mt-1 w-56 rounded-xl border border-zinc-200 bg-white py-2 shadow-xl z-50">
+                  {[
+                    { label: 'All Products', val: 'All' },
+                    { label: 'UI & Figma', val: 'UI & Figma' },
+                    { label: 'Dev Kits', val: 'Dev Kits' },
+                    { label: '3D & Spatial', val: '3D & Spatial' },
+                    { label: 'Motion & Audio', val: 'Motion & Audio' },
+                    { label: 'Templates', val: 'Templates' },
+                  ].map((cat) => (
+                    <button
+                      key={cat.val}
+                      onClick={() => {
+                        setSelectedCategory(cat.val);
+                        setActiveView('store');
+                        setSelectedProduct(null);
+                        setIsCategoryDropdownOpen(false);
+                      }}
+                      className="w-full text-left px-4 py-2 text-xs font-semibold text-zinc-700 hover:bg-orange-50 hover:text-[#f95a12] transition-colors cursor-pointer"
+                    >
+                      {cat.label}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            <div className="h-4 w-px bg-zinc-200 hidden sm:block" />
+
             {/* Horizontal menu navigation links with orange active indicator */}
-            <nav className="flex items-center gap-7 overflow-x-auto scrollbar-none h-full">
+            <nav className="flex items-center gap-6 sm:gap-7 overflow-x-auto scrollbar-none h-full">
               {[
                 { name: 'Home', tab: 'Home' as const },
                 { name: 'Digital Products', tab: 'Digital Products' as const },
@@ -149,10 +190,10 @@ export const Header: React.FC = () => {
                   <button
                     key={item.name}
                     onClick={() => handleMenuClick(item.tab)}
-                    className={`relative h-full flex items-center text-sm font-medium transition-colors whitespace-nowrap cursor-pointer ${
+                    className={`relative h-full flex items-center text-xs sm:text-sm font-semibold transition-colors whitespace-nowrap cursor-pointer py-3 ${
                       isActive 
-                        ? 'text-[#f95a12] font-semibold' 
-                        : 'text-zinc-600 hover:text-zinc-900'
+                        ? 'text-[#f95a12]' 
+                        : 'text-zinc-700 hover:text-zinc-950'
                     }`}
                   >
                     <span>{item.name}</span>

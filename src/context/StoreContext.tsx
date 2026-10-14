@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { DigitalProduct, CartItem, Order, OrderItem, Coupon, LicenseTier, VendorAnalytics } from '../types';
 import { INITIAL_PRODUCTS, INITIAL_COUPONS, INITIAL_ORDERS } from '../data/mockProducts';
+import { resolveProductImage } from '../utils/imageResolver';
 
 interface CheckoutDetails {
   customerName: string;
@@ -73,7 +74,19 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   const [products, setProducts] = useState<DigitalProduct[]>(() => {
     try {
       const saved = localStorage.getItem(PRODUCTS_STORAGE_KEY);
-      return saved ? JSON.parse(saved) : INITIAL_PRODUCTS;
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          return parsed.map((p: DigitalProduct) => ({
+            ...p,
+            coverImage: resolveProductImage(p.coverImage),
+            galleryImages: Array.isArray(p.galleryImages)
+              ? p.galleryImages.map((g) => resolveProductImage(g))
+              : [resolveProductImage(p.coverImage)]
+          }));
+        }
+      }
+      return INITIAL_PRODUCTS;
     } catch {
       return INITIAL_PRODUCTS;
     }
@@ -128,8 +141,10 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
           const mapped = data.map((d: any) => {
             const basePrice = d.price || 49;
             const salePrice = d.sale_price !== null && d.sale_price !== undefined ? Number(d.sale_price) : undefined;
-            const primaryThumb = d.thumbnail || '/src/assets/images/hero_white_orange_1790435384152.jpg';
-            const gallery = Array.isArray(d.gallery) && d.gallery.length > 0 ? d.gallery : [primaryThumb];
+            const primaryThumb = resolveProductImage(d.thumbnail);
+            const gallery = Array.isArray(d.gallery) && d.gallery.length > 0
+              ? d.gallery.map((g: string) => resolveProductImage(g))
+              : [primaryThumb];
 
             return {
               id: d.id,

@@ -3,6 +3,7 @@ import { ShoppingBag, Star, Check } from 'lucide-react';
 import { DigitalProduct } from '../types';
 import { useStore } from '../context/StoreContext';
 import { TechToolIcon } from './TechToolIcon';
+import { resolveProductImage } from '../utils/imageResolver';
 
 interface ProductCardProps {
   product: DigitalProduct;
@@ -22,6 +23,8 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
     ? 'Verified Asset' 
     : product.category;
 
+  const resolvedCover = resolveProductImage(product.coverImage);
+
   return (
     <div className="group flex flex-col overflow-hidden rounded-xl border border-zinc-200/90 bg-white transition-all duration-200 hover:border-orange-400/80 hover:shadow-lg hover:shadow-orange-950/5">
       {/* Product Image Stage */}
@@ -33,9 +36,16 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
         className="relative aspect-[16/10] w-full overflow-hidden bg-zinc-100 cursor-pointer"
       >
         <img
-          src={product.coverImage}
+          src={resolvedCover}
           alt={product.title}
           referrerPolicy="no-referrer"
+          onError={(e) => {
+            const target = e.currentTarget;
+            if (!target.dataset.triedFallback) {
+              target.dataset.triedFallback = 'true';
+              target.src = resolveProductImage(null);
+            }
+          }}
           className="h-full w-full object-cover object-center transition-transform duration-300 group-hover:scale-[1.03]"
         />
 
