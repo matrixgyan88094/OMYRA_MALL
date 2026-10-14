@@ -23,6 +23,7 @@ export const CartDrawer: React.FC = () => {
     appliedCoupon,
     applyCoupon,
     removeCoupon,
+    setActiveView,
     getCartSubtotal,
     getDiscountAmount,
     getCartTotal,
@@ -371,18 +372,27 @@ export const CartDrawer: React.FC = () => {
               </div>
 
               <button
+                onClick={() => {
+                  setIsCartOpen(false);
+                  setActiveView('checkout');
+                  window.scrollTo({ top: 0, behavior: 'smooth' });
+                }}
+                className="w-full flex items-center justify-center gap-2 rounded-lg bg-[#FF6500] hover:bg-[#EA5800] py-3.5 px-4 text-sm font-bold text-white shadow-xs hover:shadow-md active:scale-98 transition-all min-h-[44px] cursor-pointer"
+              >
+                <Lock className="h-4 w-4" />
+                <span>Proceed to Secure Checkout</span>
+                <ArrowRight className="h-4 w-4 ml-1" />
+              </button>
+
+              <button
                 disabled={isSubmitting}
                 onClick={() => handleCompleteOrder()}
-                className="w-full flex items-center justify-center gap-2 rounded-lg bg-teal-600 py-3.5 px-4 text-sm font-semibold text-white shadow-sm hover:bg-teal-700 active:scale-98 transition-all min-h-[44px]"
+                className="w-full flex items-center justify-center gap-2 rounded-lg bg-zinc-100 hover:bg-zinc-200 text-zinc-800 py-2.5 px-4 text-xs font-semibold active:scale-98 transition-all cursor-pointer"
               >
                 {isSubmitting ? (
                   <span>Generating Licenses...</span>
                 ) : (
-                  <>
-                    <Lock className="h-4 w-4" />
-                    <span>Authorize & Pay ${total}</span>
-                    <ArrowRight className="h-4 w-4 ml-1" />
-                  </>
+                  <span>Quick 1-Click Buy (${total})</span>
                 )}
               </button>
 

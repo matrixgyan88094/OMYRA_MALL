@@ -147,7 +147,8 @@ export const SingleProductDetailPage: React.FC<SingleProductDetailPageProps> = (
 
   const handleBuyNow = () => {
     addToCart(product, selectedTier);
-    setIsCartOpen(true);
+    setActiveView('checkout');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   // 5 Related products matching prompt & screenshot:

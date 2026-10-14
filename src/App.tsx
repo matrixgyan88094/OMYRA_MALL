@@ -15,6 +15,7 @@ import { AdminLayout } from './components/AdminPanel/AdminLayout';
 import { AdminLogin } from './components/AdminPanel/AdminLogin';
 import { NotFoundPage } from './components/NotFoundPage';
 import { SingleProductDetailPage } from './components/SingleProductDetailPage';
+import { CheckoutPage } from './components/CheckoutPage';
 import { Shield, Zap, CheckCircle2, Lock } from 'lucide-react';
 
 const ADMIN_TOKEN_KEY = 'omyra_admin_token';
@@ -105,7 +106,9 @@ const MarketplaceShell: React.FC = () => {
     <div className="min-h-screen bg-white text-zinc-900 font-sans selection:bg-orange-500 selection:text-white flex flex-col">
       <Header />
       <div className="flex-1">
-        {activeView === 'product-detail' || (selectedProduct && activeView === 'store') ? (
+        {activeView === 'checkout' ? (
+          <CheckoutPage />
+        ) : activeView === 'product-detail' || (selectedProduct && activeView === 'store') ? (
           <SingleProductDetailPage
             product={selectedProduct}
             onBack={() => {
@@ -123,7 +126,7 @@ const MarketplaceShell: React.FC = () => {
       </div>
       <CartDrawer />
       <OrderConfirmationModal />
-      <Footer />
+      {activeView !== 'checkout' && <Footer />}
       <MobileNav />
     </div>
   );

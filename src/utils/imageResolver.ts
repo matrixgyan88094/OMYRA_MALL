@@ -7,8 +7,12 @@ import kromaMainImg from '@/src/assets/images/kroma_ui_main_cover_1791951283279.
 import kromaOverviewImg from '@/src/assets/images/kroma_overview_showcase_1791951283313.jpg';
 import botigaImg from '@/src/assets/images/botiga_wordpress_plugin_1791951284862.jpg';
 import kineticAudioImg from '@/src/assets/images/kinetic_motion_audio_1791951284755.jpg';
+import checkoutHeroImg from '@/src/assets/images/checkout_safe_secure_hero_1791963723232.jpg';
+
+export { checkoutHeroImg };
 
 export const STATIC_IMAGE_MAP: Record<string, string> = {
+  'checkout_safe_secure_hero': checkoutHeroImg,
   'kroma_ui_main_cover': kromaMainImg,
   'kroma_ui': kromaMainImg,
   'kroma_overview': kromaOverviewImg,

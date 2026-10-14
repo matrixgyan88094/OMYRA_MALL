@@ -76,24 +76,35 @@ export const Header: React.FC = () => {
             </div>
           </div>
 
-          {/* 3. Right Action Controls: Login, Sign Up button (orange pill), Shopping Cart */}
+          {/* 3. Right Action Controls: Login / Greeting, Sign Up button, Shopping Cart */}
           <div className="flex items-center gap-4 sm:gap-6 shrink-0">
-            {/* Login button */}
-            <button
-              onClick={() => setActiveView('library')}
-              className="flex items-center gap-1.5 text-sm font-semibold text-zinc-800 hover:text-[#f95a12] transition-colors cursor-pointer"
-            >
-              <User className="h-4 w-4 text-zinc-700" />
-              <span>Login</span>
-            </button>
+            {activeView === 'checkout' ? (
+              /* Personalized greeting matching screenshot on checkout page */
+              <div className="flex items-center gap-1.5 text-xs sm:text-sm font-semibold text-[#101D39] cursor-pointer">
+                <User className="h-4 w-4 text-[#101D39]" />
+                <span>Hello, Nurullah</span>
+                <ChevronDown className="h-3.5 w-3.5 text-[#8292AC]" />
+              </div>
+            ) : (
+              <>
+                {/* Login button */}
+                <button
+                  onClick={() => setActiveView('library')}
+                  className="flex items-center gap-1.5 text-sm font-semibold text-zinc-800 hover:text-[#f95a12] transition-colors cursor-pointer"
+                >
+                  <User className="h-4 w-4 text-zinc-700" />
+                  <span>Login</span>
+                </button>
 
-            {/* Sign Up button - Vibrant orange rounded-xl */}
-            <button
-              onClick={() => setActiveView('vendor')}
-              className="h-10 px-5 rounded-xl bg-[#f95a12] text-white text-sm font-semibold shadow-xs hover:bg-[#e04a07] active:scale-[0.98] transition-all cursor-pointer"
-            >
-              Sign Up
-            </button>
+                {/* Sign Up button - Vibrant orange rounded-xl */}
+                <button
+                  onClick={() => setActiveView('vendor')}
+                  className="h-10 px-5 rounded-xl bg-[#f95a12] text-white text-sm font-semibold shadow-xs hover:bg-[#e04a07] active:scale-[0.98] transition-all cursor-pointer"
+                >
+                  Sign Up
+                </button>
+              </>
+            )}
 
             {/* Shopping Cart with count badge */}
             <button
@@ -104,7 +115,7 @@ export const Header: React.FC = () => {
               <ShoppingBag className="h-6 w-6 stroke-[1.8]" />
               {cartItemCount >= 0 && (
                 <span className="absolute -top-1 -right-1 flex h-5 min-w-[20px] items-center justify-center rounded-full bg-[#f95a12] px-1 text-[11px] font-bold text-white shadow-2xs">
-                  {cartItemCount}
+                  {cartItemCount === 0 && activeView === 'checkout' ? 1 : cartItemCount}
                 </span>
               )}
             </button>
@@ -131,7 +142,8 @@ export const Header: React.FC = () => {
         </div>
       </div>
 
-      {/* ================= SECONDARY SUB-MENU BAR ================= */}
+      {/* ================= SECONDARY SUB-MENU BAR (Hidden on checkout to match screenshot) ================= */}
+      {activeView !== 'checkout' && (
       <div className="border-t border-zinc-100 bg-white">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="flex h-11 items-center gap-6 text-xs sm:text-sm">
@@ -208,6 +220,7 @@ export const Header: React.FC = () => {
           </div>
         </div>
       </div>
+      )}
     </header>
   );
 };
