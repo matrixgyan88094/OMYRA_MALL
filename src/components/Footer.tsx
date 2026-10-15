@@ -2,66 +2,62 @@ import React, { useState } from 'react';
 import {
   Mail,
   Phone,
+  MessageSquare,
   ShieldCheck,
   Zap,
   Headphones,
-  Sparkles,
+  Globe,
   ArrowRight,
-  Lock,
-  Award,
-  CheckCircle2,
-  FileText,
-  Smartphone,
-  X,
-  Clock,
-  Layers,
+  ChevronRight,
+  PenTool,
   Code2,
-  Box,
-  Palette,
-  Check
+  Megaphone,
+  Briefcase,
+  Music2,
+  GraduationCap,
+  LayoutGrid
 } from 'lucide-react';
 import { useStore } from '../context/StoreContext';
-import { OmyraMallLogo } from './OmyraMallLogo';
-
-type LegalModalType = 'privacy' | 'terms' | 'license' | 'pwa' | null;
+import footerBannerImg from '@/src/assets/images/footer_laptop_banner_1792053516372.jpg';
 
 export const Footer: React.FC = () => {
-  const { setActiveView, setSelectedProduct } = useStore();
+  const { setActiveView, setSelectedProduct, setSelectedCategory } = useStore();
 
   // Newsletter state
   const [emailInput, setEmailInput] = useState('');
   const [newsletterStatus, setNewsletterStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
-  const [newsletterMessage, setNewsletterMessage] = useState('');
-
-  // Legal modal state
-  const [activeModal, setActiveModal] = useState<LegalModalType>(null);
 
   const handleSubscribe = (e: React.FormEvent) => {
     e.preventDefault();
     const email = emailInput.trim();
     if (!email || !email.includes('@') || !email.includes('.')) {
       setNewsletterStatus('error');
-      setNewsletterMessage('Please enter a valid email address.');
       return;
     }
 
     setNewsletterStatus('loading');
     setTimeout(() => {
       setNewsletterStatus('success');
-      setNewsletterMessage('Welcome to OMYRA MALL! Check your inbox for your 15% welcome discount.');
       setEmailInput('');
-    }, 600);
+    }, 400);
   };
 
   const handleCategoryClick = (categoryName: string) => {
     setActiveView('store');
     setSelectedProduct(null);
-    window.scrollTo({ top: 400, behavior: 'smooth' });
+    setSelectedCategory(categoryName);
+    const catalog = document.getElementById('marketplace-catalog');
+    if (catalog) {
+      catalog.scrollIntoView({ behavior: 'smooth' });
+    } else {
+      window.scrollTo({ top: 380, behavior: 'smooth' });
+    }
   };
 
   const handleExploreNow = () => {
     setActiveView('store');
     setSelectedProduct(null);
+    setSelectedCategory('All');
     const catalog = document.getElementById('marketplace-catalog');
     if (catalog) {
       catalog.scrollIntoView({ behavior: 'smooth' });
@@ -71,490 +67,403 @@ export const Footer: React.FC = () => {
   };
 
   return (
-    <footer className="w-full bg-white text-[#58769F] overflow-hidden border-t border-[#E4EDF7]">
+    <footer className="w-full bg-white text-[#58769F] border-t border-[#E5EDF5]">
       
       {/* ========================================================================= */}
-      {/* SECTION 1: PREMIUM PROMOTIONAL CTA BANNER                                */}
+      {/* 1. TOP PROMOTIONAL CTA BANNER                                             */}
       {/* ========================================================================= */}
-      <div className="pt-8 sm:pt-12 lg:pt-14 pb-8 sm:pb-12">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="relative rounded-2xl sm:rounded-3xl bg-gradient-to-br from-[#FFF5EC] via-[#FFF8F3] to-[#FFF0E4] border border-[#FFE5D2] p-6 sm:p-9 lg:p-11 overflow-hidden shadow-xs">
+      <section className="pt-6 sm:pt-8 pb-4 sm:pb-6">
+        <div className="mx-auto max-w-7xl px-3 sm:px-6 lg:px-8">
+          <div className="relative rounded-2xl sm:rounded-3xl bg-[#FFF5EC] border border-[#FFE7D6] p-6 sm:p-8 lg:p-10 overflow-hidden shadow-xs">
             
-            {/* Ambient decorative warm blurs */}
-            <div className="absolute -top-16 -right-16 w-64 h-64 bg-[#FF6500]/10 rounded-full blur-3xl pointer-events-none" />
-            <div className="absolute -bottom-16 -left-16 w-64 h-64 bg-[#FF7A1A]/10 rounded-full blur-3xl pointer-events-none" />
+            {/* Subtle warm decorative background glow */}
+            <div className="absolute top-0 right-0 w-2/3 h-full bg-gradient-to-l from-[#FFE8D6]/70 via-[#FFF0E2]/40 to-transparent pointer-events-none" />
 
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 items-center relative z-10">
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-center relative z-10">
               
-              {/* Left & Center Content (approx 68% desktop) */}
-              <div className="lg:col-span-7 xl:col-span-8 space-y-5 sm:space-y-6">
-                
-                {/* Rounded Peach Pill Badge */}
-                <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#FFF0E3] border border-[#FFDEC4]">
-                  <Sparkles className="w-3.5 h-3.5 text-[#FF6500]" />
-                  <span className="text-xs font-semibold text-[#FF6500] tracking-wide">
-                    ✦ Join OMYRA MALL
-                  </span>
+              {/* Left Column: Headline & Description */}
+              <div className="lg:col-span-5 space-y-3.5">
+                {/* Sparkle Pill */}
+                <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#FFEADC] text-[#FF5A00]">
+                  <span className="text-xs">✦</span>
+                  <span className="text-xs font-bold tracking-wide">Join OMYRA MALL</span>
                 </div>
 
-                {/* Main Headline */}
-                <h2 className="text-2xl sm:text-3xl lg:text-[38px] font-extrabold text-[#102B52] tracking-tight leading-[1.18]">
-                  Get the Best Digital Products <br className="hidden sm:inline" />
-                  and <span className="text-[#FF6500]">Grow Your Creativity!</span>
+                {/* Heading */}
+                <h2 className="text-2xl sm:text-3xl lg:text-[32px] font-black text-[#0B2046] tracking-tight leading-[1.18]">
+                  Get the Best Digital Products <br />
+                  and <span className="text-[#FF5A00]">Grow Your Creativity!</span>
                 </h2>
 
-                {/* Description */}
-                <p className="text-sm sm:text-base text-[#58769F] max-w-xl leading-relaxed">
+                {/* Subtitle */}
+                <p className="text-xs sm:text-sm text-[#58769F] max-w-md leading-relaxed">
                   Join thousands of creators, developers and businesses who trust OMYRA MALL for premium digital products.
                 </p>
+              </div>
 
-                {/* Center 3 Benefit Items */}
-                <div className="pt-1 grid grid-cols-1 sm:grid-cols-3 gap-3.5 sm:gap-4 sm:divide-x divide-[#FFE5D2]">
+              {/* Middle Column: 3 Benefits + Explore CTA Button */}
+              <div className="lg:col-span-3 space-y-4">
+                <div className="grid grid-cols-3 gap-2">
                   {/* Benefit 1 */}
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-xl bg-[#FFF0E3] text-[#FF6500] flex items-center justify-center shrink-0 border border-[#FFDEC4]/70">
-                      <Zap className="w-5 h-5 stroke-[2.2]" />
+                  <div className="space-y-1.5">
+                    <div className="w-9 h-9 rounded-xl bg-[#FFEEDE] text-[#FF5A00] flex items-center justify-center shadow-2xs">
+                      <Zap className="w-4 h-4 stroke-[2.4]" />
                     </div>
-                    <div className="min-w-0">
-                      <h4 className="text-xs sm:text-sm font-bold text-[#102B52]">Instant Access</h4>
-                      <p className="text-[11px] sm:text-xs text-[#58769F] truncate">Start using your products immediately</p>
-                    </div>
+                    <h4 className="text-xs font-bold text-[#0B2046] leading-tight">Instant<br />Access</h4>
+                    <p className="text-[10px] text-[#58769F] leading-tight">Start using your products immediately</p>
                   </div>
 
                   {/* Benefit 2 */}
-                  <div className="flex items-center gap-3 sm:pl-4">
-                    <div className="w-10 h-10 rounded-xl bg-[#FFF0E3] text-[#FF6500] flex items-center justify-center shrink-0 border border-[#FFDEC4]/70">
-                      <ShieldCheck className="w-5 h-5 stroke-[2.2]" />
+                  <div className="space-y-1.5">
+                    <div className="w-9 h-9 rounded-xl bg-[#FFEEDE] text-[#FF5A00] flex items-center justify-center shadow-2xs">
+                      <ShieldCheck className="w-4 h-4 stroke-[2.4]" />
                     </div>
-                    <div className="min-w-0">
-                      <h4 className="text-xs sm:text-sm font-bold text-[#102B52]">Secure Payments</h4>
-                      <p className="text-[11px] sm:text-xs text-[#58769F] truncate">Your data is 100% protected</p>
-                    </div>
+                    <h4 className="text-xs font-bold text-[#0B2046] leading-tight">Secure<br />Payments</h4>
+                    <p className="text-[10px] text-[#58769F] leading-tight">Your data is 100% protected</p>
                   </div>
 
                   {/* Benefit 3 */}
-                  <div className="flex items-center gap-3 sm:pl-4">
-                    <div className="w-10 h-10 rounded-xl bg-[#FFF0E3] text-[#FF6500] flex items-center justify-center shrink-0 border border-[#FFDEC4]/70">
-                      <Headphones className="w-5 h-5 stroke-[2.2]" />
+                  <div className="space-y-1.5">
+                    <div className="w-9 h-9 rounded-xl bg-[#FFEEDE] text-[#FF5A00] flex items-center justify-center shadow-2xs">
+                      <Headphones className="w-4 h-4 stroke-[2.4]" />
                     </div>
-                    <div className="min-w-0">
-                      <h4 className="text-xs sm:text-sm font-bold text-[#102B52]">24/7 Support</h4>
-                      <p className="text-[11px] sm:text-xs text-[#58769F] truncate">We&apos;re always here to help</p>
-                    </div>
+                    <h4 className="text-xs font-bold text-[#0B2046] leading-tight">24/7<br />Support</h4>
+                    <p className="text-[10px] text-[#58769F] leading-tight">We&apos;re always here to help</p>
                   </div>
                 </div>
 
-                {/* CTA Button */}
-                <div className="pt-2">
+                {/* Explore Now Button */}
+                <div>
                   <button
                     onClick={handleExploreNow}
-                    className="inline-flex items-center justify-center gap-2.5 px-6 py-3 sm:px-7 sm:py-3.5 rounded-xl font-semibold text-white bg-[#FF6500] hover:bg-[#EA5800] active:scale-[0.98] transition-all shadow-sm hover:shadow-md cursor-pointer text-sm sm:text-base group"
+                    className="inline-flex items-center justify-center gap-2 px-6 py-2.5 rounded-xl font-bold text-white bg-[#FF5A00] hover:bg-[#E54F00] active:scale-[0.98] transition-all shadow-xs cursor-pointer text-xs sm:text-sm"
                   >
                     <span>Explore Now</span>
-                    <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
+                    <ArrowRight className="w-4 h-4" />
                   </button>
                 </div>
-
               </div>
 
-              {/* Right Illustration: High-End Marketplace & Laptop Device Artwork */}
-              <div className="lg:col-span-5 xl:col-span-4 flex items-center justify-center relative">
-                <div className="relative w-full max-w-[340px] sm:max-w-[380px] lg:max-w-full aspect-[4/3] flex items-center justify-center">
-                  
-                  {/* Subtle warm backdrop circle */}
-                  <div className="absolute w-56 h-56 rounded-full bg-gradient-to-tr from-[#FFDEC4]/60 to-[#FFF0E3]/90 blur-xl" />
-
-                  {/* Floating Creative Software & Digital Product Badges */}
-                  {/* 1. Figma / UI Kit Badge */}
-                  <div className="absolute -top-1 left-2 sm:left-4 z-20 flex items-center gap-2 px-3 py-1.5 rounded-xl bg-white/95 backdrop-blur-xs border border-[#FFE5D2] shadow-sm animate-bounce [animation-duration:4s]">
-                    <div className="w-6 h-6 rounded-lg bg-orange-50 text-[#FF6500] flex items-center justify-center">
-                      <Palette className="w-3.5 h-3.5" />
-                    </div>
-                    <span className="text-[11px] font-bold text-[#102B52]">UI Kits</span>
-                  </div>
-
-                  {/* 2. React / Code Script Badge */}
-                  <div className="absolute top-8 -right-1 sm:right-2 z-20 flex items-center gap-2 px-3 py-1.5 rounded-xl bg-white/95 backdrop-blur-xs border border-[#FFE5D2] shadow-sm animate-bounce [animation-duration:5s]">
-                    <div className="w-6 h-6 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center">
-                      <Code2 className="w-3.5 h-3.5" />
-                    </div>
-                    <span className="text-[11px] font-bold text-[#102B52]">Dev Stacks</span>
-                  </div>
-
-                  {/* 3. 3D Graphics Badge */}
-                  <div className="absolute -bottom-2 right-4 sm:right-8 z-20 flex items-center gap-2 px-3 py-1.5 rounded-xl bg-white/95 backdrop-blur-xs border border-[#FFE5D2] shadow-sm">
-                    <div className="w-6 h-6 rounded-lg bg-purple-50 text-purple-600 flex items-center justify-center">
-                      <Box className="w-3.5 h-3.5" />
-                    </div>
-                    <span className="text-[11px] font-bold text-[#102B52]">3D Assets</span>
-                  </div>
-
-                  {/* Silver Laptop Displaying OMYRA MALL Interface */}
-                  <div className="relative z-10 w-[84%] sm:w-[88%] bg-[#E4EDF7] p-2 sm:p-2.5 rounded-t-2xl shadow-xl border-t border-l border-r border-white">
-                    {/* Camera dot */}
-                    <div className="w-1.5 h-1.5 rounded-full bg-slate-400 mx-auto mb-1.5" />
-                    
-                    {/* Screen Bezel */}
-                    <div className="rounded-lg bg-white overflow-hidden border border-slate-200/60 shadow-inner">
-                      
-                      {/* Laptop Screen Top Header */}
-                      <div className="bg-[#102B52] px-2.5 py-1.5 flex items-center justify-between">
-                        <div className="flex items-center gap-1.5">
-                          <div className="w-2 h-2 rounded-full bg-[#FF6500]" />
-                          <span className="text-[9px] font-bold text-white tracking-wider">OMYRA MALL</span>
-                        </div>
-                        <div className="flex items-center gap-1">
-                          <span className="text-[8px] px-1.5 py-0.5 rounded-xs bg-[#FF6500] text-white font-medium">PRO</span>
-                        </div>
-                      </div>
-
-                      {/* Screen Storefront Body */}
-                      <div className="p-2.5 bg-[#F9FBFE] space-y-2">
-                        {/* Mini Search & Banner Bar */}
-                        <div className="h-4 rounded-md bg-[#FFEAD9] border border-[#FFDEC4] flex items-center px-2">
-                          <span className="text-[7.5px] font-medium text-[#FF6500]">Search 5,000+ Verified Assets...</span>
-                        </div>
-
-                        {/* Mini Product Cards Grid inside Laptop Screen */}
-                        <div className="grid grid-cols-2 gap-1.5">
-                          <div className="rounded-md border border-[#E4EDF7] bg-white p-1.5 shadow-2xs space-y-1">
-                            <div className="h-8 rounded-sm bg-gradient-to-tr from-orange-100 to-amber-50 flex items-center justify-center">
-                              <Layers className="w-3.5 h-3.5 text-[#FF6500]" />
-                            </div>
-                            <div className="flex items-center justify-between">
-                              <span className="text-[8px] font-bold text-[#102B52]">Kroma UI</span>
-                              <span className="text-[8px] font-extrabold text-[#FF6500]">$29</span>
-                            </div>
-                          </div>
-
-                          <div className="rounded-md border border-[#E4EDF7] bg-white p-1.5 shadow-2xs space-y-1">
-                            <div className="h-8 rounded-sm bg-gradient-to-tr from-blue-100 to-indigo-50 flex items-center justify-center">
-                              <Code2 className="w-3.5 h-3.5 text-blue-600" />
-                            </div>
-                            <div className="flex items-center justify-between">
-                              <span className="text-[8px] font-bold text-[#102B52]">Next SaaS</span>
-                              <span className="text-[8px] font-extrabold text-[#FF6500]">$49</span>
-                            </div>
-                          </div>
-                        </div>
-
-                      </div>
-
-                    </div>
-
-                    {/* Laptop Keyboard Base & Hinge */}
-                    <div className="mt-1.5 h-2 rounded-b-lg bg-[#CBD5E1] border-t border-slate-300 relative shadow-sm">
-                      <div className="w-12 h-0.5 bg-slate-400 rounded-full mx-auto" />
-                    </div>
-
-                  </div>
-
-                  {/* Decorative Potted Plant on bottom left */}
-                  <div className="absolute -bottom-2 -left-2 z-20 flex items-end">
-                    <div className="relative">
-                      {/* Leaf 1 */}
-                      <div className="w-3.5 h-5 rounded-tl-full bg-emerald-500 transform -rotate-12 origin-bottom-right" />
-                      {/* Leaf 2 */}
-                      <div className="absolute bottom-1 -right-1 w-3.5 h-5 rounded-tr-full bg-emerald-600 transform rotate-20 origin-bottom-left" />
-                      {/* Pot */}
-                      <div className="w-4 h-3.5 bg-amber-700/80 rounded-b-sm border-t border-amber-600" />
-                    </div>
-                  </div>
-
+              {/* Right Column: High-End Marketplace Laptop Illustration */}
+              <div className="lg:col-span-4 flex items-center justify-center lg:justify-end">
+                <div className="relative w-full max-w-[340px] sm:max-w-[380px] lg:max-w-[420px]">
+                  <img
+                    src={footerBannerImg}
+                    alt="OMYRA MALL Digital Marketplace Laptop"
+                    className="w-full h-auto object-contain mix-blend-multiply drop-shadow-sm select-none pointer-events-none"
+                  />
                 </div>
               </div>
 
             </div>
-
           </div>
         </div>
-      </div>
+      </section>
 
       {/* ========================================================================= */}
-      {/* SECTION 2: MAIN FOOTER CONTENT (FIVE DESKTOP COLUMNS)                    */}
+      {/* 2. FIVE MAIN FOOTER COLUMNS                                               */}
       {/* ========================================================================= */}
-      <div className="py-12 sm:py-16 border-t border-[#E4EDF7] bg-white">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-12 gap-8 lg:gap-8">
+      <div className="py-10 sm:py-12 bg-white">
+        <div className="mx-auto max-w-7xl px-3 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-8 lg:gap-6">
             
-            {/* ---------------- COLUMN 1: BRAND INFORMATION (lg:col-span-4) ---------------- */}
-            <div className="lg:col-span-4 space-y-4">
-              <div className="flex items-center">
-                <OmyraMallLogo />
-              </div>
-
-              <p className="text-xs sm:text-sm text-[#58769F] leading-relaxed max-w-sm">
-                OMYRA MALL is a digital marketplace providing verified codebases, UI design kits, WordPress themes, 3D graphics, and dev stacks. Engineered with high production standards and continuous updates.
-              </p>
-
-              {/* Social Channels */}
-              <div className="space-y-2 pt-1">
-                <span className="text-xs font-bold text-[#102B52] block">Follow Our Community</span>
-                <div className="flex items-center gap-2">
-                  <a
-                    href="https://youtube.com"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    aria-label="YouTube Channel"
-                    className="w-8 h-8 rounded-full border border-[#E4EDF7] flex items-center justify-center text-[#58769F] hover:text-[#FF6500] hover:border-[#FF6500] transition-colors"
-                  >
-                    <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24">
-                      <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
-                    </svg>
-                  </a>
-                  <a
-                    href="https://twitter.com"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    aria-label="Twitter / X"
-                    className="w-8 h-8 rounded-full border border-[#E4EDF7] flex items-center justify-center text-[#58769F] hover:text-[#FF6500] hover:border-[#FF6500] transition-colors"
-                  >
-                    <svg className="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24">
-                      <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
-                    </svg>
-                  </a>
-                  <a
-                    href="https://instagram.com"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    aria-label="Instagram"
-                    className="w-8 h-8 rounded-full border border-[#E4EDF7] flex items-center justify-center text-[#58769F] hover:text-[#FF6500] hover:border-[#FF6500] transition-colors"
-                  >
-                    <svg className="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24">
-                      <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
-                    </svg>
-                  </a>
-                  <a
-                    href="https://linkedin.com"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    aria-label="LinkedIn"
-                    className="w-8 h-8 rounded-full border border-[#E4EDF7] flex items-center justify-center text-[#58769F] hover:text-[#FF6500] hover:border-[#FF6500] transition-colors"
-                  >
-                    <svg className="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24">
-                      <path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/>
-                    </svg>
-                  </a>
+            {/* ---------------- COLUMN 1: BRAND INFORMATION (lg:col-span-3) ---------------- */}
+            <div className="lg:col-span-3 lg:pr-6 lg:border-r border-[#E5EDF5] space-y-4">
+              {/* Logo: [M] OMYRA MALL */}
+              <div className="flex items-center gap-2.5 select-none">
+                <div className="w-9 h-9 rounded-xl bg-[#FF5A00] flex items-center justify-center text-white font-black text-xl shadow-xs shrink-0">
+                  M
+                </div>
+                <div className="flex items-center text-xl font-black tracking-tight">
+                  <span className="text-[#0B2046]">OMYRA</span>
+                  <span className="text-[#FF5A00] ml-1.5">MALL</span>
                 </div>
               </div>
 
-              {/* Mobile App Download Badges */}
-              <div className="pt-2">
-                <span className="text-[11px] font-bold text-[#102B52] block mb-2">Experience On Any Device</span>
-                <div className="flex flex-wrap items-center gap-2">
-                  <button
-                    onClick={() => setActiveModal('pwa')}
-                    className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg border border-[#DDE7F2] bg-white hover:border-[#FF6500] text-left transition-colors cursor-pointer group"
+              {/* Subtitle */}
+              <h4 className="text-sm font-bold text-[#0B2046]">
+                Digital Products Marketplace
+              </h4>
+
+              {/* Bio */}
+              <p className="text-xs text-[#58769F] leading-relaxed">
+                Discover premium digital products, software, templates, plugins and more — all in one place. Build, create and grow with OMYRA MALL.
+              </p>
+
+              {/* Social Channels (4 round icons matching screenshot) */}
+              <div className="flex items-center gap-2.5 pt-1">
+                {/* YouTube */}
+                <a
+                  href="https://youtube.com"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="YouTube"
+                  className="w-8 h-8 rounded-full border border-[#D8E4F0] flex items-center justify-center text-[#0B2046] hover:text-[#FF5A00] hover:border-[#FF5A00] hover:bg-[#FFF5EC] transition-colors"
+                >
+                  <svg className="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24">
+                    <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
+                  </svg>
+                </a>
+
+                {/* X (Twitter) */}
+                <a
+                  href="https://twitter.com"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="Twitter X"
+                  className="w-8 h-8 rounded-full border border-[#D8E4F0] flex items-center justify-center text-[#0B2046] hover:text-[#FF5A00] hover:border-[#FF5A00] hover:bg-[#FFF5EC] transition-colors"
+                >
+                  <svg className="w-3 h-3 fill-current" viewBox="0 0 24 24">
+                    <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+                  </svg>
+                </a>
+
+                {/* Instagram */}
+                <a
+                  href="https://instagram.com"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="Instagram"
+                  className="w-8 h-8 rounded-full border border-[#D8E4F0] flex items-center justify-center text-[#0B2046] hover:text-[#FF5A00] hover:border-[#FF5A00] hover:bg-[#FFF5EC] transition-colors"
+                >
+                  <svg className="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24">
+                    <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
+                  </svg>
+                </a>
+
+                {/* LinkedIn */}
+                <a
+                  href="https://linkedin.com"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="LinkedIn"
+                  className="w-8 h-8 rounded-full border border-[#D8E4F0] flex items-center justify-center text-[#0B2046] hover:text-[#FF5A00] hover:border-[#FF5A00] hover:bg-[#FFF5EC] transition-colors"
+                >
+                  <svg className="w-3 h-3 fill-current" viewBox="0 0 24 24">
+                    <path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/>
+                  </svg>
+                </a>
+              </div>
+
+              {/* Hand-drawn Script Tagline matching screenshot exact */}
+              <div className="pt-3 pb-1">
+                <div className="inline-block transform -rotate-[9deg] origin-bottom-left select-none">
+                  <div 
+                    className="font-handwriting text-[#FF4915] font-bold text-[28px] sm:text-[30px] leading-[0.92] tracking-normal"
+                    style={{ fontFamily: "'Caveat', cursive, sans-serif" }}
                   >
-                    <Smartphone className="w-4 h-4 text-[#FF6500]" />
-                    <div>
-                      <span className="block text-[8px] text-[#7991B2] uppercase leading-tight">Mobile Web & PWA</span>
-                      <span className="block text-[11px] font-bold text-[#102B52] group-hover:text-[#FF6500] transition-colors leading-tight">Install App</span>
-                    </div>
-                  </button>
+                    <span className="block">Better Tools.</span>
+                    <span className="block">Bigger Dreams.</span>
+                  </div>
+                  {/* Tapered organic brush swoosh underline */}
+                  <svg
+                    className="w-full max-w-[170px] h-3 text-[#FF4915] -mt-0.5"
+                    viewBox="0 0 180 14"
+                    fill="none"
+                    preserveAspectRatio="none"
+                  >
+                    <path
+                      d="M 2 8 C 42 12 100 13 152 7 C 166 5.5 174 4 178 2 C 165 4.5 140 7 112 8.5 C 70 10.5 28 9.5 2 8 Z"
+                      fill="currentColor"
+                    />
+                  </svg>
                 </div>
               </div>
             </div>
 
             {/* ---------------- COLUMN 2: QUICK LINKS (lg:col-span-2) ---------------- */}
-            <div className="lg:col-span-2 space-y-3.5">
-              <h4 className="text-sm font-bold text-[#102B52] tracking-tight">
+            <div className="lg:col-span-2 lg:px-2 space-y-3.5">
+              <h4 className="text-sm font-bold text-[#0B2046]">
                 Quick Links
               </h4>
-              <ul className="space-y-2 text-xs text-[#58769F]">
-                <li>
-                  <button
-                    onClick={() => { setActiveView('store'); setSelectedProduct(null); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
-                    className="hover:text-[#FF6500] transition-colors cursor-pointer"
-                  >
-                    Home
-                  </button>
-                </li>
-                <li>
-                  <button
-                    onClick={handleExploreNow}
-                    className="hover:text-[#FF6500] transition-colors cursor-pointer"
-                  >
-                    Digital Products
-                  </button>
-                </li>
-                <li>
-                  <button
-                    onClick={() => { setActiveView('vendor'); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
-                    className="hover:text-[#FF6500] transition-colors cursor-pointer"
-                  >
-                    Creator Hub
-                  </button>
-                </li>
-                <li>
-                  <button
-                    onClick={() => { setActiveView('library'); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
-                    className="hover:text-[#FF6500] transition-colors cursor-pointer"
-                  >
-                    Customer Library
-                  </button>
-                </li>
-                <li>
-                  <button
-                    onClick={() => setActiveModal('license')}
-                    className="hover:text-[#FF6500] transition-colors cursor-pointer"
-                  >
-                    Commercial Licensing
-                  </button>
-                </li>
+              <ul className="space-y-2.5 text-xs">
+                {[
+                  { label: 'Home', action: () => { setActiveView('store'); setSelectedCategory('All'); window.scrollTo({ top: 0, behavior: 'smooth' }); } },
+                  { label: 'Digital Products', action: handleExploreNow },
+                  { label: 'Creator Hub', action: () => { setActiveView('vendor'); window.scrollTo({ top: 0, behavior: 'smooth' }); } },
+                  { label: 'Deals', action: () => { setActiveView('store'); setSelectedCategory('All'); } },
+                  { label: 'Support', action: () => { window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' }); } },
+                  { label: 'About Us', action: () => { setActiveView('store'); } },
+                  { label: 'Blog', action: () => { setActiveView('store'); } },
+                ].map((item) => (
+                  <li key={item.label}>
+                    <button
+                      onClick={item.action}
+                      className="w-full flex items-center justify-between text-[#0B2046] hover:text-[#FF5A00] transition-colors text-left group cursor-pointer"
+                    >
+                      <span className="group-hover:translate-x-0.5 transition-transform">{item.label}</span>
+                      <ChevronRight className="w-3.5 h-3.5 text-[#FF5A00] shrink-0" />
+                    </button>
+                  </li>
+                ))}
               </ul>
             </div>
 
             {/* ---------------- COLUMN 3: CATEGORIES (lg:col-span-2) ---------------- */}
-            <div className="lg:col-span-2 space-y-3.5">
-              <h4 className="text-sm font-bold text-[#102B52] tracking-tight">
+            <div className="lg:col-span-2 lg:px-2 space-y-3.5">
+              <h4 className="text-sm font-bold text-[#0B2046]">
                 Categories
               </h4>
-              <ul className="space-y-2 text-xs text-[#58769F]">
-                <li>
-                  <button
-                    onClick={() => handleCategoryClick('ui-templates')}
-                    className="hover:text-[#FF6500] transition-colors cursor-pointer"
-                  >
-                    UI Templates & Kits
-                  </button>
-                </li>
-                <li>
-                  <button
-                    onClick={() => handleCategoryClick('code-scripts')}
-                    className="hover:text-[#FF6500] transition-colors cursor-pointer"
-                  >
-                    Code & Scripts
-                  </button>
-                </li>
-                <li>
-                  <button
-                    onClick={() => handleCategoryClick('wordpress')}
-                    className="hover:text-[#FF6500] transition-colors cursor-pointer"
-                  >
-                    WordPress Themes
-                  </button>
-                </li>
-                <li>
-                  <button
-                    onClick={() => handleCategoryClick('3d-graphics')}
-                    className="hover:text-[#FF6500] transition-colors cursor-pointer"
-                  >
-                    3D Graphics & Models
-                  </button>
-                </li>
-                <li>
-                  <button
-                    onClick={() => handleCategoryClick('dev-boilerplates')}
-                    className="hover:text-[#FF6500] transition-colors cursor-pointer"
-                  >
-                    Dev Boilerplates
-                  </button>
-                </li>
+              <ul className="space-y-2.5 text-xs">
+                {[
+                  { label: 'Design & Graphics', cat: 'Graphics', icon: PenTool },
+                  { label: 'Development', cat: 'Dev Kits', icon: Code2 },
+                  { label: 'Marketing', cat: 'Templates', icon: Megaphone },
+                  { label: 'Business', cat: 'UI & Figma', icon: Briefcase },
+                  { label: 'Audio & Music', cat: 'Audio', icon: Music2 },
+                  { label: 'Education', cat: 'Dev Kits', icon: GraduationCap },
+                  { label: 'More Categories', cat: 'All', icon: LayoutGrid },
+                ].map((item) => {
+                  const IconComp = item.icon;
+                  return (
+                    <li key={item.label}>
+                      <button
+                        onClick={() => handleCategoryClick(item.cat)}
+                        className="flex items-center gap-2.5 text-[#0B2046] hover:text-[#FF5A00] transition-colors text-left group cursor-pointer"
+                      >
+                        <div className="w-5 h-5 rounded flex items-center justify-center text-[#FF5A00] border border-[#FFE1CE] bg-[#FFF8F3] shrink-0">
+                          <IconComp className="w-3 h-3 stroke-[2.2]" />
+                        </div>
+                        <span className="group-hover:translate-x-0.5 transition-transform">{item.label}</span>
+                      </button>
+                    </li>
+                  );
+                })}
               </ul>
             </div>
 
             {/* ---------------- COLUMN 4: NEED HELP? (lg:col-span-2) ---------------- */}
-            <div className="lg:col-span-2 space-y-3.5">
-              <h4 className="text-sm font-bold text-[#102B52] tracking-tight">
+            <div className="lg:col-span-2 lg:px-4 lg:border-l lg:border-r border-[#E5EDF5] space-y-4">
+              <h4 className="text-sm font-bold text-[#0B2046]">
                 Need Help?
               </h4>
-              <ul className="space-y-3 text-xs text-[#58769F]">
-                <li>
-                  <a
-                    href="mailto:support@omyra.org"
-                    className="inline-flex items-start gap-2 hover:text-[#FF6500] transition-colors group"
-                  >
-                    <div className="w-6 h-6 rounded-md bg-[#FFF0E3] text-[#FF6500] flex items-center justify-center shrink-0 mt-0.5">
-                      <Mail className="w-3.5 h-3.5" />
-                    </div>
-                    <div>
-                      <span className="block text-[11px] text-[#7991B2]">Email Support</span>
-                      <span className="font-semibold text-[#102B52] group-hover:text-[#FF6500] transition-colors">support@omyra.org</span>
-                    </div>
-                  </a>
-                </li>
-                <li>
-                  <a
-                    href="tel:+919876543210"
-                    className="inline-flex items-start gap-2 hover:text-[#FF6500] transition-colors group"
-                  >
-                    <div className="w-6 h-6 rounded-md bg-[#FFF0E3] text-[#FF6500] flex items-center justify-center shrink-0 mt-0.5">
-                      <Phone className="w-3.5 h-3.5" />
-                    </div>
-                    <div>
-                      <span className="block text-[11px] text-[#7991B2]">Helpline</span>
-                      <span className="font-semibold text-[#102B52] group-hover:text-[#FF6500] transition-colors">+91 98765 43210</span>
-                    </div>
-                  </a>
-                </li>
-                <li className="pt-1">
-                  <div className="inline-flex items-center gap-1.5 text-[11px] text-[#7991B2]">
-                    <Clock className="w-3 h-3 text-[#FF6500]" />
-                    <span>Response within 15 mins</span>
+              <div className="space-y-4 text-xs">
+                {/* Email Support */}
+                <div className="flex items-start gap-2.5">
+                  <div className="w-6 h-6 rounded-md bg-[#FFEEDE] text-[#FF5A00] flex items-center justify-center shrink-0 mt-0.5">
+                    <Mail className="w-3.5 h-3.5" />
                   </div>
-                </li>
-              </ul>
-            </div>
-
-            {/* ---------------- COLUMN 5: NEWSLETTER (lg:col-span-2) ---------------- */}
-            <div className="lg:col-span-2 space-y-3.5">
-              <h4 className="text-sm font-bold text-[#102B52] tracking-tight">
-                Newsletter
-              </h4>
-              <p className="text-xs text-[#58769F] leading-relaxed">
-                Subscribe to get weekly curated drops, exclusive discounts, and creative developer resources.
-              </p>
-
-              {/* Form */}
-              <form onSubmit={handleSubscribe} className="space-y-2">
-                <div className="relative">
-                  <input
-                    type="email"
-                    value={emailInput}
-                    onChange={(e) => {
-                      setEmailInput(e.target.value);
-                      if (newsletterStatus === 'error') setNewsletterStatus('idle');
-                    }}
-                    placeholder="Enter your email"
-                    disabled={newsletterStatus === 'loading'}
-                    className="w-full h-10 rounded-xl border border-[#DDE7F2] bg-white px-3.5 text-xs text-[#102B52] placeholder-[#7991B2] focus:outline-none focus:border-[#FF6500] focus:ring-1 focus:ring-[#FF6500] transition-all"
-                  />
+                  <div>
+                    <a href="mailto:support@omyra.org" className="font-bold text-[#0B2046] hover:text-[#FF5A00] transition-colors block text-[11px] sm:text-xs">
+                      support@omyra.org
+                    </a>
+                    <span className="text-[10px] text-[#58769F] block">Send us an email</span>
+                  </div>
                 </div>
 
-                <button
-                  type="submit"
-                  disabled={newsletterStatus === 'loading'}
-                  className="w-full h-10 rounded-xl bg-[#FF6500] hover:bg-[#EA5800] text-white font-semibold text-xs transition-colors flex items-center justify-center gap-1.5 shadow-xs cursor-pointer disabled:opacity-70"
-                >
-                  {newsletterStatus === 'loading' ? (
-                    <span>Subscribing...</span>
-                  ) : (
-                    <>
-                      <span>Subscribe</span>
-                      <ArrowRight className="w-3.5 h-3.5" />
-                    </>
+                {/* Helpline Phone */}
+                <div className="flex items-start gap-2.5">
+                  <div className="w-6 h-6 rounded-md bg-[#FFEEDE] text-[#FF5A00] flex items-center justify-center shrink-0 mt-0.5">
+                    <Phone className="w-3.5 h-3.5" />
+                  </div>
+                  <div>
+                    <a href="tel:+919876543210" className="font-bold text-[#0B2046] hover:text-[#FF5A00] transition-colors block text-[11px] sm:text-xs">
+                      +91 98765 43210
+                    </a>
+                    <span className="text-[10px] text-[#58769F] block">Mon – Sat, 9:00 AM – 6:00 PM</span>
+                  </div>
+                </div>
+
+                {/* Live Chat */}
+                <div className="flex items-start gap-2.5">
+                  <div className="w-6 h-6 rounded-md bg-[#FFEEDE] text-[#FF5A00] flex items-center justify-center shrink-0 mt-0.5">
+                    <MessageSquare className="w-3.5 h-3.5" />
+                  </div>
+                  <div>
+                    <a href="mailto:support@omyra.org?subject=Live%20Chat%20Support" className="font-bold text-[#0B2046] hover:text-[#FF5A00] transition-colors block text-[11px] sm:text-xs">
+                      Live Chat
+                    </a>
+                    <span className="text-[10px] text-[#58769F] block">Chat with our support team</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* ---------------- COLUMN 5: NEWSLETTER & APP DOWNLOAD (lg:col-span-3) ---------------- */}
+            <div className="lg:col-span-3 lg:pl-3 space-y-5">
+              
+              {/* Subscribe to Our Newsletter */}
+              <div className="space-y-2">
+                <h4 className="text-sm font-bold text-[#0B2046]">
+                  Subscribe to Our Newsletter
+                </h4>
+                <p className="text-xs text-[#58769F]">
+                  Get the latest updates, new products and exclusive offers.
+                </p>
+
+                <form onSubmit={handleSubscribe} className="pt-1">
+                  <div className="relative flex items-center">
+                    <div className="absolute left-3 text-[#58769F] pointer-events-none">
+                      <Mail className="w-4 h-4" />
+                    </div>
+                    <input
+                      type="email"
+                      value={emailInput}
+                      onChange={(e) => setEmailInput(e.target.value)}
+                      placeholder="Enter your email address"
+                      className="w-full h-10 pl-9 pr-12 rounded-xl border border-[#D5E2F0] bg-white text-xs text-[#0B2046] placeholder-[#8099B5] focus:outline-none focus:border-[#FF5A00] transition-colors"
+                    />
+                    <button
+                      type="submit"
+                      aria-label="Submit newsletter"
+                      className="absolute right-1 w-8 h-8 rounded-lg bg-[#FF5A00] hover:bg-[#E54F00] text-white flex items-center justify-center cursor-pointer transition-colors shadow-xs"
+                    >
+                      <ArrowRight className="w-4 h-4" />
+                    </button>
+                  </div>
+                  {newsletterStatus === 'success' && (
+                    <p className="text-[11px] text-emerald-600 mt-1">Thank you for subscribing!</p>
                   )}
-                </button>
-              </form>
+                  {newsletterStatus === 'error' && (
+                    <p className="text-[11px] text-red-600 mt-1">Please enter a valid email.</p>
+                  )}
+                </form>
+              </div>
 
-              {/* Feedback messages */}
-              {newsletterStatus === 'success' && (
-                <div className="p-2.5 rounded-lg bg-emerald-50 border border-emerald-200 text-[11px] text-emerald-800 flex items-start gap-1.5">
-                  <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0 mt-0.5" />
-                  <span>{newsletterMessage}</span>
-                </div>
-              )}
-
-              {newsletterStatus === 'error' && (
-                <p className="text-[11px] text-red-600 font-medium">
-                  {newsletterMessage}
+              {/* Download Our App */}
+              <div className="space-y-2 pt-1">
+                <h4 className="text-sm font-bold text-[#0B2046]">
+                  Download Our App
+                </h4>
+                <p className="text-xs text-[#58769F]">
+                  Shop on the go with our mobile app.
                 </p>
-              )}
+                <div className="flex flex-wrap items-center gap-2 pt-0.5">
+                  {/* App Store badge */}
+                  <a
+                    href="#download"
+                    onClick={(e) => { e.preventDefault(); alert('OMYRA MALL iOS App is releasing soon on the App Store! Use our mobile web experience today.'); }}
+                    className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-black text-white hover:bg-zinc-800 transition-colors shadow-xs"
+                  >
+                    <svg className="w-4 h-4 fill-current shrink-0" viewBox="0 0 170 170">
+                      <path d="M150.37 130.25c-2.45 5.66-5.35 10.87-8.71 15.66-4.58 6.53-8.33 11.05-11.22 13.56-4.48 4.12-9.28 6.23-14.42 6.35-3.69 0-8.14-1.05-13.32-3.18-5.19-2.12-9.97-3.17-14.34-3.17-4.58 0-9.49 1.05-14.75 3.17-5.26 2.13-9.5 3.24-12.74 3.35-4.35.13-9.16-1.9-14.42-6.08-3.69-3.04-7.68-7.85-11.97-14.43-5.74-8.8-10.23-18.72-13.48-29.77-3.25-11.05-4.88-21.46-4.88-31.25 0-14.89 3.82-27.18 11.46-36.88 7.64-9.7 17.2-14.64 28.69-14.82 4.13 0 9.07 1.05 14.82 3.17 5.75 2.12 9.53 3.29 11.34 3.5 2.83-.56 6.77-1.79 11.83-3.69 5.06-1.9 9.68-2.77 13.86-2.61 10.23.49 18.76 4.13 25.59 10.92 6.83 6.79 11.34 15.11 13.53 24.97-9.04 5.44-13.5 13.06-13.38 22.86.13 8.37 3.36 15.53 9.69 21.48 6.33 5.95 13.88 9.39 22.65 10.32-2.12 6.54-4.87 13.25-8.25 20.14zM119.22 31.81c0-7.39 2.68-14.28 8.04-20.67 5.36-6.39 12.01-10.42 19.96-12.08.13 1.09.19 2.07.19 2.94 0 7.28-2.81 14.2-8.43 20.76-5.62 6.56-12.44 10.47-20.45 11.73-.25-.87-.38-1.76-.38-2.68z"/>
+                    </svg>
+                    <div className="text-left">
+                      <span className="block text-[8px] text-zinc-300 leading-tight">Download on the</span>
+                      <span className="block text-[11px] font-bold text-white leading-tight">App Store</span>
+                    </div>
+                  </a>
 
-              <p className="text-[10px] text-[#7991B2]">
-                No spam. Unsubscribe at any time.
-              </p>
+                  {/* Google Play badge */}
+                  <a
+                    href="#download"
+                    onClick={(e) => { e.preventDefault(); alert('OMYRA MALL Android App is releasing soon on Google Play! Use our mobile web experience today.'); }}
+                    className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-black text-white hover:bg-zinc-800 transition-colors shadow-xs"
+                  >
+                    <svg className="w-4 h-4 shrink-0" viewBox="0 0 512 512">
+                      <path fill="#00f076" d="M380.9 237.4L110.8 74.8C91.9 63.5 67 77.2 67 99.1v313.8c0 21.9 24.9 35.6 43.8 24.3l270.1-162.6c17.5-10.5 17.5-36.7 0-47.2z"/>
+                      <path fill="#00d6ff" d="M67 99.1v313.8c0 14.3 10.7 24.8 22.4 25.1L277 256 89.4 74c-11.7.3-22.4 10.8-22.4 25.1z"/>
+                      <path fill="#ff3a44" d="M380.9 237.4l-103.9 18.6L89.4 74c5.8-5.7 13.9-9.1 21.4-4.6l270.1 162.6c17.5 10.5 17.5 36.7 0 47.2z"/>
+                      <path fill="#ffc800" d="M380.9 274.6l-270.1 162.6c-7.5 4.5-15.6 1.1-21.4-4.6l187.6-182 103.9 24z"/>
+                    </svg>
+                    <div className="text-left">
+                      <span className="block text-[8px] text-zinc-300 leading-tight uppercase">GET IT ON</span>
+                      <span className="block text-[11px] font-bold text-white leading-tight">Google Play</span>
+                    </div>
+                  </a>
+                </div>
+              </div>
+
             </div>
 
           </div>
@@ -562,103 +471,54 @@ export const Footer: React.FC = () => {
       </div>
 
       {/* ========================================================================= */}
-      {/* SECTION 3: MARKETPLACE TRUST AND BENEFIT STRIP                           */}
+      {/* 3. MARKETPLACE TRUST AND BENEFIT STRIP                                    */}
       {/* ========================================================================= */}
-      <div className="border-t border-[#E4EDF7] bg-[#FAFBFD] py-6 sm:py-7">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+      <div className="border-y border-[#E5EDF5] bg-white py-6">
+        <div className="mx-auto max-w-7xl px-3 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 divide-y sm:divide-y-0 sm:gap-y-6 lg:divide-x divide-[#E5EDF5]">
             
-            {/* Trust Item 1 */}
-            <div className="flex items-center gap-3">
-              <div className="w-9 h-9 rounded-xl bg-[#FFF0E3] text-[#FF6500] flex items-center justify-center shrink-0 border border-[#FFDEC4]/60">
-                <Zap className="w-4 h-4 stroke-[2.2]" />
+            {/* 1. 100% Secure Payments */}
+            <div className="flex items-center gap-3.5 pt-3 sm:pt-0">
+              <div className="w-11 h-11 rounded-2xl bg-[#FFEEDE] text-[#FF5A00] flex items-center justify-center shrink-0 shadow-2xs">
+                <ShieldCheck className="w-6 h-6 stroke-[2.2]" />
               </div>
-              <div className="min-w-0">
-                <h5 className="text-xs font-bold text-[#102B52]">Instant File Delivery</h5>
-                <p className="text-[11px] text-[#7991B2]">Automated zip & license generation</p>
-              </div>
-            </div>
-
-            {/* Trust Item 2 */}
-            <div className="flex items-center gap-3">
-              <div className="w-9 h-9 rounded-xl bg-[#FFF0E3] text-[#FF6500] flex items-center justify-center shrink-0 border border-[#FFDEC4]/60">
-                <ShieldCheck className="w-4 h-4 stroke-[2.2]" />
-              </div>
-              <div className="min-w-0">
-                <h5 className="text-xs font-bold text-[#102B52]">100% Quality Inspected</h5>
-                <p className="text-[11px] text-[#7991B2]">Manually tested & virus-scanned</p>
+              <div>
+                <h5 className="text-xs sm:text-sm font-bold text-[#0B2046]">100% Secure Payments</h5>
+                <p className="text-xs text-[#58769F]">Multiple payment options</p>
               </div>
             </div>
 
-            {/* Trust Item 3 */}
-            <div className="flex items-center gap-3">
-              <div className="w-9 h-9 rounded-xl bg-[#FFF0E3] text-[#FF6500] flex items-center justify-center shrink-0 border border-[#FFDEC4]/60">
-                <Award className="w-4 h-4 stroke-[2.2]" />
+            {/* 2. Instant Access */}
+            <div className="flex items-center gap-3.5 pt-3 sm:pt-0 sm:pl-4 lg:pl-6">
+              <div className="w-11 h-11 rounded-2xl bg-[#FFEEDE] text-[#FF5A00] flex items-center justify-center shrink-0 shadow-2xs">
+                <Zap className="w-6 h-6 stroke-[2.2]" />
               </div>
-              <div className="min-w-0">
-                <h5 className="text-xs font-bold text-[#102B52]">Commercial Client Rights</h5>
-                <p className="text-[11px] text-[#7991B2]">Perpetual use in end-user products</p>
-              </div>
-            </div>
-
-            {/* Trust Item 4 */}
-            <div className="flex items-center gap-3">
-              <div className="w-9 h-9 rounded-xl bg-[#FFF0E3] text-[#FF6500] flex items-center justify-center shrink-0 border border-[#FFDEC4]/60">
-                <Lock className="w-4 h-4 stroke-[2.2]" />
-              </div>
-              <div className="min-w-0">
-                <h5 className="text-xs font-bold text-[#102B52]">256-Bit Bank Encryption</h5>
-                <p className="text-[11px] text-[#7991B2]">PCI-DSS Level 1 compliant checkout</p>
+              <div>
+                <h5 className="text-xs sm:text-sm font-bold text-[#0B2046]">Instant Access</h5>
+                <p className="text-xs text-[#58769F]">Get your products immediately</p>
               </div>
             </div>
 
-          </div>
-        </div>
-      </div>
-
-      {/* ========================================================================= */}
-      {/* SECTION 4: BOTTOM COPYRIGHT & BRAND-STATUS ROW                           */}
-      {/* ========================================================================= */}
-      <div className="border-t border-[#E4EDF7] bg-white py-6">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-col md:flex-row items-center justify-between gap-4 text-xs text-[#7991B2]">
-            
-            {/* Left: Copyright */}
-            <div className="text-center md:text-left">
-              &copy; {new Date().getFullYear()} OMYRA MALL. All rights reserved.
+            {/* 3. 24/7 Support */}
+            <div className="flex items-center gap-3.5 pt-3 sm:pt-0 lg:pl-6">
+              <div className="w-11 h-11 rounded-2xl bg-[#FFEEDE] text-[#FF5A00] flex items-center justify-center shrink-0 shadow-2xs">
+                <Headphones className="w-6 h-6 stroke-[2.2]" />
+              </div>
+              <div>
+                <h5 className="text-xs sm:text-sm font-bold text-[#0B2046]">24/7 Support</h5>
+                <p className="text-xs text-[#58769F]">We&apos;re here to help</p>
+              </div>
             </div>
 
-            {/* Center: Legal Links (Clickable with full real policy modals) */}
-            <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2">
-              <button
-                onClick={() => setActiveModal('privacy')}
-                className="hover:text-[#FF6500] transition-colors cursor-pointer"
-              >
-                Privacy Policy
-              </button>
-              <button
-                onClick={() => setActiveModal('terms')}
-                className="hover:text-[#FF6500] transition-colors cursor-pointer"
-              >
-                Terms of Service
-              </button>
-              <button
-                onClick={() => setActiveModal('license')}
-                className="hover:text-[#FF6500] transition-colors cursor-pointer"
-              >
-                License Agreement
-              </button>
-            </div>
-
-            {/* Right: Operational Status */}
-            <div className="flex items-center gap-2">
-              <span className="relative flex h-2 w-2">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
-              </span>
-              <span className="font-medium text-[#102B52]">
-                Secure &middot; Reliable &middot; Global
-              </span>
+            {/* 4. Global Marketplace */}
+            <div className="flex items-center gap-3.5 pt-3 sm:pt-0 lg:pl-6">
+              <div className="w-11 h-11 rounded-2xl bg-[#FFEEDE] text-[#FF5A00] flex items-center justify-center shrink-0 shadow-2xs">
+                <Globe className="w-6 h-6 stroke-[2.2]" />
+              </div>
+              <div>
+                <h5 className="text-xs sm:text-sm font-bold text-[#0B2046]">Global Marketplace</h5>
+                <p className="text-xs text-[#58769F]">Digital products for everyone</p>
+              </div>
             </div>
 
           </div>
@@ -666,117 +526,24 @@ export const Footer: React.FC = () => {
       </div>
 
       {/* ========================================================================= */}
-      {/* LEGAL & PWA INFORMATIONAL MODALS                                          */}
+      {/* 4. BOTTOM COPYRIGHT & STATUS BAR                                          */}
       {/* ========================================================================= */}
-      {activeModal && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-xs p-4 animate-in fade-in"
-          onClick={() => setActiveModal(null)}
-        >
-          <div
-            className="w-full max-w-lg rounded-2xl bg-white p-6 shadow-2xl border border-zinc-200 space-y-4 max-h-[85vh] overflow-y-auto"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="flex items-center justify-between border-b border-zinc-100 pb-3">
-              <div className="flex items-center gap-2">
-                <div className="w-8 h-8 rounded-lg bg-[#FFF0E3] text-[#FF6500] flex items-center justify-center">
-                  <FileText className="w-4 h-4" />
-                </div>
-                <h3 className="text-base font-bold text-[#102B52]">
-                  {activeModal === 'privacy' && 'Privacy Policy'}
-                  {activeModal === 'terms' && 'Terms of Service'}
-                  {activeModal === 'license' && 'Certified Commercial License'}
-                  {activeModal === 'pwa' && 'OMYRA MALL Mobile Web & PWA'}
-                </h3>
-              </div>
-              <button
-                onClick={() => setActiveModal(null)}
-                className="w-7 h-7 rounded-lg hover:bg-zinc-100 flex items-center justify-center text-zinc-400 hover:text-zinc-700"
-              >
-                <X className="w-4 h-4" />
-              </button>
+      <div className="bg-white py-4 sm:py-5">
+        <div className="mx-auto max-w-7xl px-3 sm:px-6 lg:px-8">
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-[#58769F]">
+            <div>
+              &copy; 2025 OMYRA MALL. All rights reserved.
             </div>
-
-            {activeModal === 'privacy' && (
-              <div className="text-xs text-zinc-600 space-y-3 leading-relaxed">
-                <p>
-                  At OMYRA MALL, we value your privacy above all. We collect only the information necessary to fulfill digital orders, authenticate your purchases, and generate verifiable cryptographic license certificates.
-                </p>
-                <p>
-                  <strong>Data Protection:</strong> We never sell, rent, or lease customer contact lists or transaction metadata to third-party ad networks. All payment processing is direct and handled securely via certified PCI-DSS Level 1 compliant gateways.
-                </p>
-                <p>
-                  <strong>Cookie Policy:</strong> We use strictly essential cookies for cart persistence, session authorization, and your downloaded files vault.
-                </p>
-              </div>
-            )}
-
-            {activeModal === 'terms' && (
-              <div className="text-xs text-zinc-600 space-y-3 leading-relaxed">
-                <p>
-                  By accessing or purchasing from OMYRA MALL, you agree to abide by our marketplace standards and code of conduct.
-                </p>
-                <p>
-                  <strong>File Delivery:</strong> All digital assets are unlocked automatically upon confirmed checkout. Customers retain perpetual access through their Customer Library.
-                </p>
-                <p>
-                  <strong>Refunds:</strong> If a digital product is fundamentally defective, misstated, or contains critical unresolvable bugs within 14 days of purchase, our support team will issue a prompt replacement or refund.
-                </p>
-              </div>
-            )}
-
-            {activeModal === 'license' && (
-              <div className="text-xs text-zinc-600 space-y-3 leading-relaxed">
-                <p>
-                  Every product purchased on OMYRA MALL includes clear commercial rights.
-                </p>
-                <div className="p-3 rounded-xl bg-orange-50/60 border border-orange-100 space-y-1.5 text-zinc-700">
-                  <div className="flex items-center gap-1.5 font-bold text-[#102B52]">
-                    <Check className="w-3.5 h-3.5 text-[#FF6500]" />
-                    <span>Unlimited Commercial End Products</span>
-                  </div>
-                  <p className="text-[11px] text-zinc-600">
-                    You can use assets to build unlimited client projects, commercial websites, internal enterprise tools, and SaaS platforms.
-                  </p>
-                </div>
-                <div className="p-3 rounded-xl bg-zinc-50 border border-zinc-200 space-y-1.5 text-zinc-700">
-                  <div className="flex items-center gap-1.5 font-bold text-[#102B52]">
-                    <Check className="w-3.5 h-3.5 text-[#FF6500]" />
-                    <span>Free Lifetime Version Upgrades</span>
-                  </div>
-                  <p className="text-[11px] text-zinc-600">
-                    Whenever an author publishes updates for new framework or tool versions, your library automatically gets the latest release.
-                  </p>
-                </div>
-              </div>
-            )}
-
-            {activeModal === 'pwa' && (
-              <div className="text-xs text-zinc-600 space-y-3 leading-relaxed">
-                <p>
-                  OMYRA MALL is engineered as an ultra-fast Progressive Web App. You can install it directly onto your iOS or Android home screen without needing app store downloads.
-                </p>
-                <div className="p-3 rounded-xl bg-zinc-50 border border-zinc-200 space-y-1.5">
-                  <p className="font-bold text-[#102B52]">How to install:</p>
-                  <ul className="list-disc pl-4 space-y-1 text-[11px]">
-                    <li><strong>On Safari (iOS):</strong> Tap the Share button, then scroll and select &quot;Add to Home Screen&quot;.</li>
-                    <li><strong>On Chrome (Android / Desktop):</strong> Tap the 3 dots menu or the install icon in your address bar, then select &quot;Install App&quot;.</li>
-                  </ul>
-                </div>
-              </div>
-            )}
-
-            <div className="pt-2 flex justify-end">
-              <button
-                onClick={() => setActiveModal(null)}
-                className="px-4 py-2 rounded-xl text-xs font-semibold bg-[#FF6500] text-white hover:bg-[#EA5800] transition-colors"
-              >
-                Close
-              </button>
+            <div className="flex items-center gap-2 font-medium">
+              <span>Secure</span>
+              <span className="text-[#58769F]">&bull;</span>
+              <span>Reliable</span>
+              <span className="text-[#58769F]">&bull;</span>
+              <span>Global</span>
             </div>
           </div>
         </div>
-      )}
+      </div>
 
     </footer>
   );
