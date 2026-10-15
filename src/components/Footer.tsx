@@ -74,23 +74,24 @@ export const Footer: React.FC = () => {
       {/* ========================================================================= */}
       <section className="pt-6 sm:pt-8 pb-4 sm:pb-6">
         <div className="mx-auto max-w-7xl px-3 sm:px-6 lg:px-8">
-          <div className="relative rounded-2xl sm:rounded-3xl bg-[#FFF5EC] border border-[#FFE7D6] p-6 sm:p-8 lg:p-10 overflow-hidden shadow-xs">
+          <div className="relative rounded-2xl sm:rounded-3xl bg-gradient-to-r from-[#FFF5EC] via-[#FFF9F4] to-[#FFEFE4] border border-[#FEDEC5] p-6 sm:p-8 lg:p-10 overflow-hidden shadow-[0_8px_32px_rgba(255,90,0,0.05)]">
             
-            {/* Subtle warm decorative background glow */}
-            <div className="absolute top-0 right-0 w-2/3 h-full bg-gradient-to-l from-[#FFE8D6]/70 via-[#FFF0E2]/40 to-transparent pointer-events-none" />
+            {/* Subtle warm decorative background glows */}
+            <div className="absolute -top-12 -right-12 w-96 h-96 bg-gradient-to-bl from-[#FFD8B8]/40 via-[#FFEADC]/20 to-transparent rounded-full blur-2xl pointer-events-none" />
+            <div className="absolute -bottom-16 -left-16 w-80 h-80 bg-[#FF8020]/5 rounded-full blur-3xl pointer-events-none" />
 
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-center relative z-10">
               
-              {/* Left Column: Headline & Description */}
+              {/* Left Column: Headline & Description (5 cols) */}
               <div className="lg:col-span-5 space-y-3.5">
                 {/* Sparkle Pill */}
-                <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#FFEADC] text-[#FF5A00]">
+                <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#FFEADC] border border-[#FED6BF]/70 text-[#FF5A00] shadow-2xs">
                   <span className="text-xs">✦</span>
                   <span className="text-xs font-bold tracking-wide">Join OMYRA MALL</span>
                 </div>
 
                 {/* Heading */}
-                <h2 className="text-2xl sm:text-3xl lg:text-[32px] font-black text-[#0B2046] tracking-tight leading-[1.18]">
+                <h2 className="text-2xl sm:text-3xl lg:text-[32px] xl:text-[34px] font-black text-[#0B2046] tracking-tight leading-[1.16]">
                   Get the Best Digital Products <br />
                   and <span className="text-[#FF5A00]">Grow Your Creativity!</span>
                 </h2>
@@ -101,34 +102,37 @@ export const Footer: React.FC = () => {
                 </p>
               </div>
 
-              {/* Middle Column: 3 Benefits + Explore CTA Button */}
-              <div className="lg:col-span-3 space-y-4">
-                <div className="grid grid-cols-3 gap-2">
-                  {/* Benefit 1 */}
-                  <div className="space-y-1.5">
-                    <div className="w-9 h-9 rounded-xl bg-[#FFEEDE] text-[#FF5A00] flex items-center justify-center shadow-2xs">
-                      <Zap className="w-4 h-4 stroke-[2.4]" />
+              {/* Middle Column: 3 Benefits + Explore CTA Button (4 cols) */}
+              <div className="lg:col-span-4 flex flex-col justify-between space-y-4 sm:space-y-5">
+                {/* Benefits Card with clean dividers */}
+                <div className="bg-white/70 backdrop-blur-xs rounded-2xl p-3 sm:p-3.5 border border-[#FFE4CF]/90 shadow-2xs">
+                  <div className="grid grid-cols-3 gap-2 divide-x divide-[#F0DAC7]/80">
+                    {/* Benefit 1 */}
+                    <div className="space-y-1.5 pr-1.5">
+                      <div className="w-8 h-8 rounded-xl bg-[#FFEEDE] text-[#FF5A00] flex items-center justify-center shadow-2xs">
+                        <Zap className="w-4 h-4 stroke-[2.4]" />
+                      </div>
+                      <h4 className="text-xs font-bold text-[#0B2046] leading-tight">Instant Access</h4>
+                      <p className="text-[10px] text-[#58769F] leading-snug">Start using products immediately</p>
                     </div>
-                    <h4 className="text-xs font-bold text-[#0B2046] leading-tight">Instant<br />Access</h4>
-                    <p className="text-[10px] text-[#58769F] leading-tight">Start using your products immediately</p>
-                  </div>
 
-                  {/* Benefit 2 */}
-                  <div className="space-y-1.5">
-                    <div className="w-9 h-9 rounded-xl bg-[#FFEEDE] text-[#FF5A00] flex items-center justify-center shadow-2xs">
-                      <ShieldCheck className="w-4 h-4 stroke-[2.4]" />
+                    {/* Benefit 2 */}
+                    <div className="space-y-1.5 px-1.5">
+                      <div className="w-8 h-8 rounded-xl bg-[#FFEEDE] text-[#FF5A00] flex items-center justify-center shadow-2xs">
+                        <ShieldCheck className="w-4 h-4 stroke-[2.4]" />
+                      </div>
+                      <h4 className="text-xs font-bold text-[#0B2046] leading-tight">Secure Payments</h4>
+                      <p className="text-[10px] text-[#58769F] leading-snug">Your data is 100% protected</p>
                     </div>
-                    <h4 className="text-xs font-bold text-[#0B2046] leading-tight">Secure<br />Payments</h4>
-                    <p className="text-[10px] text-[#58769F] leading-tight">Your data is 100% protected</p>
-                  </div>
 
-                  {/* Benefit 3 */}
-                  <div className="space-y-1.5">
-                    <div className="w-9 h-9 rounded-xl bg-[#FFEEDE] text-[#FF5A00] flex items-center justify-center shadow-2xs">
-                      <Headphones className="w-4 h-4 stroke-[2.4]" />
+                    {/* Benefit 3 */}
+                    <div className="space-y-1.5 pl-1.5">
+                      <div className="w-8 h-8 rounded-xl bg-[#FFEEDE] text-[#FF5A00] flex items-center justify-center shadow-2xs">
+                        <Headphones className="w-4 h-4 stroke-[2.4]" />
+                      </div>
+                      <h4 className="text-xs font-bold text-[#0B2046] leading-tight">24/7 Support</h4>
+                      <p className="text-[10px] text-[#58769F] leading-snug">We&apos;re always here to help</p>
                     </div>
-                    <h4 className="text-xs font-bold text-[#0B2046] leading-tight">24/7<br />Support</h4>
-                    <p className="text-[10px] text-[#58769F] leading-tight">We&apos;re always here to help</p>
                   </div>
                 </div>
 
@@ -136,22 +140,24 @@ export const Footer: React.FC = () => {
                 <div>
                   <button
                     onClick={handleExploreNow}
-                    className="inline-flex items-center justify-center gap-2 px-6 py-2.5 rounded-xl font-bold text-white bg-[#FF5A00] hover:bg-[#E54F00] active:scale-[0.98] transition-all shadow-xs cursor-pointer text-xs sm:text-sm"
+                    className="group inline-flex items-center justify-center gap-2.5 px-6 py-2.5 sm:py-3 rounded-xl font-bold text-white bg-gradient-to-r from-[#FF5A00] to-[#FF701A] hover:from-[#E54F00] hover:to-[#FF5A00] active:scale-[0.98] transition-all duration-200 shadow-[0_4px_16px_rgba(255,90,0,0.25)] hover:shadow-[0_6px_22px_rgba(255,90,0,0.35)] cursor-pointer text-xs sm:text-sm"
                   >
                     <span>Explore Now</span>
-                    <ArrowRight className="w-4 h-4" />
+                    <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                   </button>
                 </div>
               </div>
 
-              {/* Right Column: High-End Marketplace Laptop Illustration */}
-              <div className="lg:col-span-4 flex items-center justify-center lg:justify-end">
-                <div className="relative w-full max-w-[340px] sm:max-w-[380px] lg:max-w-[420px]">
+              {/* Right Column: High-End Marketplace Laptop Illustration (3 cols) */}
+              <div className="lg:col-span-3 flex items-center justify-center lg:justify-end">
+                <div className="relative w-full max-w-[320px] sm:max-w-[360px] lg:max-w-[380px] rounded-2xl overflow-hidden border border-[#FEDDC3]/80 bg-[#FFF5EC] shadow-[0_8px_24px_rgba(255,90,0,0.08)] group">
                   <img
                     src={footerBannerImg}
                     alt="OMYRA MALL Digital Marketplace Laptop"
-                    className="w-full h-auto object-contain mix-blend-multiply drop-shadow-sm select-none pointer-events-none"
+                    className="w-full h-auto object-cover transform group-hover:scale-[1.03] transition-transform duration-500 select-none pointer-events-none"
                   />
+                  {/* Subtle glass reflection accent */}
+                  <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/10 to-white/20 pointer-events-none" />
                 </div>
               </div>
 
