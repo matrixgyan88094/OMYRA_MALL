@@ -18,7 +18,7 @@ import {
   LayoutGrid
 } from 'lucide-react';
 import { useStore } from '../context/StoreContext';
-import footerBannerImg from '@/src/assets/images/footer_laptop_banner_1792053516372.jpg';
+import exactLaptopImg from '@/src/assets/images/exact_footer_laptop_1792059280406.jpg';
 
 export const Footer: React.FC = () => {
   const { setActiveView, setSelectedProduct, setSelectedCategory } = useStore();
@@ -74,90 +74,100 @@ export const Footer: React.FC = () => {
       {/* ========================================================================= */}
       <section className="pt-6 sm:pt-8 pb-4 sm:pb-6">
         <div className="mx-auto max-w-7xl px-3 sm:px-6 lg:px-8">
-          <div className="relative rounded-2xl sm:rounded-3xl bg-gradient-to-r from-[#FFF5EC] via-[#FFF9F4] to-[#FFEFE4] border border-[#FEDEC5] p-6 sm:p-8 lg:p-10 overflow-hidden shadow-[0_8px_32px_rgba(255,90,0,0.05)]">
+          <div className="relative rounded-3xl bg-gradient-to-r from-[#FFF9F3] via-[#FFF7F0] to-[#FFEEDF] border border-[#FCE7D7] p-6 sm:p-8 lg:p-10 overflow-hidden shadow-[0_4px_24px_rgba(255,100,0,0.04)]">
             
-            {/* Subtle warm decorative background glows */}
-            <div className="absolute -top-12 -right-12 w-96 h-96 bg-gradient-to-bl from-[#FFD8B8]/40 via-[#FFEADC]/20 to-transparent rounded-full blur-2xl pointer-events-none" />
-            <div className="absolute -bottom-16 -left-16 w-80 h-80 bg-[#FF8020]/5 rounded-full blur-3xl pointer-events-none" />
-
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-center relative z-10">
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-6 xl:gap-8 items-center relative z-10">
               
               {/* Left Column: Headline & Description (5 cols) */}
               <div className="lg:col-span-5 space-y-3.5">
                 {/* Sparkle Pill */}
-                <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#FFEADC] border border-[#FED6BF]/70 text-[#FF5A00] shadow-2xs">
+                <div className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-[#FFEADC] text-[#FF5500] shadow-2xs">
                   <span className="text-xs">✦</span>
                   <span className="text-xs font-bold tracking-wide">Join OMYRA MALL</span>
                 </div>
 
-                {/* Heading */}
-                <h2 className="text-2xl sm:text-3xl lg:text-[32px] xl:text-[34px] font-black text-[#0B2046] tracking-tight leading-[1.16]">
+                {/* Heading matching screenshot */}
+                <h2 className="text-2xl sm:text-3xl lg:text-[34px] xl:text-[38px] font-black text-[#0B1F44] tracking-tight leading-[1.15]">
                   Get the Best Digital Products <br />
-                  and <span className="text-[#FF5A00]">Grow Your Creativity!</span>
+                  and <span className="text-[#FF5500]">Grow Your Creativity!</span>
                 </h2>
 
                 {/* Subtitle */}
-                <p className="text-xs sm:text-sm text-[#58769F] max-w-md leading-relaxed">
+                <p className="text-xs sm:text-sm text-[#5A7398] max-w-md leading-relaxed">
                   Join thousands of creators, developers and businesses who trust OMYRA MALL for premium digital products.
                 </p>
               </div>
 
               {/* Middle Column: 3 Benefits + Explore CTA Button (4 cols) */}
-              <div className="lg:col-span-4 flex flex-col justify-between space-y-4 sm:space-y-5">
-                {/* Benefits Card with clean dividers */}
-                <div className="bg-white/70 backdrop-blur-xs rounded-2xl p-3 sm:p-3.5 border border-[#FFE4CF]/90 shadow-2xs">
-                  <div className="grid grid-cols-3 gap-2 divide-x divide-[#F0DAC7]/80">
-                    {/* Benefit 1 */}
-                    <div className="space-y-1.5 pr-1.5">
-                      <div className="w-8 h-8 rounded-xl bg-[#FFEEDE] text-[#FF5A00] flex items-center justify-center shadow-2xs">
-                        <Zap className="w-4 h-4 stroke-[2.4]" />
-                      </div>
-                      <h4 className="text-xs font-bold text-[#0B2046] leading-tight">Instant Access</h4>
-                      <p className="text-[10px] text-[#58769F] leading-snug">Start using products immediately</p>
+              <div className="lg:col-span-4 flex flex-col items-center lg:items-start justify-between space-y-5">
+                {/* 3 Benefits matching screenshot exact */}
+                <div className="grid grid-cols-3 gap-3 sm:gap-4 w-full">
+                  {/* Benefit 1 */}
+                  <div className="flex flex-col items-center text-center space-y-2">
+                    <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-white shadow-xs border border-[#FFE7D6] flex items-center justify-center text-[#FF5500]">
+                      <Zap className="w-5 h-5 sm:w-6 sm:h-6 stroke-[2.2]" />
                     </div>
-
-                    {/* Benefit 2 */}
-                    <div className="space-y-1.5 px-1.5">
-                      <div className="w-8 h-8 rounded-xl bg-[#FFEEDE] text-[#FF5A00] flex items-center justify-center shadow-2xs">
-                        <ShieldCheck className="w-4 h-4 stroke-[2.4]" />
-                      </div>
-                      <h4 className="text-xs font-bold text-[#0B2046] leading-tight">Secure Payments</h4>
-                      <p className="text-[10px] text-[#58769F] leading-snug">Your data is 100% protected</p>
+                    <div>
+                      <h4 className="font-bold text-[#0B1F44] text-xs sm:text-[13px] leading-tight">
+                        Instant<br />Access
+                      </h4>
+                      <p className="text-[10px] sm:text-[11px] text-[#5A7398] leading-tight mt-1">
+                        Start using your<br />products immediately
+                      </p>
                     </div>
+                  </div>
 
-                    {/* Benefit 3 */}
-                    <div className="space-y-1.5 pl-1.5">
-                      <div className="w-8 h-8 rounded-xl bg-[#FFEEDE] text-[#FF5A00] flex items-center justify-center shadow-2xs">
-                        <Headphones className="w-4 h-4 stroke-[2.4]" />
-                      </div>
-                      <h4 className="text-xs font-bold text-[#0B2046] leading-tight">24/7 Support</h4>
-                      <p className="text-[10px] text-[#58769F] leading-snug">We&apos;re always here to help</p>
+                  {/* Benefit 2 */}
+                  <div className="flex flex-col items-center text-center space-y-2">
+                    <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-white shadow-xs border border-[#FFE7D6] flex items-center justify-center text-[#FF5500]">
+                      <ShieldCheck className="w-5 h-5 sm:w-6 sm:h-6 stroke-[2.2]" />
+                    </div>
+                    <div>
+                      <h4 className="font-bold text-[#0B1F44] text-xs sm:text-[13px] leading-tight">
+                        Secure<br />Payments
+                      </h4>
+                      <p className="text-[10px] sm:text-[11px] text-[#5A7398] leading-tight mt-1">
+                        Your data is<br />100% protected
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Benefit 3 */}
+                  <div className="flex flex-col items-center text-center space-y-2">
+                    <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-white shadow-xs border border-[#FFE7D6] flex items-center justify-center text-[#FF5500]">
+                      <Headphones className="w-5 h-5 sm:w-6 sm:h-6 stroke-[2.2]" />
+                    </div>
+                    <div>
+                      <h4 className="font-bold text-[#0B1F44] text-xs sm:text-[13px] leading-tight">
+                        24/7<br />Support
+                      </h4>
+                      <p className="text-[10px] sm:text-[11px] text-[#5A7398] leading-tight mt-1">
+                        We&apos;re always<br />here to help
+                      </p>
                     </div>
                   </div>
                 </div>
 
-                {/* Explore Now Button */}
-                <div>
+                {/* Explore Now Button positioned under benefit 1 & 2 matching screenshot */}
+                <div className="w-full flex justify-center sm:justify-start">
                   <button
                     onClick={handleExploreNow}
-                    className="group inline-flex items-center justify-center gap-2.5 px-6 py-2.5 sm:py-3 rounded-xl font-bold text-white bg-gradient-to-r from-[#FF5A00] to-[#FF701A] hover:from-[#E54F00] hover:to-[#FF5A00] active:scale-[0.98] transition-all duration-200 shadow-[0_4px_16px_rgba(255,90,0,0.25)] hover:shadow-[0_6px_22px_rgba(255,90,0,0.35)] cursor-pointer text-xs sm:text-sm"
+                    className="inline-flex items-center justify-center gap-2 px-7 py-2.5 sm:py-3 rounded-xl font-bold text-white bg-[#FF5500] hover:bg-[#E54B00] shadow-[0_4px_14px_rgba(255,85,0,0.28)] hover:shadow-[0_6px_20px_rgba(255,85,0,0.36)] active:scale-[0.98] transition-all cursor-pointer text-xs sm:text-sm"
                   >
                     <span>Explore Now</span>
-                    <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                    <ArrowRight className="w-4 h-4 stroke-[2.4]" />
                   </button>
                 </div>
               </div>
 
-              {/* Right Column: High-End Marketplace Laptop Illustration (3 cols) */}
+              {/* Right Column: Exact Laptop Graphic directly on the canvas matching screenshot (3 cols) */}
               <div className="lg:col-span-3 flex items-center justify-center lg:justify-end">
-                <div className="relative w-full max-w-[320px] sm:max-w-[360px] lg:max-w-[380px] rounded-2xl overflow-hidden border border-[#FEDDC3]/80 bg-[#FFF5EC] shadow-[0_8px_24px_rgba(255,90,0,0.08)] group">
+                <div className="relative w-full max-w-[340px] sm:max-w-[400px] lg:max-w-[450px]">
                   <img
-                    src={footerBannerImg}
-                    alt="OMYRA MALL Digital Marketplace Laptop"
-                    className="w-full h-auto object-cover transform group-hover:scale-[1.03] transition-transform duration-500 select-none pointer-events-none"
+                    src={exactLaptopImg}
+                    alt="OMYRA MALL Digital Marketplace Interface"
+                    className="w-full h-auto object-contain select-none pointer-events-none drop-shadow-xs"
                   />
-                  {/* Subtle glass reflection accent */}
-                  <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/10 to-white/20 pointer-events-none" />
                 </div>
               </div>
 
