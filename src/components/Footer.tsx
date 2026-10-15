@@ -18,7 +18,7 @@ import {
   LayoutGrid
 } from 'lucide-react';
 import { useStore } from '../context/StoreContext';
-import exactLaptopImg from '@/src/assets/images/exact_footer_laptop_1792059280406.jpg';
+import exactBannerSceneImg from '@/src/assets/images/exact_banner_scene_1792060389886.jpg';
 
 export const Footer: React.FC = () => {
   const { setActiveView, setSelectedProduct, setSelectedCategory } = useStore();
@@ -74,99 +74,123 @@ export const Footer: React.FC = () => {
       {/* ========================================================================= */}
       <section className="pt-6 sm:pt-8 pb-4 sm:pb-6">
         <div className="mx-auto max-w-7xl px-3 sm:px-6 lg:px-8">
-          <div className="relative rounded-3xl bg-gradient-to-r from-[#FFF9F3] via-[#FFF7F0] to-[#FFEEDF] border border-[#FCE7D7] p-6 sm:p-8 lg:p-10 overflow-hidden shadow-[0_4px_24px_rgba(255,100,0,0.04)]">
+          <div className="relative rounded-[28px] bg-gradient-to-r from-[#FFF8F2] via-[#FFF6EE] to-[#FFEEDF] border border-[#FCE6D6] p-6 sm:p-8 lg:p-10 overflow-hidden shadow-[0_4px_24px_rgba(255,100,0,0.04)]">
             
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-6 xl:gap-8 items-center relative z-10">
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center relative z-10">
               
-              {/* Left Column: Headline & Description (5 cols) */}
-              <div className="lg:col-span-5 space-y-3.5">
-                {/* Sparkle Pill */}
-                <div className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-[#FFEADC] text-[#FF5500] shadow-2xs">
-                  <span className="text-xs">✦</span>
-                  <span className="text-xs font-bold tracking-wide">Join OMYRA MALL</span>
+              {/* Left Column: Headline, Description, Benefits & CTA (lg:col-span-7) */}
+              <div className="lg:col-span-7 space-y-6">
+                
+                {/* 1. Sparkle Pill */}
+                <div>
+                  <div className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-[#FFE9D9] text-[#FF5500] shadow-2xs">
+                    <span className="text-xs">✦</span>
+                    <span className="text-xs font-bold tracking-wide">Join OMYRA MALL</span>
+                  </div>
                 </div>
 
-                {/* Heading matching screenshot */}
-                <h2 className="text-2xl sm:text-3xl lg:text-[34px] xl:text-[38px] font-black text-[#0B1F44] tracking-tight leading-[1.15]">
+                {/* 2. Headline with organic brush swoosh underline */}
+                <h2 className="text-3xl sm:text-4xl lg:text-[40px] xl:text-[44px] font-black text-[#0B1F44] tracking-tight leading-[1.12]">
                   Get the Best Digital Products <br />
-                  and <span className="text-[#FF5500]">Grow Your Creativity!</span>
+                  and{' '}
+                  <span className="relative inline-block text-[#FF5500]">
+                    Grow Your Creativity!
+                    {/* Brush swoosh underline matching screenshot */}
+                    <svg
+                      className="absolute -bottom-2 left-0 w-full h-3 text-[#FF5500]"
+                      viewBox="0 0 260 14"
+                      fill="none"
+                      preserveAspectRatio="none"
+                    >
+                      <path
+                        d="M 2 8 C 50 3 140 3 258 7 C 220 11 130 12 2 10 Z"
+                        fill="currentColor"
+                      />
+                    </svg>
+                  </span>
                 </h2>
 
-                {/* Subtitle */}
-                <p className="text-xs sm:text-sm text-[#5A7398] max-w-md leading-relaxed">
+                {/* 3. Description */}
+                <p className="text-sm sm:text-[15px] text-[#5A7398] max-w-lg leading-relaxed">
                   Join thousands of creators, developers and businesses who trust OMYRA MALL for premium digital products.
                 </p>
-              </div>
 
-              {/* Middle Column: 3 Benefits + Explore CTA Button (4 cols) */}
-              <div className="lg:col-span-4 flex flex-col items-center lg:items-start justify-between space-y-5">
-                {/* 3 Benefits matching screenshot exact */}
-                <div className="grid grid-cols-3 gap-3 sm:gap-4 w-full">
+                {/* 4. Three Benefit Items in a Horizontal Row (Icon Left, Text Right) */}
+                <div className="flex flex-col sm:flex-row items-start sm:items-center gap-5 sm:gap-6 lg:gap-7 pt-1">
+                  
                   {/* Benefit 1 */}
-                  <div className="flex flex-col items-center text-center space-y-2">
-                    <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-white shadow-xs border border-[#FFE7D6] flex items-center justify-center text-[#FF5500]">
-                      <Zap className="w-5 h-5 sm:w-6 sm:h-6 stroke-[2.2]" />
+                  <div className="flex items-center gap-3">
+                    <div className="w-12 h-12 rounded-2xl bg-[#FFF0E2] flex items-center justify-center shrink-0 text-[#FF5500]">
+                      <Zap className="w-5 h-5 stroke-[2.2]" />
                     </div>
                     <div>
-                      <h4 className="font-bold text-[#0B1F44] text-xs sm:text-[13px] leading-tight">
-                        Instant<br />Access
+                      <h4 className="font-bold text-[#0B1F44] text-[13px] sm:text-sm leading-tight">
+                        Instant Access
                       </h4>
-                      <p className="text-[10px] sm:text-[11px] text-[#5A7398] leading-tight mt-1">
+                      <p className="text-[11px] text-[#5A7398] leading-tight mt-0.5">
                         Start using your<br />products immediately
                       </p>
                     </div>
                   </div>
 
+                  {/* Subtle vertical separator */}
+                  <div className="hidden sm:block w-px h-10 bg-[#F0DAC7]" />
+
                   {/* Benefit 2 */}
-                  <div className="flex flex-col items-center text-center space-y-2">
-                    <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-white shadow-xs border border-[#FFE7D6] flex items-center justify-center text-[#FF5500]">
-                      <ShieldCheck className="w-5 h-5 sm:w-6 sm:h-6 stroke-[2.2]" />
+                  <div className="flex items-center gap-3">
+                    <div className="w-12 h-12 rounded-2xl bg-[#FFF0E2] flex items-center justify-center shrink-0 text-[#FF5500]">
+                      <ShieldCheck className="w-5 h-5 stroke-[2.2]" />
                     </div>
                     <div>
-                      <h4 className="font-bold text-[#0B1F44] text-xs sm:text-[13px] leading-tight">
-                        Secure<br />Payments
+                      <h4 className="font-bold text-[#0B1F44] text-[13px] sm:text-sm leading-tight">
+                        Secure Payments
                       </h4>
-                      <p className="text-[10px] sm:text-[11px] text-[#5A7398] leading-tight mt-1">
+                      <p className="text-[11px] text-[#5A7398] leading-tight mt-0.5">
                         Your data is<br />100% protected
                       </p>
                     </div>
                   </div>
 
+                  {/* Subtle vertical separator */}
+                  <div className="hidden sm:block w-px h-10 bg-[#F0DAC7]" />
+
                   {/* Benefit 3 */}
-                  <div className="flex flex-col items-center text-center space-y-2">
-                    <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-white shadow-xs border border-[#FFE7D6] flex items-center justify-center text-[#FF5500]">
-                      <Headphones className="w-5 h-5 sm:w-6 sm:h-6 stroke-[2.2]" />
+                  <div className="flex items-center gap-3">
+                    <div className="w-12 h-12 rounded-2xl bg-[#FFF0E2] flex items-center justify-center shrink-0 text-[#FF5500]">
+                      <Headphones className="w-5 h-5 stroke-[2.2]" />
                     </div>
                     <div>
-                      <h4 className="font-bold text-[#0B1F44] text-xs sm:text-[13px] leading-tight">
-                        24/7<br />Support
+                      <h4 className="font-bold text-[#0B1F44] text-[13px] sm:text-sm leading-tight">
+                        24/7 Support
                       </h4>
-                      <p className="text-[10px] sm:text-[11px] text-[#5A7398] leading-tight mt-1">
+                      <p className="text-[11px] text-[#5A7398] leading-tight mt-0.5">
                         We&apos;re always<br />here to help
                       </p>
                     </div>
                   </div>
+
                 </div>
 
-                {/* Explore Now Button positioned under benefit 1 & 2 matching screenshot */}
-                <div className="w-full flex justify-center sm:justify-start">
+                {/* 5. Explore Now Button */}
+                <div className="pt-2">
                   <button
                     onClick={handleExploreNow}
-                    className="inline-flex items-center justify-center gap-2 px-7 py-2.5 sm:py-3 rounded-xl font-bold text-white bg-[#FF5500] hover:bg-[#E54B00] shadow-[0_4px_14px_rgba(255,85,0,0.28)] hover:shadow-[0_6px_20px_rgba(255,85,0,0.36)] active:scale-[0.98] transition-all cursor-pointer text-xs sm:text-sm"
+                    className="inline-flex items-center justify-center gap-2.5 px-8 py-3.5 rounded-2xl font-bold text-white bg-[#FF5500] hover:bg-[#E54B00] shadow-[0_8px_22px_rgba(255,85,0,0.32)] hover:shadow-[0_10px_28px_rgba(255,85,0,0.4)] active:scale-[0.98] transition-all cursor-pointer text-sm sm:text-base"
                   >
                     <span>Explore Now</span>
-                    <ArrowRight className="w-4 h-4 stroke-[2.4]" />
+                    <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5 stroke-[2.5]" />
                   </button>
                 </div>
+
               </div>
 
-              {/* Right Column: Exact Laptop Graphic directly on the canvas matching screenshot (3 cols) */}
-              <div className="lg:col-span-3 flex items-center justify-center lg:justify-end">
-                <div className="relative w-full max-w-[340px] sm:max-w-[400px] lg:max-w-[450px]">
+              {/* Right Column: 3D Scene with laptop, Ps, Ai, Figma, Xd, succulent & orange notebook (lg:col-span-5) */}
+              <div className="lg:col-span-5 flex items-center justify-center lg:justify-end">
+                <div className="relative w-full max-w-[440px] lg:max-w-[500px]">
                   <img
-                    src={exactLaptopImg}
-                    alt="OMYRA MALL Digital Marketplace Interface"
-                    className="w-full h-auto object-contain select-none pointer-events-none drop-shadow-xs"
+                    src={exactBannerSceneImg}
+                    alt="OMYRA MALL Digital Marketplace Showcase"
+                    className="w-full h-auto object-contain select-none pointer-events-none drop-shadow-sm"
                   />
                 </div>
               </div>
