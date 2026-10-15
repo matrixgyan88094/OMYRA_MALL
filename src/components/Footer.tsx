@@ -18,7 +18,7 @@ import {
   LayoutGrid
 } from 'lucide-react';
 import { useStore } from '../context/StoreContext';
-import exactBannerSceneImg from '@/src/assets/images/exact_banner_scene_1792060389886.jpg';
+import digitalMarketMockImg from '@/src/assets/images/digital_market_mock_1792071363077.jpg';
 
 export const Footer: React.FC = () => {
   const { setActiveView, setSelectedProduct, setSelectedCategory } = useStore();
@@ -72,99 +72,97 @@ export const Footer: React.FC = () => {
       {/* ========================================================================= */}
       {/* 1. TOP PROMOTIONAL CTA BANNER                                             */}
       {/* ========================================================================= */}
-      <section className="pt-6 sm:pt-8 pb-4 sm:pb-6">
-        <div className="mx-auto max-w-7xl px-3 sm:px-6 lg:px-8">
-          <div className="relative rounded-[28px] bg-gradient-to-r from-[#FFF8F2] via-[#FFF6EE] to-[#FFEEDF] border border-[#FCE6D6] p-6 sm:p-8 lg:p-10 overflow-hidden shadow-[0_4px_24px_rgba(255,100,0,0.04)]">
+      <section className="pt-8 sm:pt-10 pb-6 sm:pb-8">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="relative rounded-2xl sm:rounded-3xl bg-gradient-to-r from-[#FFFDFB] via-[#FFF7F0] to-[#FCE8D7] border border-[#FCDDC6] p-6 sm:p-9 lg:p-10 xl:p-12 overflow-hidden shadow-[0_10px_36px_rgba(255,100,0,0.06),0_2px_8px_rgba(16,43,82,0.03)]">
             
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center relative z-10">
+            {/* Ambient decorative lighting */}
+            <div className="absolute -right-12 -bottom-12 w-96 h-96 rounded-full bg-gradient-to-tl from-[#FF7A1A]/15 via-[#FF6500]/8 to-transparent pointer-events-none blur-3xl" />
+            <div className="absolute -left-12 -top-12 w-80 h-80 rounded-full bg-[#FFEFE2]/70 pointer-events-none blur-2xl" />
+
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 xl:gap-12 items-center relative z-10">
               
-              {/* Left Column: Headline, Description, Benefits & CTA (lg:col-span-7) */}
-              <div className="lg:col-span-7 space-y-6">
+              {/* Left Column: Pill, Headline, Subheading, Benefits & CTA (lg:col-span-7) */}
+              <div className="lg:col-span-7 space-y-4 sm:space-y-5">
                 
                 {/* 1. Sparkle Pill */}
                 <div>
-                  <div className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-[#FFE9D9] text-[#FF5500] shadow-2xs">
+                  <div className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-[#FFEADA] text-[#FF5500] shadow-2xs">
                     <span className="text-xs">✦</span>
                     <span className="text-xs font-bold tracking-wide">Join OMYRA MALL</span>
                   </div>
                 </div>
 
                 {/* 2. Headline with organic brush swoosh underline */}
-                <h2 className="text-3xl sm:text-4xl lg:text-[40px] xl:text-[44px] font-black text-[#0B1F44] tracking-tight leading-[1.12]">
+                <h2 className="text-2xl sm:text-[32px] lg:text-[36px] xl:text-[40px] font-black text-[#0B1F44] tracking-tight leading-[1.15]">
                   Get the Best Digital Products <br />
                   and{' '}
                   <span className="relative inline-block text-[#FF5500]">
                     Grow Your Creativity!
-                    {/* Brush swoosh underline matching screenshot */}
+                    {/* Brush swoosh underline */}
                     <svg
                       className="absolute -bottom-2 left-0 w-full h-3 text-[#FF5500]"
-                      viewBox="0 0 260 14"
+                      viewBox="0 0 280 14"
                       fill="none"
                       preserveAspectRatio="none"
                     >
                       <path
-                        d="M 2 8 C 50 3 140 3 258 7 C 220 11 130 12 2 10 Z"
+                        d="M 2 8 C 60 3 150 3 278 7 C 230 12 140 13 2 10 Z"
                         fill="currentColor"
                       />
                     </svg>
                   </span>
                 </h2>
 
-                {/* 3. Description */}
-                <p className="text-sm sm:text-[15px] text-[#5A7398] max-w-lg leading-relaxed">
+                {/* 3. Subheading / Paragraph */}
+                <p className="text-sm sm:text-[15px] lg:text-base text-[#4E6B94] max-w-xl leading-relaxed font-normal">
                   Join thousands of creators, developers and businesses who trust OMYRA MALL for premium digital products.
                 </p>
 
-                {/* 4. Three Benefit Items in a Horizontal Row (Icon Left, Text Right) */}
-                <div className="flex flex-col sm:flex-row items-start sm:items-center gap-5 sm:gap-6 lg:gap-7 pt-1">
+                {/* 4. Three Benefit Items in Responsive Micro-Cards */}
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-1">
                   
                   {/* Benefit 1 */}
-                  <div className="flex items-center gap-3">
-                    <div className="w-12 h-12 rounded-2xl bg-[#FFF0E2] flex items-center justify-center shrink-0 text-[#FF5500]">
-                      <Zap className="w-5 h-5 stroke-[2.2]" />
+                  <div className="flex items-center gap-3 p-2.5 rounded-xl bg-white/70 backdrop-blur-xs border border-[#FBE3D0]/80 shadow-2xs hover:bg-white/90 transition-colors">
+                    <div className="w-10 h-10 rounded-lg bg-[#FFEFE2] flex items-center justify-center shrink-0 text-[#FF5500] shadow-xs">
+                      <Zap className="w-4 h-4 stroke-[2.2]" />
                     </div>
-                    <div>
-                      <h4 className="font-bold text-[#0B1F44] text-[13px] sm:text-sm leading-tight">
+                    <div className="min-w-0">
+                      <h4 className="font-bold text-[#0B1F44] text-xs sm:text-[13px] leading-tight truncate">
                         Instant Access
                       </h4>
-                      <p className="text-[11px] text-[#5A7398] leading-tight mt-0.5">
-                        Start using your<br />products immediately
+                      <p className="text-[11px] text-[#58769F] leading-tight mt-0.5">
+                        Start using instantly
                       </p>
                     </div>
                   </div>
-
-                  {/* Subtle vertical separator */}
-                  <div className="hidden sm:block w-px h-10 bg-[#F0DAC7]" />
 
                   {/* Benefit 2 */}
-                  <div className="flex items-center gap-3">
-                    <div className="w-12 h-12 rounded-2xl bg-[#FFF0E2] flex items-center justify-center shrink-0 text-[#FF5500]">
-                      <ShieldCheck className="w-5 h-5 stroke-[2.2]" />
+                  <div className="flex items-center gap-3 p-2.5 rounded-xl bg-white/70 backdrop-blur-xs border border-[#FBE3D0]/80 shadow-2xs hover:bg-white/90 transition-colors">
+                    <div className="w-10 h-10 rounded-lg bg-[#FFEFE2] flex items-center justify-center shrink-0 text-[#FF5500] shadow-xs">
+                      <ShieldCheck className="w-4 h-4 stroke-[2.2]" />
                     </div>
-                    <div>
-                      <h4 className="font-bold text-[#0B1F44] text-[13px] sm:text-sm leading-tight">
+                    <div className="min-w-0">
+                      <h4 className="font-bold text-[#0B1F44] text-xs sm:text-[13px] leading-tight truncate">
                         Secure Payments
                       </h4>
-                      <p className="text-[11px] text-[#5A7398] leading-tight mt-0.5">
-                        Your data is<br />100% protected
+                      <p className="text-[11px] text-[#58769F] leading-tight mt-0.5">
+                        100% data protected
                       </p>
                     </div>
                   </div>
 
-                  {/* Subtle vertical separator */}
-                  <div className="hidden sm:block w-px h-10 bg-[#F0DAC7]" />
-
                   {/* Benefit 3 */}
-                  <div className="flex items-center gap-3">
-                    <div className="w-12 h-12 rounded-2xl bg-[#FFF0E2] flex items-center justify-center shrink-0 text-[#FF5500]">
-                      <Headphones className="w-5 h-5 stroke-[2.2]" />
+                  <div className="flex items-center gap-3 p-2.5 rounded-xl bg-white/70 backdrop-blur-xs border border-[#FBE3D0]/80 shadow-2xs hover:bg-white/90 transition-colors">
+                    <div className="w-10 h-10 rounded-lg bg-[#FFEFE2] flex items-center justify-center shrink-0 text-[#FF5500] shadow-xs">
+                      <Headphones className="w-4 h-4 stroke-[2.2]" />
                     </div>
-                    <div>
-                      <h4 className="font-bold text-[#0B1F44] text-[13px] sm:text-sm leading-tight">
+                    <div className="min-w-0">
+                      <h4 className="font-bold text-[#0B1F44] text-xs sm:text-[13px] leading-tight truncate">
                         24/7 Support
                       </h4>
-                      <p className="text-[11px] text-[#5A7398] leading-tight mt-0.5">
-                        We&apos;re always<br />here to help
+                      <p className="text-[11px] text-[#58769F] leading-tight mt-0.5">
+                        Always here to help
                       </p>
                     </div>
                   </div>
@@ -175,22 +173,27 @@ export const Footer: React.FC = () => {
                 <div className="pt-2">
                   <button
                     onClick={handleExploreNow}
-                    className="inline-flex items-center justify-center gap-2.5 px-8 py-3.5 rounded-2xl font-bold text-white bg-[#FF5500] hover:bg-[#E54B00] shadow-[0_8px_22px_rgba(255,85,0,0.32)] hover:shadow-[0_10px_28px_rgba(255,85,0,0.4)] active:scale-[0.98] transition-all cursor-pointer text-sm sm:text-base"
+                    className="group inline-flex items-center justify-center gap-2.5 px-7 py-3.5 rounded-xl font-bold text-white bg-gradient-to-r from-[#FF6500] to-[#FF4E00] hover:from-[#E64D00] hover:to-[#D94200] shadow-[0_8px_22px_rgba(255,85,0,0.32)] hover:shadow-[0_10px_28px_rgba(255,85,0,0.42)] active:scale-[0.98] transition-all cursor-pointer text-sm sm:text-base"
                   >
                     <span>Explore Now</span>
-                    <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5 stroke-[2.5]" />
+                    <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform stroke-[2.5]" />
                   </button>
                 </div>
 
               </div>
 
-              {/* Right Column: 3D Scene with laptop, Ps, Ai, Figma, Xd, succulent & orange notebook (lg:col-span-5) */}
+              {/* Right Column: 3D Digital Marketplace Platform Illustration (lg:col-span-5) */}
               <div className="lg:col-span-5 flex items-center justify-center lg:justify-end">
-                <div className="relative w-full max-w-[440px] lg:max-w-[500px]">
+                <div className="relative w-full max-w-[400px] sm:max-w-[460px] lg:max-w-[500px]">
                   <img
-                    src={exactBannerSceneImg}
-                    alt="OMYRA MALL Digital Marketplace Showcase"
-                    className="w-full h-auto object-contain select-none pointer-events-none drop-shadow-sm"
+                    src={digitalMarketMockImg}
+                    alt="OMYRA MALL Digital Products Platform Mockup"
+                    referrerPolicy="no-referrer"
+                    style={{
+                      WebkitMaskImage: 'radial-gradient(ellipse at 50% 50%, rgba(0,0,0,1) 80%, rgba(0,0,0,0) 100%)',
+                      maskImage: 'radial-gradient(ellipse at 50% 50%, rgba(0,0,0,1) 80%, rgba(0,0,0,0) 100%)'
+                    }}
+                    className="w-full h-auto max-h-[330px] sm:max-h-[380px] lg:max-h-[415px] object-contain select-none pointer-events-none drop-shadow-[0_16px_32px_rgba(255,100,0,0.14)]"
                   />
                 </div>
               </div>
