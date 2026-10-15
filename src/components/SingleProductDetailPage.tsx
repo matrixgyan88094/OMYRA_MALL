@@ -165,13 +165,13 @@ export const SingleProductDetailPage: React.FC<SingleProductDetailPageProps> = (
     <div className="min-h-screen bg-white text-[#101D39] font-sans">
       
       {/* ================= 3. BREADCRUMB NAVIGATION ROW ================= */}
-      <div className="border-b border-[#E5EAF1] bg-white">
-        <div className="mx-auto max-w-[1440px] px-4 sm:px-8 lg:px-9 h-11 flex items-center justify-between text-xs">
-          {/* Left: Breadcrumbs */}
-          <nav className="flex items-center gap-1.5 text-[#61789C] overflow-x-auto whitespace-nowrap scrollbar-none py-1">
+      <div className="border-b border-[#E5EAF1] bg-white w-full overflow-hidden">
+        <div className="mx-auto max-w-[1440px] px-3 sm:px-8 lg:px-9 h-11 flex items-center justify-between text-xs gap-2">
+          {/* Left: Breadcrumbs with min-w-0 and flex-1 */}
+          <nav className="flex items-center gap-1.5 text-[#61789C] overflow-x-auto whitespace-nowrap scrollbar-none py-1 min-w-0 flex-1">
             <button
               onClick={handleBack}
-              className="text-[#61789C] hover:text-[#FF6500] flex items-center gap-1 cursor-pointer transition-colors"
+              className="text-[#61789C] hover:text-[#FF6500] flex items-center gap-1 cursor-pointer transition-colors shrink-0"
               title="Home"
             >
               <Home className="w-3.5 h-3.5 text-[#61789C]" />
@@ -179,38 +179,38 @@ export const SingleProductDetailPage: React.FC<SingleProductDetailPageProps> = (
             <ChevronRight className="w-3.5 h-3.5 text-[#8292AC] shrink-0" />
             <button
               onClick={handleBack}
-              className="hover:text-[#FF6500] transition-colors cursor-pointer"
+              className="hover:text-[#FF6500] transition-colors cursor-pointer shrink-0"
             >
               Digital Products
             </button>
             <ChevronRight className="w-3.5 h-3.5 text-[#8292AC] shrink-0" />
             <button
               onClick={handleBack}
-              className="hover:text-[#FF6500] transition-colors cursor-pointer"
+              className="hover:text-[#FF6500] transition-colors cursor-pointer shrink-0"
             >
               {product.category || 'UI & Figma'}
             </button>
             <ChevronRight className="w-3.5 h-3.5 text-[#8292AC] shrink-0" />
-            <span className="font-semibold text-[#101D39] truncate max-w-[220px] sm:max-w-md">
+            <span className="font-semibold text-[#101D39] truncate max-w-[120px] sm:max-w-md shrink-0">
               {product.title}
             </span>
           </nav>
 
           {/* Right: Share & Report actions */}
-          <div className="flex items-center gap-4 text-xs shrink-0 ml-4">
+          <div className="flex items-center gap-2.5 sm:gap-4 text-xs shrink-0 ml-1">
             <button
               onClick={handleShare}
-              className="inline-flex items-center gap-1.5 text-[#61789C] hover:text-[#FF6500] transition-colors cursor-pointer"
+              className="inline-flex items-center gap-1 text-[#61789C] hover:text-[#FF6500] transition-colors cursor-pointer"
             >
               <Share2 className="w-3.5 h-3.5" />
-              <span>Share</span>
+              <span className="hidden xs:inline">Share</span>
             </button>
             <button
               onClick={() => setIsReportOpen(true)}
-              className="inline-flex items-center gap-1.5 text-[#61789C] hover:text-[#FF6500] transition-colors cursor-pointer"
+              className="inline-flex items-center gap-1 text-[#61789C] hover:text-[#FF6500] transition-colors cursor-pointer"
             >
               <Flag className="w-3.5 h-3.5" />
-              <span>Report</span>
+              <span className="hidden xs:inline">Report</span>
             </button>
           </div>
         </div>
@@ -359,50 +359,50 @@ export const SingleProductDetailPage: React.FC<SingleProductDetailPageProps> = (
               </div>
 
               {/* Compact Product Specifications Row: Bordered white panel with 4 evenly distributed cells */}
-              <div className="rounded-[8px] border border-[#E5EAF1] bg-white p-3.5">
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-center sm:text-left divide-y sm:divide-y-0 sm:divide-x divide-[#E5EAF1]">
+              <div className="rounded-[8px] border border-[#E5EAF1] bg-white p-2.5 sm:p-3.5 overflow-hidden">
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 sm:gap-3 text-left sm:divide-x divide-[#E5EAF1]">
                   
                   {/* Cell 1: 1,200+ Components */}
-                  <div className="flex items-center gap-2.5 px-2 pt-2 sm:pt-0">
+                  <div className="flex items-center gap-2 p-1 sm:p-0">
                     <div className="w-7 h-7 rounded-lg bg-[#FFF5EE] text-[#FF6500] flex items-center justify-center shrink-0">
                       <Layers className="w-4 h-4 stroke-[2.2]" />
                     </div>
-                    <div>
-                      <div className="text-xs font-bold text-[#101D39] leading-tight">1,200+</div>
-                      <div className="text-[11px] text-[#8292AC]">Components</div>
+                    <div className="min-w-0">
+                      <div className="text-xs font-bold text-[#101D39] leading-tight truncate">1,200+</div>
+                      <div className="text-[11px] text-[#8292AC] truncate">Components</div>
                     </div>
                   </div>
 
                   {/* Cell 2: 50+ Screens */}
-                  <div className="flex items-center gap-2.5 px-2 pt-2 sm:pt-0">
+                  <div className="flex items-center gap-2 p-1 sm:p-0 sm:pl-3">
                     <div className="w-7 h-7 rounded-lg bg-[#FFF5EE] text-[#FF6500] flex items-center justify-center shrink-0">
                       <Smartphone className="w-4 h-4 stroke-[2.2]" />
                     </div>
-                    <div>
-                      <div className="text-xs font-bold text-[#101D39] leading-tight">50+</div>
-                      <div className="text-[11px] text-[#8292AC]">Screens</div>
+                    <div className="min-w-0">
+                      <div className="text-xs font-bold text-[#101D39] leading-tight truncate">50+</div>
+                      <div className="text-[11px] text-[#8292AC] truncate">Screens</div>
                     </div>
                   </div>
 
                   {/* Cell 3: Light & Dark Themes */}
-                  <div className="flex items-center gap-2.5 px-2 pt-2 sm:pt-0">
+                  <div className="flex items-center gap-2 p-1 sm:p-0 sm:pl-3 border-t sm:border-t-0 border-[#E5EAF1]/70 pt-2 sm:pt-0">
                     <div className="w-7 h-7 rounded-lg bg-[#FFF5EE] text-[#FF6500] flex items-center justify-center shrink-0">
                       <Sun className="w-4 h-4 stroke-[2.2]" />
                     </div>
-                    <div>
-                      <div className="text-xs font-bold text-[#101D39] leading-tight">Light & Dark</div>
-                      <div className="text-[11px] text-[#8292AC]">Themes</div>
+                    <div className="min-w-0">
+                      <div className="text-xs font-bold text-[#101D39] leading-tight truncate">Light & Dark</div>
+                      <div className="text-[11px] text-[#8292AC] truncate">Themes</div>
                     </div>
                   </div>
 
                   {/* Cell 4: Fully Editable in Figma */}
-                  <div className="flex items-center gap-2.5 px-2 pt-2 sm:pt-0">
+                  <div className="flex items-center gap-2 p-1 sm:p-0 sm:pl-3 border-t sm:border-t-0 border-[#E5EAF1]/70 pt-2 sm:pt-0">
                     <div className="w-7 h-7 rounded-lg bg-[#FFF5EE] text-[#FF6500] flex items-center justify-center shrink-0">
                       <Edit3 className="w-4 h-4 stroke-[2.2]" />
                     </div>
-                    <div>
-                      <div className="text-xs font-bold text-[#101D39] leading-tight">Fully Editable</div>
-                      <div className="text-[11px] text-[#8292AC]">in Figma</div>
+                    <div className="min-w-0">
+                      <div className="text-xs font-bold text-[#101D39] leading-tight truncate">Fully Editable</div>
+                      <div className="text-[11px] text-[#8292AC] truncate">in Figma</div>
                     </div>
                   </div>
 
@@ -599,60 +599,60 @@ export const SingleProductDetailPage: React.FC<SingleProductDetailPageProps> = (
         </div>
 
         {/* ================= 11. FULL-WIDTH PRODUCT BENEFITS STRIP ================= */}
-        <section className="mt-8 rounded-[9px] border border-[#FFE4D2] bg-[#FFF7F1] p-4">
-          <div className="grid grid-cols-2 md:grid-cols-6 gap-4 divide-y md:divide-y-0 md:divide-x divide-[#FFE4D2]">
+        <section className="mt-6 sm:mt-8 rounded-[9px] border border-[#FFE4D2] bg-[#FFF7F1] p-3 sm:p-4 overflow-hidden">
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2.5 sm:gap-4">
             
             {/* Item 1: Clean & Modern */}
-            <div className="flex items-center gap-2.5 px-2 pt-2 md:pt-0">
-              <Shield className="w-5 h-5 text-[#FF6500] stroke-[2.2] shrink-0" />
-              <div>
-                <div className="text-xs font-bold text-[#101D39]">Clean & Modern</div>
-                <div className="text-[11px] text-[#8292AC]">Design System</div>
+            <div className="flex items-center gap-2 p-1 sm:p-0 min-w-0">
+              <Shield className="w-4 h-4 sm:w-5 sm:h-5 text-[#FF6500] stroke-[2.2] shrink-0" />
+              <div className="min-w-0">
+                <div className="text-xs font-bold text-[#101D39] truncate">Clean & Modern</div>
+                <div className="text-[10px] sm:text-[11px] text-[#8292AC] truncate">Design System</div>
               </div>
             </div>
 
             {/* Item 2: 1,200+ Ready-to-use */}
-            <div className="flex items-center gap-2.5 px-2 pt-2 md:pt-0">
-              <Layers className="w-5 h-5 text-[#FF6500] stroke-[2.2] shrink-0" />
-              <div>
-                <div className="text-xs font-bold text-[#101D39]">1,200+ Ready-to-use</div>
-                <div className="text-[11px] text-[#8292AC]">Components</div>
+            <div className="flex items-center gap-2 p-1 sm:p-0 min-w-0">
+              <Layers className="w-4 h-4 sm:w-5 sm:h-5 text-[#FF6500] stroke-[2.2] shrink-0" />
+              <div className="min-w-0">
+                <div className="text-xs font-bold text-[#101D39] truncate">1,200+ Ready-to-use</div>
+                <div className="text-[10px] sm:text-[11px] text-[#8292AC] truncate">Components</div>
               </div>
             </div>
 
             {/* Item 3: 50+ Beautiful */}
-            <div className="flex items-center gap-2.5 px-2 pt-2 md:pt-0">
-              <Layout className="w-5 h-5 text-[#FF6500] stroke-[2.2] shrink-0" />
-              <div>
-                <div className="text-xs font-bold text-[#101D39]">50+ Beautiful</div>
-                <div className="text-[11px] text-[#8292AC]">Screens</div>
+            <div className="flex items-center gap-2 p-1 sm:p-0 min-w-0">
+              <Layout className="w-4 h-4 sm:w-5 sm:h-5 text-[#FF6500] stroke-[2.2] shrink-0" />
+              <div className="min-w-0">
+                <div className="text-xs font-bold text-[#101D39] truncate">50+ Beautiful</div>
+                <div className="text-[10px] sm:text-[11px] text-[#8292AC] truncate">Screens</div>
               </div>
             </div>
 
             {/* Item 4: Light & Dark */}
-            <div className="flex items-center gap-2.5 px-2 pt-2 md:pt-0">
-              <Sun className="w-5 h-5 text-[#FF6500] stroke-[2.2] shrink-0" />
-              <div>
-                <div className="text-xs font-bold text-[#101D39]">Light & Dark</div>
-                <div className="text-[11px] text-[#8292AC]">Themes</div>
+            <div className="flex items-center gap-2 p-1 sm:p-0 min-w-0">
+              <Sun className="w-4 h-4 sm:w-5 sm:h-5 text-[#FF6500] stroke-[2.2] shrink-0" />
+              <div className="min-w-0">
+                <div className="text-xs font-bold text-[#101D39] truncate">Light & Dark</div>
+                <div className="text-[10px] sm:text-[11px] text-[#8292AC] truncate">Themes</div>
               </div>
             </div>
 
             {/* Item 5: Fully Editable */}
-            <div className="flex items-center gap-2.5 px-2 pt-2 md:pt-0">
-              <Edit3 className="w-5 h-5 text-[#FF6500] stroke-[2.2] shrink-0" />
-              <div>
-                <div className="text-xs font-bold text-[#101D39]">Fully Editable</div>
-                <div className="text-[11px] text-[#8292AC]">in Figma</div>
+            <div className="flex items-center gap-2 p-1 sm:p-0 min-w-0">
+              <Edit3 className="w-4 h-4 sm:w-5 sm:h-5 text-[#FF6500] stroke-[2.2] shrink-0" />
+              <div className="min-w-0">
+                <div className="text-xs font-bold text-[#101D39] truncate">Fully Editable</div>
+                <div className="text-[10px] sm:text-[11px] text-[#8292AC] truncate">in Figma</div>
               </div>
             </div>
 
             {/* Item 6: Responsive */}
-            <div className="flex items-center gap-2.5 px-2 pt-2 md:pt-0">
-              <Smartphone className="w-5 h-5 text-[#FF6500] stroke-[2.2] shrink-0" />
-              <div>
-                <div className="text-xs font-bold text-[#101D39]">Responsive</div>
-                <div className="text-[11px] text-[#8292AC]">Web & Mobile</div>
+            <div className="flex items-center gap-2 p-1 sm:p-0 min-w-0">
+              <Smartphone className="w-4 h-4 sm:w-5 sm:h-5 text-[#FF6500] stroke-[2.2] shrink-0" />
+              <div className="min-w-0">
+                <div className="text-xs font-bold text-[#101D39] truncate">Responsive</div>
+                <div className="text-[10px] sm:text-[11px] text-[#8292AC] truncate">Web & Mobile</div>
               </div>
             </div>
 
@@ -991,42 +991,42 @@ export const SingleProductDetailPage: React.FC<SingleProductDetailPageProps> = (
         </section>
 
         {/* ================= 14. BOTTOM TRUST AND SERVICE STRIP ================= */}
-        <section className="mt-10 rounded-[8px] border border-[#E5EAF1] bg-[#F7F9FC] p-4">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 divide-y md:divide-y-0 md:divide-x divide-[#E5EAF1]">
+        <section className="mt-10 rounded-[8px] border border-[#E5EAF1] bg-[#F7F9FC] p-3.5 sm:p-4 overflow-hidden">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 md:divide-x divide-[#E5EAF1]">
             
             {/* Item 1: 100% Secure Payments */}
-            <div className="flex items-center gap-3 px-2 pt-2 md:pt-0">
+            <div className="flex items-center gap-2.5 p-1 sm:p-0 min-w-0">
               <ShieldCheck className="w-5 h-5 text-[#FF6500] stroke-[2.2] shrink-0" />
-              <div>
-                <div className="text-xs font-bold text-[#101D39]">100% Secure Payments</div>
-                <div className="text-[11px] text-[#8292AC]">Multiple payment options</div>
+              <div className="min-w-0">
+                <div className="text-xs font-bold text-[#101D39] truncate">100% Secure Payments</div>
+                <div className="text-[11px] text-[#8292AC] truncate">Multiple payment options</div>
               </div>
             </div>
 
             {/* Item 2: Instant Access */}
-            <div className="flex items-center gap-3 px-2 pt-2 md:pt-0">
+            <div className="flex items-center gap-2.5 p-1 sm:p-0 md:pl-4 min-w-0">
               <Zap className="w-5 h-5 text-[#FF6500] stroke-[2.2] shrink-0" />
-              <div>
-                <div className="text-xs font-bold text-[#101D39]">Instant Access</div>
-                <div className="text-[11px] text-[#8292AC]">Get your products immediately</div>
+              <div className="min-w-0">
+                <div className="text-xs font-bold text-[#101D39] truncate">Instant Access</div>
+                <div className="text-[11px] text-[#8292AC] truncate">Get files immediately</div>
               </div>
             </div>
 
             {/* Item 3: 24/7 Support */}
-            <div className="flex items-center gap-3 px-2 pt-2 md:pt-0">
+            <div className="flex items-center gap-2.5 p-1 sm:p-0 md:pl-4 min-w-0 border-t sm:border-t-0 border-[#E5EAF1]/70 pt-2 sm:pt-0">
               <Headphones className="w-5 h-5 text-[#FF6500] stroke-[2.2] shrink-0" />
-              <div>
-                <div className="text-xs font-bold text-[#101D39]">24/7 Support</div>
-                <div className="text-[11px] text-[#8292AC]">We&apos;re here to help</div>
+              <div className="min-w-0">
+                <div className="text-xs font-bold text-[#101D39] truncate">24/7 Support</div>
+                <div className="text-[11px] text-[#8292AC] truncate">We&apos;re here to help</div>
               </div>
             </div>
 
             {/* Item 4: Global Marketplace */}
-            <div className="flex items-center gap-3 px-2 pt-2 md:pt-0">
+            <div className="flex items-center gap-2.5 p-1 sm:p-0 md:pl-4 min-w-0 border-t sm:border-t-0 border-[#E5EAF1]/70 pt-2 sm:pt-0">
               <Globe className="w-5 h-5 text-[#FF6500] stroke-[2.2] shrink-0" />
-              <div>
-                <div className="text-xs font-bold text-[#101D39]">Global Marketplace</div>
-                <div className="text-[11px] text-[#8292AC]">Digital products for everyone</div>
+              <div className="min-w-0">
+                <div className="text-xs font-bold text-[#101D39] truncate">Global Marketplace</div>
+                <div className="text-[11px] text-[#8292AC] truncate">Products for everyone</div>
               </div>
             </div>
 

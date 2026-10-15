@@ -117,7 +117,7 @@ export const ProductSections: React.FC = () => {
         /* ========================================================= */
         /* CURATED SECTIONS: FEATURED, TRENDING, NEWEST               */
         /* ========================================================= */
-        <div className="space-y-16 lg:space-y-20">
+        <div className="space-y-8 sm:space-y-14 lg:space-y-20">
           
           {/* ========================================================= */}
           {/* 1. FEATURED PRODUCTS SECTION                               */}

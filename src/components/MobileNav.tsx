@@ -16,8 +16,8 @@ export const MobileNav: React.FC<MobileNavProps> = ({ onSearchFocus }) => {
         {/* Tab 1: Store */}
         <button
           onClick={() => setActiveView('store')}
-          className={`flex min-h-[44px] flex-col items-center justify-center transition-colors ${
-            activeView === 'store' ? 'text-teal-600 font-semibold' : 'text-zinc-500 hover:text-zinc-900'
+          className={`flex min-h-[44px] flex-col items-center justify-center transition-colors cursor-pointer ${
+            activeView === 'store' ? 'text-[#f95a12] font-bold' : 'text-zinc-500 hover:text-zinc-900'
           }`}
         >
           <Store className="h-5 w-5" />
@@ -32,7 +32,7 @@ export const MobileNav: React.FC<MobileNavProps> = ({ onSearchFocus }) => {
               onSearchFocus();
             }
           }}
-          className="flex min-h-[44px] flex-col items-center justify-center text-zinc-500 hover:text-zinc-900 transition-colors"
+          className="flex min-h-[44px] flex-col items-center justify-center text-zinc-500 hover:text-zinc-900 transition-colors cursor-pointer"
         >
           <Search className="h-5 w-5" />
           <span className="text-[10px] tracking-tight mt-1">Search</span>
@@ -41,8 +41,8 @@ export const MobileNav: React.FC<MobileNavProps> = ({ onSearchFocus }) => {
         {/* Tab 3: My Library */}
         <button
           onClick={() => setActiveView('library')}
-          className={`flex min-h-[44px] flex-col items-center justify-center transition-colors ${
-            activeView === 'library' ? 'text-teal-600 font-semibold' : 'text-zinc-500 hover:text-zinc-900'
+          className={`flex min-h-[44px] flex-col items-center justify-center transition-colors cursor-pointer ${
+            activeView === 'library' ? 'text-[#f95a12] font-bold' : 'text-zinc-500 hover:text-zinc-900'
           }`}
         >
           <Download className="h-5 w-5" />
@@ -52,12 +52,12 @@ export const MobileNav: React.FC<MobileNavProps> = ({ onSearchFocus }) => {
         {/* Tab 4: Cart */}
         <button
           onClick={() => setIsCartOpen(true)}
-          className="relative flex min-h-[44px] flex-col items-center justify-center text-zinc-500 hover:text-zinc-900 transition-colors"
+          className="relative flex min-h-[44px] flex-col items-center justify-center text-zinc-500 hover:text-zinc-900 transition-colors cursor-pointer"
         >
           <div className="relative">
             <ShoppingBag className="h-5 w-5" />
             {cartItemCount > 0 && (
-              <span className="absolute -top-1.5 -right-2.5 flex h-4 min-w-[16px] items-center justify-center rounded-full bg-teal-600 px-1 text-[9px] font-bold text-white">
+              <span className="absolute -top-1.5 -right-2.5 flex h-4 min-w-[16px] items-center justify-center rounded-full bg-[#f95a12] px-1 text-[9px] font-bold text-white shadow-2xs">
                 {cartItemCount}
               </span>
             )}
@@ -68,8 +68,8 @@ export const MobileNav: React.FC<MobileNavProps> = ({ onSearchFocus }) => {
         {/* Tab 5: Vendor Studio */}
         <button
           onClick={() => setActiveView('vendor')}
-          className={`flex min-h-[44px] flex-col items-center justify-center transition-colors ${
-            activeView === 'vendor' ? 'text-teal-600 font-semibold' : 'text-zinc-500 hover:text-zinc-900'
+          className={`flex min-h-[44px] flex-col items-center justify-center transition-colors cursor-pointer ${
+            activeView === 'vendor' ? 'text-[#f95a12] font-bold' : 'text-zinc-500 hover:text-zinc-900'
           }`}
         >
           <BarChart3 className="h-5 w-5" />

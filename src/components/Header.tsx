@@ -38,10 +38,10 @@ export const Header: React.FC = () => {
   };
 
   return (
-    <header className="sticky top-0 z-40 w-full bg-white border-b border-zinc-200 shadow-2xs">
+    <header className="sticky top-0 z-40 w-full bg-white border-b border-zinc-200 shadow-2xs overflow-x-hidden">
       {/* ================= TOP NAVBAR ================= */}
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="flex h-20 items-center justify-between gap-4 md:gap-8">
+      <div className="mx-auto max-w-7xl px-3 sm:px-6 lg:px-8">
+        <div className="flex h-16 sm:h-20 items-center justify-between gap-2 sm:gap-4 md:gap-8">
           
           {/* 1. Left Brand Logo */}
           <button
@@ -54,7 +54,8 @@ export const Header: React.FC = () => {
             className="flex items-center text-left focus:outline-none cursor-pointer shrink-0"
             title="OMYRA MALL"
           >
-            <OmyraMallLogo />
+            <OmyraMallLogo size="sm" className="sm:hidden" />
+            <OmyraMallLogo size="md" className="hidden sm:flex" />
           </button>
 
           {/* 2. Middle Search Bar: large rounded pill with subtle search icon */}
@@ -77,12 +78,12 @@ export const Header: React.FC = () => {
           </div>
 
           {/* 3. Right Action Controls: Login / Greeting, Sign Up button, Shopping Cart */}
-          <div className="flex items-center gap-4 sm:gap-6 shrink-0">
+          <div className="flex items-center gap-2 sm:gap-4 lg:gap-6 shrink-0">
             {activeView === 'checkout' ? (
               /* Personalized greeting matching screenshot on checkout page */
               <div className="flex items-center gap-1.5 text-xs sm:text-sm font-semibold text-[#101D39] cursor-pointer">
                 <User className="h-4 w-4 text-[#101D39]" />
-                <span>Hello, Nurullah</span>
+                <span className="hidden xs:inline">Hello, Nurullah</span>
                 <ChevronDown className="h-3.5 w-3.5 text-[#8292AC]" />
               </div>
             ) : (
@@ -90,16 +91,16 @@ export const Header: React.FC = () => {
                 {/* Login button */}
                 <button
                   onClick={() => setActiveView('library')}
-                  className="flex items-center gap-1.5 text-sm font-semibold text-zinc-800 hover:text-[#f95a12] transition-colors cursor-pointer"
+                  className="flex items-center gap-1 text-xs sm:text-sm font-semibold text-zinc-800 hover:text-[#f95a12] transition-colors cursor-pointer px-1 py-1"
                 >
                   <User className="h-4 w-4 text-zinc-700" />
-                  <span>Login</span>
+                  <span className="hidden xs:inline">Login</span>
                 </button>
 
                 {/* Sign Up button - Vibrant orange rounded-xl */}
                 <button
                   onClick={() => setActiveView('vendor')}
-                  className="h-10 px-5 rounded-xl bg-[#f95a12] text-white text-sm font-semibold shadow-xs hover:bg-[#e04a07] active:scale-[0.98] transition-all cursor-pointer"
+                  className="h-8 sm:h-10 px-3 sm:px-5 rounded-lg sm:rounded-xl bg-[#f95a12] text-white text-xs sm:text-sm font-semibold shadow-xs hover:bg-[#e04a07] active:scale-[0.98] transition-all cursor-pointer whitespace-nowrap"
                 >
                   Sign Up
                 </button>
@@ -109,12 +110,12 @@ export const Header: React.FC = () => {
             {/* Shopping Cart with count badge */}
             <button
               onClick={() => setIsCartOpen(true)}
-              className="relative p-2 text-zinc-800 hover:text-[#f95a12] transition-colors cursor-pointer"
+              className="relative p-1.5 sm:p-2 text-zinc-800 hover:text-[#f95a12] transition-colors cursor-pointer shrink-0"
               title="Shopping Cart"
             >
-              <ShoppingBag className="h-6 w-6 stroke-[1.8]" />
+              <ShoppingBag className="h-5 w-5 sm:h-6 sm:w-6 stroke-[1.8]" />
               {cartItemCount >= 0 && (
-                <span className="absolute -top-1 -right-1 flex h-5 min-w-[20px] items-center justify-center rounded-full bg-[#f95a12] px-1 text-[11px] font-bold text-white shadow-2xs">
+                <span className="absolute -top-1 -right-1 flex h-4.5 sm:h-5 min-w-[18px] sm:min-w-[20px] items-center justify-center rounded-full bg-[#f95a12] px-1 text-[10px] sm:text-[11px] font-bold text-white shadow-2xs">
                   {cartItemCount === 0 && activeView === 'checkout' ? 1 : cartItemCount}
                 </span>
               )}
@@ -123,10 +124,10 @@ export const Header: React.FC = () => {
         </div>
 
         {/* Mobile search bar if screen is small */}
-        <div className="pb-3 sm:hidden">
+        <div className="pb-2.5 sm:hidden">
           <div className="relative w-full">
-            <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3.5 text-zinc-400">
-              <Search className="h-4 w-4" />
+            <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-zinc-400">
+              <Search className="h-3.5 w-3.5" />
             </div>
             <input
               type="text"
@@ -135,8 +136,8 @@ export const Header: React.FC = () => {
                 setSearchQuery(e.target.value);
                 if (activeView !== 'store') setActiveView('store');
               }}
-              placeholder="Search for products, brands and more..."
-              className="w-full h-10 rounded-lg border border-zinc-200 bg-zinc-50 pl-10 pr-4 text-xs text-zinc-800 placeholder-zinc-400 focus:bg-white focus:border-[#f95a12] focus:outline-none"
+              placeholder="Search products, brands and more..."
+              className="w-full h-9 rounded-lg border border-zinc-200 bg-zinc-50 pl-9 pr-3 text-xs text-zinc-800 placeholder-zinc-400 focus:bg-white focus:border-[#f95a12] focus:outline-none"
             />
           </div>
         </div>
@@ -144,15 +145,15 @@ export const Header: React.FC = () => {
 
       {/* ================= SECONDARY SUB-MENU BAR (Hidden on checkout to match screenshot) ================= */}
       {activeView !== 'checkout' && (
-      <div className="border-t border-zinc-100 bg-white">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="flex h-11 items-center gap-6 text-xs sm:text-sm">
+      <div className="border-t border-zinc-100 bg-white w-full overflow-hidden">
+        <div className="mx-auto max-w-7xl px-3 sm:px-6 lg:px-8">
+          <div className="flex h-11 items-center gap-3 sm:gap-6 text-xs sm:text-sm overflow-x-auto scrollbar-none w-full">
             
             {/* All Categories Dropdown with Hamburger Icon */}
-            <div className="relative">
+            <div className="relative shrink-0">
               <button
                 onClick={() => setIsCategoryDropdownOpen(!isCategoryDropdownOpen)}
-                className="flex items-center gap-2 font-bold text-zinc-900 hover:text-[#f95a12] transition-colors cursor-pointer py-2"
+                className="flex items-center gap-1.5 sm:gap-2 font-bold text-zinc-900 hover:text-[#f95a12] transition-colors cursor-pointer py-2 text-xs sm:text-sm"
               >
                 <Menu className="w-4 h-4 text-zinc-800" />
                 <span className="whitespace-nowrap">All Categories</span>
@@ -186,10 +187,10 @@ export const Header: React.FC = () => {
               )}
             </div>
 
-            <div className="h-4 w-px bg-zinc-200 hidden sm:block" />
+            <div className="h-4 w-px bg-zinc-200 hidden sm:block shrink-0" />
 
             {/* Horizontal menu navigation links with orange active indicator */}
-            <nav className="flex items-center gap-6 sm:gap-7 overflow-x-auto scrollbar-none h-full">
+            <nav className="flex items-center gap-4 sm:gap-7 overflow-x-auto scrollbar-none h-full min-w-0 flex-1">
               {[
                 { name: 'Home', tab: 'Home' as const },
                 { name: 'Digital Products', tab: 'Digital Products' as const },
@@ -202,7 +203,7 @@ export const Header: React.FC = () => {
                   <button
                     key={item.name}
                     onClick={() => handleMenuClick(item.tab)}
-                    className={`relative h-full flex items-center text-xs sm:text-sm font-semibold transition-colors whitespace-nowrap cursor-pointer py-3 ${
+                    className={`relative h-full flex items-center text-xs sm:text-sm font-semibold transition-colors whitespace-nowrap cursor-pointer py-3 shrink-0 ${
                       isActive 
                         ? 'text-[#f95a12]' 
                         : 'text-zinc-700 hover:text-zinc-950'

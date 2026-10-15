@@ -157,63 +157,63 @@ export const CheckoutPage: React.FC = () => {
       
       {/* ================= 2. SECURE-CHECKOUT HERO BANNER ================= */}
       <section className="w-full bg-[#FFF5ED] border-b border-[#FFE3D0] overflow-hidden">
-        <div className="mx-auto max-w-[1440px] px-4 sm:px-8 lg:px-9 py-8 sm:py-10">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+        <div className="mx-auto max-w-[1440px] px-3 sm:px-8 lg:px-9 py-4 sm:py-8 lg:py-10">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-8 items-center">
             
             {/* Left Column: Heading, Subtitle & Trust Points (approx 58%) */}
-            <div className="lg:col-span-7 space-y-4">
+            <div className="lg:col-span-7 space-y-2.5 sm:space-y-4">
               
               {/* Badge: Secure Checkout */}
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-md bg-[#FFF0E2] border border-[#FFDEC4]">
-                <ShieldCheck className="w-4 h-4 text-[#FF6500]" />
-                <span className="text-xs font-bold text-[#FF6500] tracking-wide">
+              <div className="inline-flex items-center gap-1.5 sm:gap-2 px-2.5 py-0.5 sm:px-3 sm:py-1 rounded-md bg-[#FFF0E2] border border-[#FFDEC4]">
+                <ShieldCheck className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#FF6500]" />
+                <span className="text-[10px] sm:text-xs font-bold text-[#FF6500] tracking-wide">
                   Secure Checkout
                 </span>
               </div>
 
               {/* Main Heading */}
-              <h1 className="text-3xl sm:text-4xl lg:text-[42px] font-extrabold text-[#101D39] tracking-tight leading-tight">
+              <h1 className="text-xl sm:text-4xl lg:text-[42px] font-extrabold text-[#101D39] tracking-tight leading-tight">
                 Complete Your Purchase
               </h1>
 
               {/* Supporting Subtitle */}
-              <p className="text-sm sm:text-base font-medium text-[#243B60]">
+              <p className="text-xs sm:text-base font-medium text-[#243B60]">
                 Your digital products, just a few steps away.
               </p>
 
               {/* Trust Indicators: 3 horizontally aligned benefit items */}
-              <div className="pt-2 grid grid-cols-1 sm:grid-cols-3 gap-4 border-t border-[#FFE3D0]/70 sm:divide-x sm:divide-[#FFE3D0]">
+              <div className="pt-2 grid grid-cols-1 sm:grid-cols-3 gap-2.5 sm:gap-4 border-t border-[#FFE3D0]/70 sm:divide-x sm:divide-[#FFE3D0]">
                 
                 {/* Item 1 */}
-                <div className="flex items-center gap-3">
-                  <div className="w-9 h-9 rounded-lg bg-[#FFEAD9] text-[#FF6500] flex items-center justify-center shrink-0">
-                    <ShieldCheck className="w-5 h-5 stroke-[2.2]" />
+                <div className="flex items-center gap-2.5">
+                  <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-lg bg-[#FFEAD9] text-[#FF6500] flex items-center justify-center shrink-0">
+                    <ShieldCheck className="w-4 h-4 sm:w-5 sm:h-5 stroke-[2.2]" />
                   </div>
                   <div>
                     <h4 className="text-xs font-bold text-[#101D39]">Secure Payments</h4>
-                    <p className="text-[11px] text-[#61789C]">Your data is encrypted</p>
+                    <p className="text-[10px] sm:text-[11px] text-[#61789C]">Your data is encrypted</p>
                   </div>
                 </div>
 
                 {/* Item 2 */}
-                <div className="flex items-center gap-3 sm:pl-4">
-                  <div className="w-9 h-9 rounded-lg bg-[#FFEAD9] text-[#FF6500] flex items-center justify-center shrink-0">
-                    <Zap className="w-5 h-5 stroke-[2.2]" />
+                <div className="flex items-center gap-2.5 sm:pl-4">
+                  <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-lg bg-[#FFEAD9] text-[#FF6500] flex items-center justify-center shrink-0">
+                    <Zap className="w-4 h-4 sm:w-5 sm:h-5 stroke-[2.2]" />
                   </div>
                   <div>
                     <h4 className="text-xs font-bold text-[#101D39]">Instant Access</h4>
-                    <p className="text-[11px] text-[#61789C]">Get your files immediately</p>
+                    <p className="text-[10px] sm:text-[11px] text-[#61789C]">Get your files immediately</p>
                   </div>
                 </div>
 
                 {/* Item 3 */}
-                <div className="flex items-center gap-3 sm:pl-4">
-                  <div className="w-9 h-9 rounded-lg bg-[#FFEAD9] text-[#FF6500] flex items-center justify-center shrink-0">
-                    <Headphones className="w-5 h-5 stroke-[2.2]" />
+                <div className="flex items-center gap-2.5 sm:pl-4">
+                  <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-lg bg-[#FFEAD9] text-[#FF6500] flex items-center justify-center shrink-0">
+                    <Headphones className="w-4 h-4 sm:w-5 sm:h-5 stroke-[2.2]" />
                   </div>
                   <div>
                     <h4 className="text-xs font-bold text-[#101D39]">24/7 Support</h4>
-                    <p className="text-[11px] text-[#61789C]">We&apos;re here to help</p>
+                    <p className="text-[10px] sm:text-[11px] text-[#61789C]">We&apos;re here to help</p>
                   </div>
                 </div>
 
@@ -223,7 +223,7 @@ export const CheckoutPage: React.FC = () => {
 
             {/* Right Column: Hero Digital Illustration Artwork (approx 42%) */}
             <div className="lg:col-span-5 flex justify-center lg:justify-end">
-              <div className="relative w-full max-w-[480px] aspect-[16/10] rounded-xl overflow-hidden shadow-sm">
+              <div className="relative w-full max-w-[280px] sm:max-w-[480px] aspect-[16/10] rounded-xl overflow-hidden shadow-sm">
                 <img
                   src={resolveProductImage(checkoutHeroImg)}
                   alt="Safe & Secure Checkout Protection"
@@ -245,7 +245,7 @@ export const CheckoutPage: React.FC = () => {
       </section>
 
       {/* ================= 3. MAIN CHECKOUT CONTENT AREA ================= */}
-      <main className="mx-auto max-w-[1440px] px-4 sm:px-8 lg:px-9 py-8 sm:py-10">
+      <main className="mx-auto max-w-[1440px] px-3 sm:px-8 lg:px-9 py-6 sm:py-10">
         
         {orderComplete ? (
           /* Order Confirmation Screen */
@@ -298,21 +298,21 @@ export const CheckoutPage: React.FC = () => {
           </div>
         ) : (
           /* Normal Two-Column Layout (62% Left / 34% Right) */
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 sm:gap-6 items-start">
             
             {/* ================= LEFT COLUMN: CHECKOUT FORM PANEL (approx 62%) ================= */}
-            <div className="lg:col-span-8 rounded-[9px] border border-[#E3EAF3] bg-white p-5 sm:p-7 shadow-2xs space-y-7">
+            <div className="lg:col-span-8 rounded-[9px] border border-[#E3EAF3] bg-white p-3.5 sm:p-7 shadow-2xs space-y-5 sm:space-y-7 overflow-hidden">
               
               {/* 8A. Three-Step Progress Indicator */}
-              <div className="grid grid-cols-3 divide-x divide-[#E3EAF3] border-b border-[#E3EAF3] pb-5">
+              <div className="grid grid-cols-3 divide-x divide-[#E3EAF3] border-b border-[#E3EAF3] pb-3 sm:pb-5">
                 
                 {/* Step 1: Shipping / Details */}
                 <div 
                   onClick={() => setCurrentStep(1)}
-                  className="flex items-center gap-3 px-2 sm:px-4 cursor-pointer relative"
+                  className="flex items-center gap-1.5 sm:gap-3 px-1 sm:px-4 cursor-pointer relative justify-center sm:justify-start min-w-0"
                 >
                   <div
-                    className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold transition-all ${
+                    className={`w-6 h-6 sm:w-7 sm:h-7 rounded-full flex items-center justify-center text-[10px] sm:text-xs font-bold transition-all shrink-0 ${
                       currentStep === 1
                         ? 'bg-[#FF6500] text-white'
                         : currentStep > 1
@@ -320,16 +320,16 @@ export const CheckoutPage: React.FC = () => {
                         : 'bg-[#E3EAF3] text-[#61789C]'
                     }`}
                   >
-                    {currentStep > 1 ? <Check className="w-3.5 h-3.5 stroke-[3]" /> : '1'}
+                    {currentStep > 1 ? <Check className="w-3 h-3 stroke-[3]" /> : '1'}
                   </div>
-                  <div>
-                    <h4 className={`text-xs font-bold ${currentStep === 1 ? 'text-[#FF6500]' : 'text-[#101D39]'}`}>
+                  <div className="min-w-0">
+                    <h4 className={`text-[11px] sm:text-xs font-bold truncate ${currentStep === 1 ? 'text-[#FF6500]' : 'text-[#101D39]'}`}>
                       Shipping
                     </h4>
                     <p className="text-[10px] text-[#8292AC] hidden sm:block">Your details</p>
                   </div>
                   {currentStep === 1 && (
-                    <span className="absolute -bottom-5 left-0 right-0 h-[2px] bg-[#FF6500]" />
+                    <span className="absolute -bottom-3 sm:-bottom-5 left-0 right-0 h-[2px] bg-[#FF6500]" />
                   )}
                 </div>
 
@@ -338,10 +338,10 @@ export const CheckoutPage: React.FC = () => {
                   onClick={() => {
                     if (validateStep1()) setCurrentStep(2);
                   }}
-                  className="flex items-center gap-3 px-2 sm:px-4 cursor-pointer relative"
+                  className="flex items-center gap-1.5 sm:gap-3 px-1 sm:px-4 cursor-pointer relative justify-center sm:justify-start min-w-0"
                 >
                   <div
-                    className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold transition-all ${
+                    className={`w-6 h-6 sm:w-7 sm:h-7 rounded-full flex items-center justify-center text-[10px] sm:text-xs font-bold transition-all shrink-0 ${
                       currentStep === 2
                         ? 'bg-[#FF6500] text-white'
                         : currentStep > 2
@@ -349,16 +349,16 @@ export const CheckoutPage: React.FC = () => {
                         : 'bg-[#F0F4F8] text-[#8292AC]'
                     }`}
                   >
-                    {currentStep > 2 ? <Check className="w-3.5 h-3.5 stroke-[3]" /> : '2'}
+                    {currentStep > 2 ? <Check className="w-3 h-3 stroke-[3]" /> : '2'}
                   </div>
-                  <div>
-                    <h4 className={`text-xs font-bold ${currentStep === 2 ? 'text-[#FF6500]' : 'text-[#101D39]'}`}>
+                  <div className="min-w-0">
+                    <h4 className={`text-[11px] sm:text-xs font-bold truncate ${currentStep === 2 ? 'text-[#FF6500]' : 'text-[#101D39]'}`}>
                       Payment
                     </h4>
                     <p className="text-[10px] text-[#8292AC] hidden sm:block">Choose method</p>
                   </div>
                   {currentStep === 2 && (
-                    <span className="absolute -bottom-5 left-0 right-0 h-[2px] bg-[#FF6500]" />
+                    <span className="absolute -bottom-3 sm:-bottom-5 left-0 right-0 h-[2px] bg-[#FF6500]" />
                   )}
                 </div>
 
@@ -367,10 +367,10 @@ export const CheckoutPage: React.FC = () => {
                   onClick={() => {
                     if (validateStep1()) setCurrentStep(3);
                   }}
-                  className="flex items-center gap-3 px-2 sm:px-4 cursor-pointer relative"
+                  className="flex items-center gap-1.5 sm:gap-3 px-1 sm:px-4 cursor-pointer relative justify-center sm:justify-start min-w-0"
                 >
                   <div
-                    className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold transition-all ${
+                    className={`w-6 h-6 sm:w-7 sm:h-7 rounded-full flex items-center justify-center text-[10px] sm:text-xs font-bold transition-all shrink-0 ${
                       currentStep === 3
                         ? 'bg-[#FF6500] text-white'
                         : 'bg-[#F0F4F8] text-[#8292AC]'
@@ -378,14 +378,14 @@ export const CheckoutPage: React.FC = () => {
                   >
                     3
                   </div>
-                  <div>
-                    <h4 className={`text-xs font-bold ${currentStep === 3 ? 'text-[#FF6500]' : 'text-[#101D39]'}`}>
+                  <div className="min-w-0">
+                    <h4 className={`text-[11px] sm:text-xs font-bold truncate ${currentStep === 3 ? 'text-[#FF6500]' : 'text-[#101D39]'}`}>
                       Review
                     </h4>
                     <p className="text-[10px] text-[#8292AC] hidden sm:block">Confirm order</p>
                   </div>
                   {currentStep === 3 && (
-                    <span className="absolute -bottom-5 left-0 right-0 h-[2px] bg-[#FF6500]" />
+                    <span className="absolute -bottom-3 sm:-bottom-5 left-0 right-0 h-[2px] bg-[#FF6500]" />
                   )}
                 </div>
 
@@ -465,7 +465,7 @@ export const CheckoutPage: React.FC = () => {
                           value={phoneNumber}
                           onChange={(e) => setPhoneNumber(e.target.value)}
                           placeholder="Phone number"
-                          className="flex-1 px-3 text-xs text-[#101D39] focus:outline-none"
+                          className="flex-1 min-w-0 px-3 text-xs text-[#101D39] focus:outline-none"
                         />
                       </div>
                       {formErrors.phone && (
@@ -808,7 +808,7 @@ export const CheckoutPage: React.FC = () => {
             </div>
 
             {/* ================= RIGHT COLUMN: ORDER SUMMARY CARD (approx 34%) ================= */}
-            <div className="lg:col-span-4 rounded-[9px] border border-[#E3EAF3] bg-white p-5 sm:p-6 shadow-2xs space-y-5">
+            <div className="lg:col-span-4 rounded-[9px] border border-[#E3EAF3] bg-white p-3.5 sm:p-6 shadow-2xs space-y-4 sm:space-y-5 overflow-hidden">
               
               {/* 9A. Order Summary Heading & Edit Cart link */}
               <div className="flex items-center justify-between pb-3 border-b border-[#E3EAF3]">
@@ -832,9 +832,9 @@ export const CheckoutPage: React.FC = () => {
                   const itemPrice = item.product.licenses?.[item.selectedTier]?.price ?? item.product.salePrice ?? item.product.basePrice ?? 89;
 
                   return (
-                    <div key={idx} className="flex gap-3 items-start">
+                    <div key={idx} className="flex gap-2.5 sm:gap-3 items-start">
                       {/* Product Thumbnail (approx 88-92px wide, rounded-7px, dark purple UI artwork) */}
-                      <div className="w-[88px] h-[86px] rounded-[7px] overflow-hidden bg-[#101D39] shrink-0 border border-[#E3EAF3] relative">
+                      <div className="w-20 h-20 sm:w-[88px] sm:h-[86px] rounded-[7px] overflow-hidden bg-[#101D39] shrink-0 border border-[#E3EAF3] relative">
                         <img
                           src={resolvedImg}
                           alt={item.product.title}
@@ -855,7 +855,7 @@ export const CheckoutPage: React.FC = () => {
                         <h4 className="text-xs sm:text-[13px] font-bold text-[#101D39] line-clamp-2 leading-snug">
                           {item.product.title}
                         </h4>
-                        <p className="text-[11px] text-[#61789C]">
+                        <p className="text-[10px] sm:text-[11px] text-[#61789C] truncate">
                           {licenseLabel}
                         </p>
                         <div className="text-sm font-extrabold text-[#101D39] tabular-nums">
@@ -961,41 +961,41 @@ export const CheckoutPage: React.FC = () => {
               <div className="border-t border-[#E3EAF3]" />
 
               {/* 9H. Why Choose OMYRA MALL? (3 compact reassurance items) */}
-              <div className="space-y-3.5 pt-1">
+              <div className="space-y-3 pt-1">
                 <h4 className="text-xs font-bold text-[#101D39]">
                   Why Choose OMYRA MALL?
                 </h4>
 
                 {/* Item 1 */}
                 <div className="flex items-center gap-3">
-                  <div className="w-9 h-9 rounded-lg bg-[#FFF5ED] text-[#FF6500] flex items-center justify-center shrink-0 border border-[#FFE3D0]/60">
+                  <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-lg bg-[#FFF5ED] text-[#FF6500] flex items-center justify-center shrink-0 border border-[#FFE3D0]/60">
                     <ShieldCheck className="w-4 h-4 stroke-[2.2]" />
                   </div>
-                  <div>
-                    <h5 className="text-xs font-bold text-[#101D39]">100% Secure Payments</h5>
-                    <p className="text-[11px] text-[#8292AC]">Multiple payment options</p>
+                  <div className="min-w-0">
+                    <h5 className="text-xs font-bold text-[#101D39] truncate">100% Secure Payments</h5>
+                    <p className="text-[11px] text-[#8292AC] truncate">Multiple payment options</p>
                   </div>
                 </div>
 
                 {/* Item 2 */}
                 <div className="flex items-center gap-3">
-                  <div className="w-9 h-9 rounded-lg bg-[#FFF5ED] text-[#FF6500] flex items-center justify-center shrink-0 border border-[#FFE3D0]/60">
+                  <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-lg bg-[#FFF5ED] text-[#FF6500] flex items-center justify-center shrink-0 border border-[#FFE3D0]/60">
                     <Zap className="w-4 h-4 stroke-[2.2]" />
                   </div>
-                  <div>
-                    <h5 className="text-xs font-bold text-[#101D39]">Instant Access</h5>
-                    <p className="text-[11px] text-[#8292AC]">Get your products immediately</p>
+                  <div className="min-w-0">
+                    <h5 className="text-xs font-bold text-[#101D39] truncate">Instant Access</h5>
+                    <p className="text-[11px] text-[#8292AC] truncate">Get your products immediately</p>
                   </div>
                 </div>
 
                 {/* Item 3 */}
                 <div className="flex items-center gap-3">
-                  <div className="w-9 h-9 rounded-lg bg-[#FFF5ED] text-[#FF6500] flex items-center justify-center shrink-0 border border-[#FFE3D0]/60">
+                  <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-lg bg-[#FFF5ED] text-[#FF6500] flex items-center justify-center shrink-0 border border-[#FFE3D0]/60">
                     <Headphones className="w-4 h-4 stroke-[2.2]" />
                   </div>
-                  <div>
-                    <h5 className="text-xs font-bold text-[#101D39]">24/7 Support</h5>
-                    <p className="text-[11px] text-[#8292AC]">We&apos;re here to help</p>
+                  <div className="min-w-0">
+                    <h5 className="text-xs font-bold text-[#101D39] truncate">24/7 Support</h5>
+                    <p className="text-[11px] text-[#8292AC] truncate">We&apos;re here to help</p>
                   </div>
                 </div>
 
@@ -1007,190 +1007,6 @@ export const CheckoutPage: React.FC = () => {
         )}
 
       </main>
-
-      {/* ================= 10. PROMOTIONAL STATISTICS BANNER ================= */}
-      <section className="mx-auto max-w-[1440px] px-4 sm:px-8 lg:px-9 pb-12">
-        <div className="rounded-[10px] border border-[#FFE3D0] bg-[#FFF5ED] p-6 sm:p-8">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-center">
-            
-            {/* Left Column: Heading & Paragraph (approx 30%) */}
-            <div className="lg:col-span-4 space-y-2">
-              <h3 className="text-xl sm:text-[22px] font-extrabold text-[#101D39] leading-snug">
-                Powering Your<br className="hidden sm:inline" /> Digital Journey
-              </h3>
-              <p className="text-xs text-[#61789C] leading-relaxed">
-                Thousands of creators and businesses trust OMYRA MALL for premium digital products and services.
-              </p>
-            </div>
-
-            {/* Right Column: 4 Evenly Distributed Statistics Items (approx 70%) */}
-            <div className="lg:col-span-8 relative">
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 divide-y sm:divide-y-0 sm:divide-x divide-[#FFE3D0]">
-                
-                {/* Stat 1 */}
-                <div className="text-center sm:text-left px-2 pt-2 sm:pt-0 space-y-1">
-                  <div className="w-7 h-7 rounded-lg text-[#FF6500] flex items-center justify-center mx-auto sm:mx-0">
-                    <Award className="w-5 h-5 stroke-[2.2]" />
-                  </div>
-                  <div className="text-xl sm:text-2xl font-extrabold text-[#101D39]">
-                    1M+
-                  </div>
-                  <div className="text-[11px] text-[#61789C] font-medium">
-                    Happy Customers
-                  </div>
-                </div>
-
-                {/* Stat 2 */}
-                <div className="text-center sm:text-left px-2 pt-2 sm:pt-0 sm:pl-4 space-y-1">
-                  <div className="w-7 h-7 rounded-lg text-[#FF6500] flex items-center justify-center mx-auto sm:mx-0">
-                    <ShoppingBag className="w-5 h-5 stroke-[2.2]" />
-                  </div>
-                  <div className="text-xl sm:text-2xl font-extrabold text-[#101D39]">
-                    5K+
-                  </div>
-                  <div className="text-[11px] text-[#61789C] font-medium">
-                    Premium Products
-                  </div>
-                </div>
-
-                {/* Stat 3 */}
-                <div className="text-center sm:text-left px-2 pt-2 sm:pt-0 sm:pl-4 space-y-1">
-                  <div className="w-7 h-7 rounded-lg text-[#FF6500] flex items-center justify-center mx-auto sm:mx-0">
-                    <Sun className="w-5 h-5 stroke-[2.2]" />
-                  </div>
-                  <div className="text-xl sm:text-2xl font-extrabold text-[#101D39]">
-                    100+
-                  </div>
-                  <div className="text-[11px] text-[#61789C] font-medium">
-                    Trusted Brands
-                  </div>
-                </div>
-
-                {/* Stat 4 */}
-                <div className="text-center sm:text-left px-2 pt-2 sm:pt-0 sm:pl-4 space-y-1">
-                  <div className="w-7 h-7 rounded-lg text-[#FF6500] flex items-center justify-center mx-auto sm:mx-0">
-                    <Headphones className="w-5 h-5 stroke-[2.2]" />
-                  </div>
-                  <div className="text-xl sm:text-2xl font-extrabold text-[#101D39]">
-                    24/7
-                  </div>
-                  <div className="text-[11px] text-[#61789C] font-medium">
-                    Global Support
-                  </div>
-                </div>
-
-              </div>
-
-              {/* Sparkle Decoration on Right */}
-              <div className="hidden xl:block absolute -right-3 -top-3 text-[#FF6500]/60 pointer-events-none">
-                <Sparkles className="w-7 h-7" />
-              </div>
-            </div>
-
-          </div>
-        </div>
-      </section>
-
-      {/* ================= 11. CORPORATE FOOTER ================= */}
-      <footer className="border-t border-[#E3EAF3] bg-white pt-10 pb-8 text-xs text-[#61789C]">
-        <div className="mx-auto max-w-[1440px] px-4 sm:px-8 lg:px-9">
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8 pb-8 border-b border-[#E3EAF3]">
-            
-            {/* Col 1: Brand */}
-            <div className="space-y-2">
-              <div className="flex items-center">
-                <OmyraMallLogo />
-              </div>
-              <p className="text-[11px] text-[#8292AC]">
-                Digital Products Marketplace
-              </p>
-            </div>
-
-            {/* Col 2: Quick Links */}
-            <div className="space-y-2">
-              <h4 className="text-xs font-bold text-[#101D39]">
-                Quick Links
-              </h4>
-              <ul className="space-y-1.5 text-[11px]">
-                <li>
-                  <button onClick={() => setActiveView('store')} className="hover:text-[#FF6500] transition-colors cursor-pointer">
-                    Home
-                  </button>
-                </li>
-                <li>
-                  <button onClick={() => setActiveView('store')} className="hover:text-[#FF6500] transition-colors cursor-pointer">
-                    Digital Products
-                  </button>
-                </li>
-                <li>
-                  <button onClick={() => setActiveView('vendor')} className="hover:text-[#FF6500] transition-colors cursor-pointer">
-                    Creator Hub
-                  </button>
-                </li>
-                <li>
-                  <button onClick={() => setActiveView('library')} className="hover:text-[#FF6500] transition-colors cursor-pointer">
-                    Support
-                  </button>
-                </li>
-              </ul>
-            </div>
-
-            {/* Col 3: Need Help? */}
-            <div className="space-y-2">
-              <h4 className="text-xs font-bold text-[#101D39]">
-                Need Help?
-              </h4>
-              <ul className="space-y-2 text-[11px]">
-                <li>
-                  <a href="mailto:help@omyra.org" className="inline-flex items-center gap-2 hover:text-[#FF6500] transition-colors">
-                    <Mail className="w-3.5 h-3.5 text-[#FF6500]" />
-                    <span>help@omyra.org</span>
-                  </a>
-                </li>
-                <li>
-                  <a href="tel:+919876543210" className="inline-flex items-center gap-2 hover:text-[#FF6500] transition-colors">
-                    <Phone className="w-3.5 h-3.5 text-[#FF6500]" />
-                    <span>+91 98765 43210</span>
-                  </a>
-                </li>
-              </ul>
-            </div>
-
-            {/* Col 4: Follow Us */}
-            <div className="space-y-2">
-              <h4 className="text-xs font-bold text-[#101D39]">
-                Follow Us
-              </h4>
-              <div className="flex items-center gap-2 pt-1">
-                <a href="#" className="w-7 h-7 rounded-full border border-[#E3EAF3] flex items-center justify-center hover:border-[#FF6500] hover:text-[#FF6500] transition-colors">
-                  <Youtube className="w-3.5 h-3.5" />
-                </a>
-                <a href="#" className="w-7 h-7 rounded-full border border-[#E3EAF3] flex items-center justify-center hover:border-[#FF6500] hover:text-[#FF6500] transition-colors">
-                  <Twitter className="w-3.5 h-3.5" />
-                </a>
-                <a href="#" className="w-7 h-7 rounded-full border border-[#E3EAF3] flex items-center justify-center hover:border-[#FF6500] hover:text-[#FF6500] transition-colors">
-                  <Instagram className="w-3.5 h-3.5" />
-                </a>
-                <a href="#" className="w-7 h-7 rounded-full border border-[#E3EAF3] flex items-center justify-center hover:border-[#FF6500] hover:text-[#FF6500] transition-colors">
-                  <Linkedin className="w-3.5 h-3.5" />
-                </a>
-              </div>
-            </div>
-
-          </div>
-
-          {/* Copyright & Security tagline */}
-          <div className="pt-4 flex flex-col sm:flex-row items-center justify-between gap-2 text-[11px] text-[#8292AC]">
-            <div>
-              &copy; 2026 OMYRA MALL. All rights reserved.
-            </div>
-            <div>
-              Secure &middot; Reliable &middot; Global
-            </div>
-          </div>
-        </div>
-      </footer>
-
     </div>
   );
 };

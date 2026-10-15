@@ -103,9 +103,9 @@ const MarketplaceShell: React.FC = () => {
   const { activeView, setActiveView, selectedProduct, setSelectedProduct } = useStore();
 
   return (
-    <div className="min-h-screen bg-white text-zinc-900 font-sans selection:bg-orange-500 selection:text-white flex flex-col">
+    <div className="min-h-screen bg-white text-zinc-900 font-sans selection:bg-orange-500 selection:text-white flex flex-col w-full overflow-x-hidden">
       <Header />
-      <div className="flex-1">
+      <div className="flex-1 w-full overflow-x-hidden pb-16 md:pb-0">
         {activeView === 'checkout' ? (
           <CheckoutPage />
         ) : activeView === 'product-detail' || (selectedProduct && activeView === 'store') ? (
@@ -126,7 +126,7 @@ const MarketplaceShell: React.FC = () => {
       </div>
       <CartDrawer />
       <OrderConfirmationModal />
-      {activeView !== 'checkout' && <Footer />}
+      <Footer />
       <MobileNav />
     </div>
   );

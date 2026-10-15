@@ -218,11 +218,11 @@ export const HeroCategoryCards: React.FC = () => {
   };
 
   return (
-    <section className="w-full pt-4 pb-6 bg-white select-none">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+    <section className="w-full pt-1.5 sm:pt-4 pb-2.5 sm:pb-6 bg-white select-none overflow-hidden">
+      <div className="mx-auto max-w-7xl px-3 sm:px-6 lg:px-8">
         
-        {/* Strictly in ONE SINGLE ROW (flex-nowrap with horizontal scrollbar if needed on ultra-narrow screens) */}
-        <div className="flex flex-nowrap items-stretch justify-between gap-3 sm:gap-3.5 lg:gap-4 overflow-x-auto pb-2 scrollbar-none">
+        {/* Strictly in ONE SINGLE ROW with smooth edge-to-edge touch scrolling on mobile */}
+        <div className="flex flex-nowrap items-stretch gap-1.5 sm:gap-3.5 lg:gap-4 overflow-x-auto pb-1.5 sm:pb-2 scrollbar-none -mx-3 px-3 sm:mx-0 sm:px-0">
           {categories.map((cat, index) => {
             const isSelected = selectedCategory === cat.mappedCategory && cat.mappedCategory !== 'All';
             const isFirst = index === 0;
@@ -231,7 +231,7 @@ export const HeroCategoryCards: React.FC = () => {
               <button
                 key={cat.id}
                 onClick={() => handleCategoryClick(cat.mappedCategory)}
-                className={`group flex-1 min-w-[125px] sm:min-w-[135px] max-w-[155px] flex flex-col items-center justify-between py-5 px-3 rounded-[20px] transition-all duration-200 cursor-pointer text-center shrink-0 sm:shrink ${
+                className={`group flex-1 min-w-[74px] sm:min-w-[135px] max-w-[155px] flex flex-col items-center justify-between py-1.5 sm:py-5 px-1 sm:px-3 rounded-[10px] sm:rounded-[20px] transition-all duration-200 cursor-pointer text-center shrink-0 ${
                   isFirst
                     ? 'bg-[#fff1ea] border border-[#fed7c7] shadow-2xs hover:shadow-sm'
                     : isSelected
@@ -240,12 +240,12 @@ export const HeroCategoryCards: React.FC = () => {
                 }`}
               >
                 {/* Icon Container with hover zoom */}
-                <div className="flex-1 flex items-center justify-center transition-transform duration-200 group-hover:scale-105">
+                <div className="h-10 sm:h-16 flex items-center justify-center transition-transform duration-200 group-hover:scale-105 scale-[0.65] sm:scale-100 origin-center">
                   {cat.renderIcon()}
                 </div>
 
                 {/* Category Text matching exact font styling */}
-                <span className={`text-[13px] sm:text-[14px] font-semibold leading-tight tracking-tight mt-3 ${
+                <span className={`text-[9.5px] sm:text-[14px] font-semibold leading-tight tracking-tight mt-0.5 sm:mt-3 truncate max-w-full ${
                   isFirst 
                     ? 'text-[#a33202]' 
                     : 'text-zinc-800 group-hover:text-[#f95a12]'
