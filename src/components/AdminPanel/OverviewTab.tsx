@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { DollarSign, ShoppingBag, Package, TrendingUp, Sparkles, Fingerprint, Mail, Database, ArrowRight } from 'lucide-react';
+import { DollarSign, ShoppingBag, Package, TrendingUp, Sparkles, Fingerprint, Mail, Database, ArrowRight, SlidersHorizontal } from 'lucide-react';
 
 interface OverviewTabProps {
   token: string;
@@ -128,7 +128,23 @@ export const OverviewTab: React.FC<OverviewTabProps> = ({ token, onNavigateTab }
       </div>
 
       {/* Quick Setup Checklist */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div
+          onClick={() => onNavigateTab('homepage_controls')}
+          className="bg-white border border-slate-200 hover:border-orange-300 rounded-2xl p-5 shadow-sm cursor-pointer transition-all group"
+        >
+          <div className="w-10 h-10 rounded-xl bg-orange-50 border border-orange-200 flex items-center justify-center text-orange-600 mb-3 group-hover:scale-105 transition-transform">
+            <SlidersHorizontal className="w-5 h-5" />
+          </div>
+          <h3 className="font-bold text-slate-900 text-sm flex items-center justify-between">
+            <span>Branding & Controls</span>
+            <ArrowRight className="w-4 h-4 text-slate-400 group-hover:text-orange-600 group-hover:translate-x-0.5 transition-all" />
+          </h3>
+          <p className="text-xs text-slate-500 mt-1">
+            Upload custom logos, browser favicon, and customize word-by-word typography.
+          </p>
+        </div>
+
         <div
           onClick={() => onNavigateTab('security')}
           className="bg-white border border-slate-200 hover:border-orange-300 rounded-2xl p-5 shadow-sm cursor-pointer transition-all group"

@@ -18,10 +18,13 @@ import {
   LayoutGrid
 } from 'lucide-react';
 import { useStore } from '../context/StoreContext';
+import { useBranding } from '../context/BrandingContext';
+import { OmyraMallLogo } from './OmyraMallLogo';
 import omyraLaptopBannerImg from '@/src/assets/images/omyra_laptop_banner_1792198485259.jpg';
 
 export const Footer: React.FC = () => {
   const { setActiveView, setSelectedProduct, setSelectedCategory } = useStore();
+  const { branding } = useBranding();
 
   // Newsletter state
   const [emailInput, setEmailInput] = useState('');
@@ -207,20 +210,25 @@ export const Footer: React.FC = () => {
             
             {/* ---------------- COLUMN 1: BRAND INFORMATION (lg:col-span-3) ---------------- */}
             <div className="lg:col-span-3 lg:pr-6 lg:border-r border-[#E5EDF5] space-y-4">
-              {/* Logo: [M] OMYRA MALL */}
-              <div className="flex items-center gap-2.5 select-none">
-                <div className="w-9 h-9 rounded-xl bg-[#FF5A00] flex items-center justify-center text-white font-black text-xl shadow-xs shrink-0">
-                  M
+              {/* Footer Logo: Custom uploaded footer logo OR styled site logo / name */}
+              {branding.footerLogoUrl ? (
+                <div className="flex items-center select-none">
+                  <img
+                    src={branding.footerLogoUrl}
+                    alt={branding.siteName || 'Footer Logo'}
+                    className="h-10 w-auto max-w-[220px] object-contain"
+                    onError={(e) => {
+                      (e.target as HTMLElement).style.display = 'none';
+                    }}
+                  />
                 </div>
-                <div className="flex items-center text-xl font-black tracking-tight">
-                  <span className="text-[#0B2046]">OMYRA</span>
-                  <span className="text-[#FF5A00] ml-1.5">MALL</span>
-                </div>
-              </div>
+              ) : (
+                <OmyraMallLogo size="md" />
+              )}
 
               {/* Subtitle */}
               <h4 className="text-sm font-bold text-[#0B2046]">
-                Digital Products Marketplace
+                {branding.showTagline && branding.tagline ? branding.tagline : 'Digital Products Marketplace'}
               </h4>
 
               {/* Bio */}

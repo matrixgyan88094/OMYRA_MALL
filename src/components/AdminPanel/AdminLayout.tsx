@@ -12,16 +12,19 @@ import {
   ChevronRight,
   Database,
   ShieldCheck,
-  Cloud
+  Cloud,
+  SlidersHorizontal
 } from 'lucide-react';
 
 import { OverviewTab } from './OverviewTab';
+import { HomepageControlsTab } from './HomepageControlsTab';
 import { ProductsTab } from './ProductsTab';
 import { OrdersTab } from './OrdersTab';
 import { StorageTab } from './StorageTab';
 import { ResendTab } from './ResendTab';
 import { SecurityTab } from './SecurityTab';
 import { SettingsTab } from './SettingsTab';
+import { OmyraMallLogo } from '../OmyraMallLogo';
 
 interface AdminLayoutProps {
   token: string;
@@ -54,6 +57,7 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({
 
   const navItems: NavItem[] = [
     { id: 'overview', label: 'Overview', icon: LayoutDashboard },
+    { id: 'homepage_controls', label: 'Homepage & Controls', icon: SlidersHorizontal, badge: 'Branding' },
     { id: 'products', label: 'Products & Inventory', icon: Package },
     { id: 'orders', label: 'Orders & Licenses', icon: ShoppingBag },
     { id: 'storage', label: 'Cloudflare R2 Storage', icon: Cloud },
@@ -79,14 +83,9 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({
         <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-4">
           {/* Logo & Alias Badge */}
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl bg-[#f95a12] flex items-center justify-center text-white font-black text-lg shadow-sm shadow-orange-600/30">
-              M
-            </div>
-            <div>
+            <OmyraMallLogo size="sm" />
+            <div className="border-l border-slate-200 pl-3 hidden sm:block">
               <div className="flex items-center gap-2">
-                <span className="font-extrabold text-slate-900 tracking-tight text-base">
-                  OMYRA <span className="text-[#f95a12]">MALL</span>
-                </span>
                 <span className="px-2 py-0.5 rounded-md bg-orange-100/70 border border-orange-200 text-orange-800 text-[10px] font-mono font-bold">
                   /{currentAlias}
                 </span>
@@ -193,6 +192,7 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({
         {activeTab === 'overview' && (
           <OverviewTab token={token} onNavigateTab={(tab) => setActiveTab(tab)} />
         )}
+        {activeTab === 'homepage_controls' && <HomepageControlsTab token={token} />}
         {activeTab === 'products' && <ProductsTab token={token} />}
         {activeTab === 'orders' && <OrdersTab token={token} />}
         {activeTab === 'storage' && <StorageTab token={token} />}

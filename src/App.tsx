@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { StoreProvider, useStore } from './context/StoreContext';
+import { BrandingProvider } from './context/BrandingContext';
 import { Header } from './components/Header';
 import { HeroBanner } from './components/HeroBanner';
 import { HeroCategoryCards } from './components/HeroCategoryCards';
@@ -186,51 +187,42 @@ export default function App() {
   const cleanedPath = currentPath.replace(/^\/+/, '').replace(/\/+$/, '');
   const isRoot = cleanedPath === '' || cleanedPath.startsWith('#');
   const isAdminPath = isAliasLoaded && cleanedPath === adminAlias;
-
-  // If wrong path specified (e.g. /admin, /dashboard, or wrong alias), show 404 page!
   const isInvalidAdminOrUnknown = !isRoot && !isAdminPath;
 
-  if (isInvalidAdminOrUnknown) {
-    return (
-      <NotFoundPage
-        attemptedPath={currentPath}
-        onGoHome={() => navigateTo('/')}
-      />
-    );
-  }
-
-  // Admin Gateway
-  if (isAdminPath) {
-    if (!adminToken) {
-      return (
-        <AdminLogin
-          currentAlias={adminAlias}
-          onSuccess={handleAdminLoginSuccess}
+  // Wrap all views in BrandingProvider so site branding, dynamic logos, fonts, and favicon are globally consistent
+  return (
+    <BrandingProvider>
+      {isInvalidAdminOrUnknown ? (
+        <NotFoundPage
+          attemptedPath={currentPath}
           onGoHome={() => navigateTo('/')}
         />
-      );
-    }
-
-    return (
-      <AdminLayout
-        token={adminToken}
-        adminEmail={adminEmail}
-        currentAlias={adminAlias}
-        onLogout={handleAdminLogout}
-        onGoHome={() => navigateTo('/')}
-        onAliasUpdated={handleAliasUpdated}
-        onEmailUpdated={(email) => {
-          setAdminEmail(email);
-          localStorage.setItem(ADMIN_EMAIL_KEY, email);
-        }}
-      />
-    );
-  }
-
-  // Marketplace Storefront (Path is /)
-  return (
-    <StoreProvider>
-      <MarketplaceShell />
-    </StoreProvider>
+      ) : isAdminPath ? (
+        !adminToken ? (
+          <AdminLogin
+            currentAlias={adminAlias}
+            onSuccess={handleAdminLoginSuccess}
+            onGoHome={() => navigateTo('/')}
+          />
+        ) : (
+          <AdminLayout
+            token={adminToken}
+            adminEmail={adminEmail}
+            currentAlias={adminAlias}
+            onLogout={handleAdminLogout}
+            onGoHome={() => navigateTo('/')}
+            onAliasUpdated={handleAliasUpdated}
+            onEmailUpdated={(email) => {
+              setAdminEmail(email);
+              localStorage.setItem(ADMIN_EMAIL_KEY, email);
+            }}
+          />
+        )
+      ) : (
+        <StoreProvider>
+          <MarketplaceShell />
+        </StoreProvider>
+      )}
+    </BrandingProvider>
   );
 }

@@ -240,6 +240,7 @@ interface LocalStore {
   orders: OrderRecord[];
   email_logs: EmailLog[];
   active_challenges: Record<string, { challenge: string; expires: number; type: 'register' | 'login' }>;
+  branding?: any;
 }
 
 function hashPassword(password: string): string {
@@ -501,6 +502,14 @@ async function initNeonDatabase() {
         );
       `;
 
+      await sql`
+        CREATE TABLE IF NOT EXISTS site_branding (
+          id TEXT PRIMARY KEY,
+          data JSONB NOT NULL,
+          updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+        );
+      `;
+
       // Seed initial admin if not exists
       const existingAdmin = await sql`SELECT * FROM admin_account WHERE id = 'admin_primary' LIMIT 1;`;
       if (existingAdmin.length === 0) {
@@ -611,6 +620,56 @@ async function updateAdminAccount(updates: Partial<AdminAccount>): Promise<Admin
   store.admin = updated;
   saveLocalStore(store);
   return updated;
+}
+
+async function getSiteBranding(): Promise<any> {
+  if (sql && neonConnected) {
+    try {
+      const rows = await sql`SELECT data FROM site_branding WHERE id = 'primary' LIMIT 1;`;
+      if (rows && rows.length > 0 && rows[0].data) {
+        return rows[0].data;
+      }
+    } catch (e) {
+      console.warn('Neon getSiteBranding failed, using local store:', e);
+    }
+  }
+  const store = loadLocalStore();
+  return store.branding || null;
+}
+
+async function updateSiteBranding(data: any): Promise<any> {
+  const store = loadLocalStore();
+  store.branding = data;
+  saveLocalStore(store);
+
+  if (sql && neonConnected) {
+    try {
+      await sql`
+        INSERT INTO site_branding (id, data, updated_at)
+        VALUES ('primary', ${JSON.stringify(data)}, CURRENT_TIMESTAMP)
+        ON CONFLICT (id) DO UPDATE
+        SET data = ${JSON.stringify(data)},
+            updated_at = CURRENT_TIMESTAMP;
+      `;
+    } catch (e) {
+      console.warn('Neon save branding failed:', e);
+    }
+  }
+  return data;
+}
+
+async function resetSiteBranding(): Promise<void> {
+  const store = loadLocalStore();
+  delete store.branding;
+  saveLocalStore(store);
+
+  if (sql && neonConnected) {
+    try {
+      await sql`DELETE FROM site_branding WHERE id = 'primary';`;
+    } catch (e) {
+      console.warn('Neon reset branding failed:', e);
+    }
+  }
 }
 
 async function getPasskeys(): Promise<PasskeyRecord[]> {
@@ -2728,6 +2787,88 @@ apiRouter.post('/admin/categories', verifyAuth, async (req: Request, res: Respon
     slug: cleanName.toLowerCase().replace(/[^a-z0-9]+/g, '-')
   };
   res.json({ success: true, category: created });
+});
+
+// ---------------------------------------------------------
+// HOMEPAGE CONTROLS & BRANDING MANAGEMENT API
+// ---------------------------------------------------------
+apiRouter.get('/branding', async (req: Request, res: Response) => {
+  try {
+    const branding = await getSiteBranding();
+    res.json({ success: true, branding });
+  } catch (err: any) {
+    console.error('Fetch branding error:', err);
+    res.status(500).json({ error: 'Failed to retrieve site branding' });
+  }
+});
+
+apiRouter.post('/admin/branding', verifyAuth, async (req: Request, res: Response) => {
+  try {
+    const newBranding = req.body;
+    if (!newBranding || typeof newBranding !== 'object') {
+      return res.status(400).json({ error: 'Invalid branding payload' });
+    }
+    const updated = await updateSiteBranding(newBranding);
+    res.json({ success: true, branding: updated });
+  } catch (err: any) {
+    console.error('Update branding error:', err);
+    res.status(500).json({ error: 'Failed to update site branding' });
+  }
+});
+
+apiRouter.post('/admin/branding/reset', verifyAuth, async (req: Request, res: Response) => {
+  try {
+    await resetSiteBranding();
+    res.json({ success: true, message: 'Branding reset to default' });
+  } catch (err: any) {
+    console.error('Reset branding error:', err);
+    res.status(500).json({ error: 'Failed to reset site branding' });
+  }
+});
+
+// File upload for Favicon, Site Logo, and Footer Logo
+apiRouter.post('/admin/branding/upload', verifyAuth, upload.single('file'), async (req: Request, res: Response) => {
+  if (!req.file) {
+    return res.status(400).json({ error: 'No logo or image file provided for upload.' });
+  }
+
+  try {
+    const file = req.file;
+    const target = String(req.body.target || 'logo').replace(/[^a-zA-Z0-9_-]/g, '_');
+    const ext = path.extname(file.originalname).toLowerCase() || '.png';
+    const safeName = `${target}_${Date.now()}_${crypto.randomBytes(3).toString('hex')}${ext}`;
+    const safeFolder = 'branding';
+
+    const uploadDir = getSafeUploadDir(safeFolder);
+    const destPath = path.join(uploadDir, safeName);
+
+    try {
+      fs.writeFileSync(destPath, file.buffer);
+    } catch (fsErr) {
+      console.warn('Local disk write failed, retaining in serverless memory:', fsErr);
+    }
+
+    // Save in memory cache for instant zero-disk serverless delivery
+    const memKey = `${safeFolder}/${safeName}`;
+    inMemoryUploadedFiles.set(memKey, {
+      buffer: file.buffer,
+      mime: file.mimetype || 'image/png',
+      name: safeName
+    });
+
+    const publicUrl = `/uploads/${safeFolder}/${safeName}`;
+    res.json({
+      success: true,
+      url: publicUrl,
+      filename: safeName,
+      originalname: file.originalname,
+      size: file.size,
+      mimetype: file.mimetype
+    });
+  } catch (err: any) {
+    console.error('Branding file upload error:', err);
+    res.status(500).json({ error: err.message || 'Failed to upload branding asset' });
+  }
 });
 
 // ---------------------------------------------------------
