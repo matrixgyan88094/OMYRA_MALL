@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ShoppingBag, Search, User, Menu, ChevronDown } from 'lucide-react';
+import { ShoppingBag, Search, User, ChevronDown } from 'lucide-react';
 import { useStore } from '../context/StoreContext';
 import { OmyraMallLogo } from './OmyraMallLogo';
 
@@ -15,19 +15,14 @@ export const Header: React.FC = () => {
     setSelectedProduct 
   } = useStore();
   const cartItemCount = cart.reduce((sum, item) => sum + item.quantity, 0);
-  const [activeMenuTab, setActiveMenuTab] = useState<'Home' | 'Digital Products' | 'Creator Hub' | 'Deals' | 'Support'>('Digital Products');
-  const [isCategoryDropdownOpen, setIsCategoryDropdownOpen] = useState(false);
+  const [activeMenuTab, setActiveMenuTab] = useState<'Home' | 'Deals' | 'Support'>('Home');
 
-  const handleMenuClick = (tab: 'Home' | 'Digital Products' | 'Creator Hub' | 'Deals' | 'Support') => {
+  const handleMenuClick = (tab: 'Home' | 'Deals' | 'Support') => {
     setActiveMenuTab(tab);
     setSelectedProduct(null);
     if (tab === 'Home') {
       setActiveView('store');
       setSelectedCategory('All');
-    } else if (tab === 'Digital Products') {
-      setActiveView('store');
-    } else if (tab === 'Creator Hub') {
-      setActiveView('vendor');
     } else if (tab === 'Deals') {
       setActiveView('store');
       setSearchQuery('deal');
@@ -147,54 +142,11 @@ export const Header: React.FC = () => {
       {activeView !== 'checkout' && (
       <div className="border-t border-zinc-100 bg-white w-full overflow-hidden">
         <div className="mx-auto max-w-7xl px-3 sm:px-6 lg:px-8">
-          <div className="flex h-11 items-center gap-3 sm:gap-6 text-xs sm:text-sm overflow-x-auto scrollbar-none w-full">
-            
-            {/* All Categories Dropdown with Hamburger Icon */}
-            <div className="relative shrink-0">
-              <button
-                onClick={() => setIsCategoryDropdownOpen(!isCategoryDropdownOpen)}
-                className="flex items-center gap-1.5 sm:gap-2 font-bold text-zinc-900 hover:text-[#f95a12] transition-colors cursor-pointer py-2 text-xs sm:text-sm"
-              >
-                <Menu className="w-4 h-4 text-zinc-800" />
-                <span className="whitespace-nowrap">All Categories</span>
-                <ChevronDown className="w-3.5 h-3.5 text-zinc-500" />
-              </button>
-
-              {isCategoryDropdownOpen && (
-                <div className="absolute top-full left-0 mt-1 w-56 rounded-xl border border-zinc-200 bg-white py-2 shadow-xl z-50">
-                  {[
-                    { label: 'All Products', val: 'All' },
-                    { label: 'UI & Figma', val: 'UI & Figma' },
-                    { label: 'Dev Kits', val: 'Dev Kits' },
-                    { label: '3D & Spatial', val: '3D & Spatial' },
-                    { label: 'Motion & Audio', val: 'Motion & Audio' },
-                    { label: 'Templates', val: 'Templates' },
-                  ].map((cat) => (
-                    <button
-                      key={cat.val}
-                      onClick={() => {
-                        setSelectedCategory(cat.val);
-                        setActiveView('store');
-                        setSelectedProduct(null);
-                        setIsCategoryDropdownOpen(false);
-                      }}
-                      className="w-full text-left px-4 py-2 text-xs font-semibold text-zinc-700 hover:bg-orange-50 hover:text-[#f95a12] transition-colors cursor-pointer"
-                    >
-                      {cat.label}
-                    </button>
-                  ))}
-                </div>
-              )}
-            </div>
-
-            <div className="h-4 w-px bg-zinc-200 hidden sm:block shrink-0" />
-
+          <div className="flex h-11 items-center text-xs sm:text-sm overflow-x-auto scrollbar-none w-full">
             {/* Horizontal menu navigation links with orange active indicator */}
-            <nav className="flex items-center gap-4 sm:gap-7 overflow-x-auto scrollbar-none h-full min-w-0 flex-1">
+            <nav className="flex items-center gap-5 sm:gap-8 overflow-x-auto scrollbar-none h-full min-w-0 flex-1">
               {[
                 { name: 'Home', tab: 'Home' as const },
-                { name: 'Digital Products', tab: 'Digital Products' as const },
-                { name: 'Creator Hub', tab: 'Creator Hub' as const },
                 { name: 'Deals', tab: 'Deals' as const },
                 { name: 'Support', tab: 'Support' as const },
               ].map((item) => {
@@ -217,7 +169,6 @@ export const Header: React.FC = () => {
                 );
               })}
             </nav>
-
           </div>
         </div>
       </div>

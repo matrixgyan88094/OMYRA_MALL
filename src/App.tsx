@@ -9,7 +9,6 @@ import { CartDrawer } from './components/CartDrawer';
 import { OrderConfirmationModal } from './components/OrderConfirmationModal';
 import { CustomerLibrary } from './components/CustomerLibrary';
 import { VendorDashboard } from './components/VendorDashboard';
-import { MobileNav } from './components/MobileNav';
 import { Footer } from './components/Footer';
 import { AdminLayout } from './components/AdminPanel/AdminLayout';
 import { AdminLogin } from './components/AdminPanel/AdminLogin';
@@ -127,7 +126,6 @@ const MarketplaceShell: React.FC = () => {
       <CartDrawer />
       <OrderConfirmationModal />
       <Footer />
-      <MobileNav />
     </div>
   );
 };
