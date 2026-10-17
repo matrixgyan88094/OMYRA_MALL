@@ -70,146 +70,127 @@ export const Footer: React.FC = () => {
     <footer className="w-full bg-white text-[#58769F] border-t border-[#E5EDF5]">
       
       {/* ========================================================================= */}
-      {/* 1. TOP PROMOTIONAL CTA BANNER                                             */}
+      {/* 1. TOP PROMOTIONAL CTA BANNER (Image as Background)                       */}
       {/* ========================================================================= */}
       <section className="pt-8 sm:pt-10 pb-6 sm:pb-8">
         <div className="mx-auto max-w-7xl px-3 sm:px-6 lg:px-8">
-          <div className="relative rounded-2xl sm:rounded-3xl lg:rounded-[32px] bg-gradient-to-r from-[#FFFDFC] via-[#FFF8F1] to-[#FFEFE3] border border-[#FCE2D0] p-6 sm:p-8 md:p-10 lg:p-11 xl:p-14 overflow-hidden shadow-[0_16px_48px_rgba(255,100,0,0.06),0_2px_12px_rgba(16,43,82,0.03)]">
+          <div className="relative rounded-2xl sm:rounded-3xl lg:rounded-[32px] bg-[#FFFDFC] border border-[#FCE2D0] p-6 sm:p-8 md:p-10 lg:p-12 xl:p-14 overflow-hidden shadow-[0_16px_48px_rgba(255,100,0,0.06),0_2px_12px_rgba(16,43,82,0.03)]">
             
-            {/* Ambient decorative lighting */}
-            <div className="absolute -right-12 -bottom-12 w-96 h-96 rounded-full bg-gradient-to-tl from-[#FF7A1A]/15 via-[#FF6500]/8 to-transparent pointer-events-none blur-3xl" />
-            <div className="absolute -left-12 -top-12 w-80 h-80 rounded-full bg-[#FFEFE2]/70 pointer-events-none blur-2xl" />
-            <div className="absolute left-1/2 -top-16 -translate-x-1/2 w-72 h-72 rounded-full bg-[#FF7A1A]/8 pointer-events-none blur-3xl" />
+            {/* BACKGROUND IMAGE LAYER */}
+            <div className="absolute inset-0 pointer-events-none overflow-hidden select-none">
+              {/* 3D Mockup banner image positioned in the background */}
+              <img
+                src={omyraLaptopBannerImg}
+                alt=""
+                referrerPolicy="no-referrer"
+                className="absolute right-0 top-0 sm:-top-8 md:-top-12 bottom-0 h-full w-full sm:w-[75%] lg:w-[58%] xl:w-[54%] object-cover object-center lg:object-right select-none opacity-35 sm:opacity-75 lg:opacity-100"
+              />
 
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 xl:gap-12 items-center relative z-10">
+              {/* Gradient overlays to ensure 100% crisp text readability on the left */}
+              <div className="absolute inset-0 bg-gradient-to-r from-[#FFFDFC] via-[#FFFDFC]/95 to-transparent sm:via-[#FFFDFC]/90 lg:via-[#FFFDFC]/80 lg:to-transparent" />
+              <div className="absolute inset-0 bg-gradient-to-t from-[#FFFDFC] via-transparent to-transparent sm:hidden" />
               
-              {/* LEFT HALF: Pill, Headline, Subheading, Benefits, CTA Button (lg:col-span-6) */}
-              <div className="lg:col-span-6 space-y-4 sm:space-y-5 lg:space-y-6">
-                
-                {/* 1. Sparkle Pill */}
-                <div>
-                  <div className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-[#FFEADA] border border-[#FCD2B3]/80 text-[#FF5500] shadow-2xs">
-                    <span className="text-xs">✦</span>
-                    <span className="text-xs sm:text-[13px] font-bold tracking-wide">Join OMYRA MALL</span>
-                  </div>
+              {/* Warm decorative ambient lighting */}
+              <div className="absolute -right-12 -bottom-12 w-96 h-96 rounded-full bg-gradient-to-tl from-[#FF7A1A]/20 via-[#FF6500]/10 to-transparent blur-3xl" />
+              <div className="absolute -left-12 -top-12 w-80 h-80 rounded-full bg-[#FFEFE2]/70 blur-2xl" />
+            </div>
+
+            {/* FOREGROUND CONTENT */}
+            <div className="relative z-10 max-w-xl lg:max-w-2xl xl:max-w-[620px] space-y-4 sm:space-y-5 lg:space-y-6">
+              
+              {/* 1. Sparkle Pill */}
+              <div>
+                <div className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-[#FFEADA] border border-[#FCD2B3]/80 text-[#FF5500] shadow-2xs">
+                  <span className="text-xs">✦</span>
+                  <span className="text-xs sm:text-[13px] font-bold tracking-wide">Join OMYRA MALL</span>
                 </div>
+              </div>
 
-                {/* 2. Headline with organic brush swoosh underline */}
-                <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-[38px] xl:text-[44px] font-black text-[#0B1F44] tracking-tight leading-[1.12]">
-                  Get the Best Digital Products <br />
-                  and{' '}
-                  <span className="relative inline-block text-[#FF5500]">
-                    Grow Your Creativity!
-                    {/* Brush swoosh underline */}
-                    <svg
-                      className="absolute -bottom-2 sm:-bottom-2.5 lg:-bottom-3 left-0 w-full h-2.5 sm:h-3 lg:h-3.5 text-[#FF5500]"
-                      viewBox="0 0 280 14"
-                      fill="none"
-                      preserveAspectRatio="none"
-                    >
-                      <path
-                        d="M 2 8 C 60 3 150 3 278 7 C 230 12 140 13 2 10 Z"
-                        fill="currentColor"
-                      />
-                    </svg>
-                  </span>
-                </h2>
-
-                {/* 3. Subheading / Paragraph */}
-                <p className="text-xs sm:text-sm lg:text-[15px] xl:text-[16px] text-[#4E6B94] leading-relaxed font-normal max-w-xl">
-                  Join thousands of creators, developers and businesses who trust OMYRA MALL for premium digital products.
-                </p>
-
-                {/* 4. Three Benefit Items in a single row */}
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5 sm:gap-3 lg:gap-4 pt-1 sm:pt-2">
-                  
-                  {/* Benefit 1: Instant Access */}
-                  <div className="flex items-center sm:items-start gap-2.5 sm:gap-3">
-                    <div className="w-10 h-10 lg:w-11 lg:h-11 rounded-xl bg-[#FFF0E2] flex items-center justify-center shrink-0 text-[#FF5500] border border-[#FFD9BA]/80 shadow-2xs">
-                      <Zap className="w-4 h-4 sm:w-5 sm:h-5 stroke-[2.3]" />
-                    </div>
-                    <div className="min-w-0">
-                      <h4 className="font-bold text-[#0B1F44] text-[13px] sm:text-xs md:text-sm leading-tight">
-                        Instant Access
-                      </h4>
-                      <p className="text-[11px] sm:text-[11px] md:text-xs text-[#58769F] leading-snug mt-0.5">
-                        Start using your products immediately
-                      </p>
-                    </div>
-                  </div>
-
-                  {/* Benefit 2: Secure Payments */}
-                  <div className="flex items-center sm:items-start gap-2.5 sm:gap-3">
-                    <div className="w-10 h-10 lg:w-11 lg:h-11 rounded-xl bg-[#FFF0E2] flex items-center justify-center shrink-0 text-[#FF5500] border border-[#FFD9BA]/80 shadow-2xs">
-                      <ShieldCheck className="w-4 h-4 sm:w-5 sm:h-5 stroke-[2.3]" />
-                    </div>
-                    <div className="min-w-0">
-                      <h4 className="font-bold text-[#0B1F44] text-[13px] sm:text-xs md:text-sm leading-tight">
-                        Secure Payments
-                      </h4>
-                      <p className="text-[11px] sm:text-[11px] md:text-xs text-[#58769F] leading-snug mt-0.5">
-                        Your data is 100% protected
-                      </p>
-                    </div>
-                  </div>
-
-                  {/* Benefit 3: 24/7 Support */}
-                  <div className="flex items-center sm:items-start gap-2.5 sm:gap-3">
-                    <div className="w-10 h-10 lg:w-11 lg:h-11 rounded-xl bg-[#FFF0E2] flex items-center justify-center shrink-0 text-[#FF5500] border border-[#FFD9BA]/80 shadow-2xs">
-                      <Headphones className="w-4 h-4 sm:w-5 sm:h-5 stroke-[2.3]" />
-                    </div>
-                    <div className="min-w-0">
-                      <h4 className="font-bold text-[#0B1F44] text-[13px] sm:text-xs md:text-sm leading-tight">
-                        24/7 Support
-                      </h4>
-                      <p className="text-[11px] sm:text-[11px] md:text-xs text-[#58769F] leading-snug mt-0.5">
-                        We're always here to help
-                      </p>
-                    </div>
-                  </div>
-
-                </div>
-
-                {/* 5. Explore Now Button */}
-                <div className="pt-2 sm:pt-3">
-                  <button
-                    onClick={handleExploreNow}
-                    className="group inline-flex items-center justify-center gap-2.5 px-7 sm:px-8 py-3.5 sm:py-4 rounded-xl sm:rounded-2xl font-bold text-white bg-gradient-to-r from-[#FF5500] via-[#FF6000] to-[#FF6A00] hover:from-[#E64D00] hover:to-[#D93600] shadow-[0_10px_24px_rgba(255,85,0,0.32)] hover:shadow-[0_14px_30px_rgba(255,85,0,0.42)] active:scale-[0.98] transition-all cursor-pointer text-sm sm:text-base"
+              {/* 2. Headline with organic brush swoosh underline */}
+              <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-[40px] xl:text-[46px] font-black text-[#0B1F44] tracking-tight leading-[1.12]">
+                Get the Best Digital Products <br />
+                and{' '}
+                <span className="relative inline-block text-[#FF5500]">
+                  Grow Your Creativity!
+                  {/* Brush swoosh underline */}
+                  <svg
+                    className="absolute -bottom-2 sm:-bottom-2.5 lg:-bottom-3 left-0 w-full h-2.5 sm:h-3 lg:h-3.5 text-[#FF5500]"
+                    viewBox="0 0 280 14"
+                    fill="none"
+                    preserveAspectRatio="none"
                   >
-                    <span>Explore Now</span>
-                    <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5 group-hover:translate-x-1.5 transition-transform stroke-[2.5]" />
-                  </button>
+                    <path
+                      d="M 2 8 C 60 3 150 3 278 7 C 230 12 140 13 2 10 Z"
+                      fill="currentColor"
+                    />
+                  </svg>
+                </span>
+              </h2>
+
+              {/* 3. Subheading / Paragraph */}
+              <p className="text-xs sm:text-sm lg:text-[15px] xl:text-[16px] text-[#4E6B94] leading-relaxed font-normal max-w-lg">
+                Join thousands of creators, developers and businesses who trust OMYRA MALL for premium digital products.
+              </p>
+
+              {/* 4. Three Benefit Items in a single row */}
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-3.5 lg:gap-4 pt-1 sm:pt-2">
+                
+                {/* Benefit 1: Instant Access */}
+                <div className="flex items-center sm:items-start gap-2.5 sm:gap-3 p-2 sm:p-2.5 rounded-xl bg-white/70 backdrop-blur-xs border border-[#FBE3D0]/80 shadow-[0_2px_8px_rgba(255,100,0,0.03)]">
+                  <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-[#FFF0E2] flex items-center justify-center shrink-0 text-[#FF5500] border border-[#FFD9BA]/80 shadow-2xs">
+                    <Zap className="w-4 h-4 sm:w-5 sm:h-5 stroke-[2.3]" />
+                  </div>
+                  <div className="min-w-0">
+                    <h4 className="font-bold text-[#0B1F44] text-xs sm:text-[13px] leading-tight">
+                      Instant Access
+                    </h4>
+                    <p className="text-[10.5px] sm:text-[11px] text-[#58769F] leading-snug mt-0.5">
+                      Start using your products immediately
+                    </p>
+                  </div>
+                </div>
+
+                {/* Benefit 2: Secure Payments */}
+                <div className="flex items-center sm:items-start gap-2.5 sm:gap-3 p-2 sm:p-2.5 rounded-xl bg-white/70 backdrop-blur-xs border border-[#FBE3D0]/80 shadow-[0_2px_8px_rgba(255,100,0,0.03)]">
+                  <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-[#FFF0E2] flex items-center justify-center shrink-0 text-[#FF5500] border border-[#FFD9BA]/80 shadow-2xs">
+                    <ShieldCheck className="w-4 h-4 sm:w-5 sm:h-5 stroke-[2.3]" />
+                  </div>
+                  <div className="min-w-0">
+                    <h4 className="font-bold text-[#0B1F44] text-xs sm:text-[13px] leading-tight">
+                      Secure Payments
+                    </h4>
+                    <p className="text-[10.5px] sm:text-[11px] text-[#58769F] leading-snug mt-0.5">
+                      Your data is 100% protected
+                    </p>
+                  </div>
+                </div>
+
+                {/* Benefit 3: 24/7 Support */}
+                <div className="flex items-center sm:items-start gap-2.5 sm:gap-3 p-2 sm:p-2.5 rounded-xl bg-white/70 backdrop-blur-xs border border-[#FBE3D0]/80 shadow-[0_2px_8px_rgba(255,100,0,0.03)]">
+                  <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-[#FFF0E2] flex items-center justify-center shrink-0 text-[#FF5500] border border-[#FFD9BA]/80 shadow-2xs">
+                    <Headphones className="w-4 h-4 sm:w-5 sm:h-5 stroke-[2.3]" />
+                  </div>
+                  <div className="min-w-0">
+                    <h4 className="font-bold text-[#0B1F44] text-xs sm:text-[13px] leading-tight">
+                      24/7 Support
+                    </h4>
+                    <p className="text-[10.5px] sm:text-[11px] text-[#58769F] leading-snug mt-0.5">
+                      We're always here to help
+                    </p>
+                  </div>
                 </div>
 
               </div>
 
-              {/* RIGHT HALF: OMYRA MALL Digital Product Mockup Banner Image inside Card (lg:col-span-6) */}
-              <div className="lg:col-span-6 flex items-center justify-center lg:justify-end">
-                <div className="relative w-full max-w-[540px] rounded-2xl sm:rounded-3xl p-2.5 sm:p-3.5 bg-white/75 backdrop-blur-md border border-white/90 shadow-[0_16px_40px_rgba(255,100,0,0.08),0_2px_12px_rgba(16,43,82,0.04)]">
-                  
-                  {/* Inner Image Frame with crisp rounded corners */}
-                  <div className="relative rounded-xl sm:rounded-2xl overflow-hidden bg-[#FFF9F3] border border-[#FCE2D0]">
-                    <img
-                      src={omyraLaptopBannerImg}
-                      alt="OMYRA MALL Digital Product Marketplace Workspace Mockup"
-                      referrerPolicy="no-referrer"
-                      className="w-full h-auto max-h-[270px] sm:max-h-[330px] md:max-h-[380px] lg:max-h-[420px] object-contain select-none pointer-events-none transition-transform duration-500 hover:scale-[1.02]"
-                    />
-
-                    {/* Subtle warm ambient lighting overlay */}
-                    <div className="absolute top-0 right-0 w-36 h-36 bg-gradient-to-bl from-[#FF7A1A]/10 to-transparent pointer-events-none" />
-                  </div>
-
-                  {/* Micro floating badge on the card */}
-                  <div className="absolute -bottom-3 left-6 sm:left-8 px-3.5 py-1.5 rounded-full bg-white/95 backdrop-blur-md border border-[#FCD2B3] shadow-[0_4px_16px_rgba(255,100,0,0.12)] flex items-center gap-2">
-                    <span className="w-2 h-2 rounded-full bg-[#FF5500] animate-pulse" />
-                    <span className="text-[11px] sm:text-xs font-bold text-[#0B1F44]">
-                      OMYRA Digital Platform
-                    </span>
-                    <span className="text-[10px] text-[#58769F] hidden sm:inline">• Live Marketplace</span>
-                  </div>
-
-                </div>
+              {/* 5. Explore Now Button */}
+              <div className="pt-2 sm:pt-3">
+                <button
+                  onClick={handleExploreNow}
+                  className="group inline-flex items-center justify-center gap-2.5 px-7 sm:px-8 py-3.5 sm:py-4 rounded-xl sm:rounded-2xl font-bold text-white bg-gradient-to-r from-[#FF5500] via-[#FF6000] to-[#FF6A00] hover:from-[#E64D00] hover:to-[#D93600] shadow-[0_10px_24px_rgba(255,85,0,0.32)] hover:shadow-[0_14px_30px_rgba(255,85,0,0.42)] active:scale-[0.98] transition-all cursor-pointer text-sm sm:text-base"
+                >
+                  <span>Explore Now</span>
+                  <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5 group-hover:translate-x-1.5 transition-transform stroke-[2.5]" />
+                </button>
               </div>
 
             </div>
