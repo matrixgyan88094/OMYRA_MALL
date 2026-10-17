@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect, useMemo } from 'react';
 import { 
   SlidersHorizontal, 
   Sparkles, 
@@ -20,7 +20,9 @@ import {
   Monitor,
   Smartphone,
   ExternalLink,
-  ArrowRight
+  ArrowRight,
+  Search,
+  X
 } from 'lucide-react';
 import { useBranding } from '../../context/BrandingContext';
 import { 
@@ -28,8 +30,10 @@ import {
   PRESET_COLORS, 
   DEFAULT_BRANDING, 
   SiteBranding,
-  FontOption 
+  FontOption,
+  FontCategory
 } from '../../types/branding';
+import { loadGoogleFont } from '../../utils/fontLoader';
 import { OmyraMallLogo } from '../OmyraMallLogo';
 
 interface HomepageControlsTabProps {
@@ -94,6 +98,38 @@ export const HomepageControlsTab: React.FC<HomepageControlsTabProps> = ({ token 
   // Active word index for color editing
   const [activeWordIndex, setActiveWordIndex] = useState<number>(0);
   const [previewViewport, setPreviewViewport] = useState<'desktop' | 'mobile'>('desktop');
+
+  // Font Library search, category filter, and dynamic loading (110+ stylish fonts)
+  const [fontSearch, setFontSearch] = useState<string>('');
+  const [selectedFontCategory, setSelectedFontCategory] = useState<string>('All');
+
+  const fontCategories: ('All' | FontCategory)[] = [
+    'All', 
+    'Modern Sans', 
+    'Geometric', 
+    'Luxury Serif', 
+    'Tech & Cyber', 
+    'Bold Display', 
+    'Editorial'
+  ];
+
+  const filteredFonts = useMemo(() => {
+    return AVAILABLE_FONTS.filter(font => {
+      const matchesCategory = selectedFontCategory === 'All' || font.category === selectedFontCategory;
+      const q = fontSearch.toLowerCase().trim();
+      const matchesSearch = !q || 
+        font.name.toLowerCase().includes(q) ||
+        font.category.toLowerCase().includes(q) ||
+        font.sample.toLowerCase().includes(q);
+      return matchesCategory && matchesSearch;
+    });
+  }, [fontSearch, selectedFontCategory]);
+
+  // Preload top visible fonts as filter/search changes
+  useEffect(() => {
+    const topFonts = filteredFonts.slice(0, 30);
+    topFonts.forEach(f => loadGoogleFont(f.name));
+  }, [filteredFonts]);
 
   // Robust animated file upload handler with XMLHttpRequest progress
   const performUpload = (
@@ -817,42 +853,127 @@ export const HomepageControlsTab: React.FC<HomepageControlsTabProps> = ({ token 
                 )}
               </div>
 
-              {/* FONT FAMILY SELECTION */}
-              <div className="space-y-3 pt-2 border-t border-slate-100">
-                <label className="text-xs font-bold text-slate-700 flex items-center justify-between">
-                  <span>Stylish Typography Font Library</span>
-                  <span className="text-[11px] text-slate-400">15 curated web fonts</span>
-                </label>
+              {/* FONT FAMILY SELECTION: 110+ STYLISH FONTS */}
+              <div className="space-y-3.5 pt-2 border-t border-slate-100">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                  <label className="text-xs font-bold text-slate-800 flex items-center gap-1.5">
+                    <Sparkles className="w-3.5 h-3.5 text-orange-600" />
+                    <span>Stylish Typography Font Library</span>
+                    <span className="px-2 py-0.5 rounded-full bg-orange-100 text-orange-700 text-[10px] font-extrabold">
+                      {AVAILABLE_FONTS.length} Fonts
+                    </span>
+                  </label>
+                  <span className="text-[11px] text-slate-400">
+                    Showing {filteredFonts.length} of {AVAILABLE_FONTS.length} stylish fonts
+                  </span>
+                </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2.5 max-h-60 overflow-y-auto pr-1">
-                  {AVAILABLE_FONTS.map((font) => {
-                    const isSelected = branding.fontFamily === font.cssFamily;
+                {/* Search Bar for Fonts */}
+                <div className="relative">
+                  <Search className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+                  <input
+                    type="text"
+                    value={fontSearch}
+                    onChange={(e) => setFontSearch(e.target.value)}
+                    placeholder="Search 110+ fonts by name, style, or category (e.g. Outfit, Cinzel, Syne, Tech...)"
+                    className="w-full pl-9 pr-8 py-2 text-xs font-medium border border-slate-200 rounded-xl bg-slate-50/60 focus:bg-white focus:border-orange-500 focus:outline-none transition-all"
+                  />
+                  {fontSearch && (
+                    <button
+                      type="button"
+                      onClick={() => setFontSearch('')}
+                      className="absolute right-2.5 top-1/2 -translate-y-1/2 p-0.5 text-slate-400 hover:text-slate-600 rounded-full"
+                    >
+                      <X className="w-3.5 h-3.5" />
+                    </button>
+                  )}
+                </div>
+
+                {/* Category Filter Pills */}
+                <div className="flex items-center gap-1.5 overflow-x-auto pb-1 no-scrollbar text-xs">
+                  {fontCategories.map((cat) => {
+                    const count = cat === 'All' 
+                      ? AVAILABLE_FONTS.length 
+                      : AVAILABLE_FONTS.filter(f => f.category === cat).length;
+                    const isSelected = selectedFontCategory === cat;
                     return (
                       <button
-                        key={font.id}
+                        key={cat}
                         type="button"
-                        onClick={() => updateBrandingState({ fontFamily: font.cssFamily })}
-                        className={`text-left p-3 rounded-xl border transition-all ${
+                        onClick={() => setSelectedFontCategory(cat)}
+                        className={`shrink-0 px-2.5 py-1 rounded-lg text-[11px] font-bold transition-all ${
                           isSelected
-                            ? 'border-orange-500 bg-orange-50/60 ring-2 ring-orange-500/20'
-                            : 'border-slate-200 hover:border-slate-300 bg-white'
+                            ? 'bg-slate-900 text-white shadow-2xs'
+                            : 'bg-slate-100 text-slate-600 hover:bg-slate-200 hover:text-slate-900'
                         }`}
                       >
-                        <div className="flex items-center justify-between mb-1">
-                          <span className="text-xs font-bold text-slate-900 truncate">{font.name}</span>
-                          <span className="text-[9px] text-slate-400 font-medium px-1.5 py-0.2 bg-slate-100 rounded">
-                            {font.category}
-                          </span>
-                        </div>
-                        <div 
-                          className="text-sm text-slate-800 font-extrabold truncate"
-                          style={{ fontFamily: font.cssFamily }}
-                        >
-                          {branding.siteName || 'OMYRA MALL'}
-                        </div>
+                        <span>{cat}</span>
+                        <span className={`ml-1 text-[10px] ${isSelected ? 'text-slate-300' : 'text-slate-400'}`}>
+                          ({count})
+                        </span>
                       </button>
                     );
                   })}
+                </div>
+
+                {/* 110+ Font Cards Grid */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2 max-h-80 overflow-y-auto pr-1 border border-slate-100 rounded-xl p-1 bg-slate-50/40">
+                  {filteredFonts.length === 0 ? (
+                    <div className="col-span-full p-8 text-center text-xs text-slate-400 bg-white rounded-xl border border-dashed border-slate-200 space-y-2">
+                      <p>No fonts found matching "{fontSearch}"</p>
+                      <button
+                        type="button"
+                        onClick={() => { setFontSearch(''); setSelectedFontCategory('All'); }}
+                        className="text-xs font-bold text-orange-600 hover:underline"
+                      >
+                        Reset filters to view all 110+ fonts
+                      </button>
+                    </div>
+                  ) : (
+                    filteredFonts.map((font) => {
+                      const isSelected = branding.fontFamily === font.cssFamily;
+                      return (
+                        <button
+                          key={font.id}
+                          type="button"
+                          onMouseEnter={() => loadGoogleFont(font.name)}
+                          onFocus={() => loadGoogleFont(font.name)}
+                          onClick={() => {
+                            loadGoogleFont(font.name);
+                            updateBrandingState({ fontFamily: font.cssFamily });
+                          }}
+                          className={`text-left p-3 rounded-xl border transition-all relative group cursor-pointer ${
+                            isSelected
+                              ? 'border-orange-500 bg-orange-50/70 ring-2 ring-orange-500/20 shadow-2xs'
+                              : 'border-slate-200 hover:border-orange-300 hover:bg-white bg-white'
+                          }`}
+                        >
+                          <div className="flex items-center justify-between mb-1 gap-1">
+                            <span className="text-xs font-bold text-slate-900 truncate">{font.name}</span>
+                            <div className="flex items-center gap-1 shrink-0">
+                              <span className="text-[9px] text-slate-400 font-medium px-1.5 py-0.2 bg-slate-100 rounded">
+                                {font.category}
+                              </span>
+                              {isSelected && (
+                                <span className="w-3.5 h-3.5 rounded-full bg-orange-600 text-white flex items-center justify-center">
+                                  <Check className="w-2.5 h-2.5 stroke-[3]" />
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                          <div 
+                            className="text-sm text-slate-800 font-black truncate leading-tight mt-1"
+                            style={{ fontFamily: font.cssFamily }}
+                          >
+                            {branding.siteName || 'OMYRA MALL'}
+                          </div>
+                          <div className="text-[10px] text-slate-400 truncate mt-0.5 font-normal">
+                            {font.sample}
+                          </div>
+                        </button>
+                      );
+                    })
+                  )}
                 </div>
               </div>
 

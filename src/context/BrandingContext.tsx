@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { SiteBranding, DEFAULT_BRANDING, BrandingWordStyle } from '../types/branding';
+import { loadGoogleFont, extractFontNameFromCss } from '../utils/fontLoader';
 
 interface BrandingContextType {
   branding: SiteBranding;
@@ -78,6 +79,16 @@ export const BrandingProvider: React.FC<{ children: React.ReactNode }> = ({ chil
 
     updateFaviconInDOM(branding.faviconUrl);
   }, [branding.faviconUrl]);
+
+  // Sync active typography font with DOM Google Fonts loader
+  useEffect(() => {
+    if (branding.fontFamily) {
+      const fontName = extractFontNameFromCss(branding.fontFamily);
+      if (fontName) {
+        loadGoogleFont(fontName);
+      }
+    }
+  }, [branding.fontFamily]);
 
   // Load from API on mount
   const refreshBranding = useCallback(async () => {
