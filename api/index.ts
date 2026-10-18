@@ -241,6 +241,7 @@ interface LocalStore {
   email_logs: EmailLog[];
   active_challenges: Record<string, { challenge: string; expires: number; type: 'register' | 'login' }>;
   branding?: any;
+  menus?: any[];
 }
 
 function hashPassword(password: string): string {
@@ -510,6 +511,14 @@ async function initNeonDatabase() {
         );
       `;
 
+      await sql`
+        CREATE TABLE IF NOT EXISTS site_menus (
+          id TEXT PRIMARY KEY,
+          data JSONB NOT NULL,
+          updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+        );
+      `;
+
       // Seed initial admin if not exists
       const existingAdmin = await sql`SELECT * FROM admin_account WHERE id = 'admin_primary' LIMIT 1;`;
       if (existingAdmin.length === 0) {
@@ -668,6 +677,56 @@ async function resetSiteBranding(): Promise<void> {
       await sql`DELETE FROM site_branding WHERE id = 'primary';`;
     } catch (e) {
       console.warn('Neon reset branding failed:', e);
+    }
+  }
+}
+
+async function getSiteMenus(): Promise<any[]> {
+  if (sql && neonConnected) {
+    try {
+      const rows = await sql`SELECT data FROM site_menus WHERE id = 'primary' LIMIT 1;`;
+      if (rows && rows.length > 0 && Array.isArray(rows[0].data)) {
+        return rows[0].data;
+      }
+    } catch (e) {
+      console.warn('Neon getSiteMenus failed, using local store:', e);
+    }
+  }
+  const store = loadLocalStore();
+  return store.menus || [];
+}
+
+async function updateSiteMenus(data: any[]): Promise<any[]> {
+  const store = loadLocalStore();
+  store.menus = data;
+  saveLocalStore(store);
+
+  if (sql && neonConnected) {
+    try {
+      await sql`
+        INSERT INTO site_menus (id, data, updated_at)
+        VALUES ('primary', ${JSON.stringify(data)}, CURRENT_TIMESTAMP)
+        ON CONFLICT (id) DO UPDATE
+        SET data = ${JSON.stringify(data)},
+            updated_at = CURRENT_TIMESTAMP;
+      `;
+    } catch (e) {
+      console.warn('Neon save menus failed:', e);
+    }
+  }
+  return data;
+}
+
+async function resetSiteMenus(): Promise<void> {
+  const store = loadLocalStore();
+  delete store.menus;
+  saveLocalStore(store);
+
+  if (sql && neonConnected) {
+    try {
+      await sql`DELETE FROM site_menus WHERE id = 'primary';`;
+    } catch (e) {
+      console.warn('Neon reset menus failed:', e);
     }
   }
 }
@@ -2868,6 +2927,68 @@ apiRouter.post('/admin/branding/upload', verifyAuth, upload.single('file'), asyn
   } catch (err: any) {
     console.error('Branding file upload error:', err);
     res.status(500).json({ error: err.message || 'Failed to upload branding asset' });
+  }
+});
+
+// ---------------------------------------------------------
+// NAVIGATION & MENU MANAGEMENT API
+// ---------------------------------------------------------
+apiRouter.get('/menus', async (req: Request, res: Response) => {
+  try {
+    const menus = await getSiteMenus();
+    res.json({ success: true, menus });
+  } catch (err: any) {
+    console.error('Fetch menus error:', err);
+    res.status(500).json({ error: 'Failed to retrieve site navigation menus' });
+  }
+});
+
+apiRouter.post('/admin/menus', verifyAuth, async (req: Request, res: Response) => {
+  try {
+    const { menus, menu } = req.body || {};
+    let currentMenus = await getSiteMenus();
+
+    if (Array.isArray(menus)) {
+      currentMenus = menus;
+    } else if (menu && typeof menu === 'object') {
+      const idx = currentMenus.findIndex(m => m.id === menu.id);
+      if (idx !== -1) {
+        currentMenus[idx] = menu;
+      } else {
+        currentMenus.push(menu);
+      }
+    } else {
+      return res.status(400).json({ error: 'Invalid menu payload' });
+    }
+
+    const updated = await updateSiteMenus(currentMenus);
+    res.json({ success: true, menus: updated });
+  } catch (err: any) {
+    console.error('Update menu error:', err);
+    res.status(500).json({ error: 'Failed to update navigation menus' });
+  }
+});
+
+apiRouter.delete('/admin/menus/:id', verifyAuth, async (req: Request, res: Response) => {
+  try {
+    const menuId = req.params.id;
+    const currentMenus = await getSiteMenus();
+    const updated = currentMenus.filter(m => m.id !== menuId);
+    await updateSiteMenus(updated);
+    res.json({ success: true, menus: updated });
+  } catch (err: any) {
+    console.error('Delete menu error:', err);
+    res.status(500).json({ error: 'Failed to delete menu' });
+  }
+});
+
+apiRouter.post('/admin/menus/reset', verifyAuth, async (req: Request, res: Response) => {
+  try {
+    await resetSiteMenus();
+    res.json({ success: true, message: 'Navigation menus reset to default' });
+  } catch (err: any) {
+    console.error('Reset menus error:', err);
+    res.status(500).json({ error: 'Failed to reset navigation menus' });
   }
 });
 

@@ -22,7 +22,12 @@ import {
   ExternalLink,
   ArrowRight,
   Search,
-  X
+  X,
+  ChevronLeft,
+  ChevronRight,
+  Compass,
+  FileText,
+  Footprints
 } from 'lucide-react';
 import { useBranding } from '../../context/BrandingContext';
 import { 
@@ -33,14 +38,16 @@ import {
   FontOption,
   FontCategory
 } from '../../types/branding';
+import { SYSTEM_PAGES } from '../../types/menu';
 import { loadGoogleFont } from '../../utils/fontLoader';
 import { OmyraMallLogo } from '../OmyraMallLogo';
+import { MenuManagementSection } from './MenuManagementSection';
 
 interface HomepageControlsTabProps {
   token: string;
 }
 
-type SubTab = 'branding' | 'hero' | 'sections';
+type SubTab = 'branding' | 'menus' | 'hero' | 'sections' | 'fonts' | 'pages' | 'footer';
 
 interface UploadProgressState {
   isUploading: boolean;
@@ -98,6 +105,36 @@ export const HomepageControlsTab: React.FC<HomepageControlsTabProps> = ({ token 
   // Active word index for color editing
   const [activeWordIndex, setActiveWordIndex] = useState<number>(0);
   const [previewViewport, setPreviewViewport] = useState<'desktop' | 'mobile'>('desktop');
+
+  // Horizontal smooth slidable sub-menu ref & controls
+  const subnavScrollRef = useRef<HTMLDivElement>(null);
+  const [canScrollLeft, setCanScrollLeft] = useState(false);
+  const [canScrollRight, setCanScrollRight] = useState(true);
+
+  const checkScrollPosition = () => {
+    if (subnavScrollRef.current) {
+      const { scrollLeft, scrollWidth, clientWidth } = subnavScrollRef.current;
+      setCanScrollLeft(scrollLeft > 5);
+      setCanScrollRight(scrollLeft < scrollWidth - clientWidth - 5);
+    }
+  };
+
+  const handleSubnavScroll = (direction: 'left' | 'right') => {
+    if (subnavScrollRef.current) {
+      const scrollAmount = 240;
+      subnavScrollRef.current.scrollBy({
+        left: direction === 'left' ? -scrollAmount : scrollAmount,
+        behavior: 'smooth'
+      });
+      setTimeout(checkScrollPosition, 300);
+    }
+  };
+
+  useEffect(() => {
+    checkScrollPosition();
+    window.addEventListener('resize', checkScrollPosition);
+    return () => window.removeEventListener('resize', checkScrollPosition);
+  }, []);
 
   // Font Library search, category filter, and dynamic loading (110+ stylish fonts)
   const [fontSearch, setFontSearch] = useState<string>('');
@@ -308,43 +345,131 @@ export const HomepageControlsTab: React.FC<HomepageControlsTabProps> = ({ token 
         </div>
       )}
 
-      {/* Sub-Navigation Tabs */}
-      <div className="flex items-center gap-2 border-b border-slate-200 pb-3">
-        <button
-          onClick={() => setActiveSubTab('branding')}
-          className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all ${
-            activeSubTab === 'branding'
-              ? 'bg-[#FF5A00] text-white shadow-xs shadow-orange-500/30'
-              : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
-          }`}
-        >
-          <Palette className="w-3.5 h-3.5" />
-          <span>Branding Management & Logos</span>
-        </button>
+      {/* ========================================================================= */}
+      {/* BEAUTIFUL HORIZONTAL SMOOTH SLIDABLE MENU BAR                              */}
+      {/* ========================================================================= */}
+      <div className="relative bg-white rounded-2xl border border-slate-200/90 p-2 shadow-xs">
+        
+        {/* Left Scroll Chevron Button */}
+        {canScrollLeft && (
+          <button
+            type="button"
+            onClick={() => handleSubnavScroll('left')}
+            className="absolute left-2 top-1/2 -translate-y-1/2 z-20 w-8 h-8 rounded-full bg-white/95 hover:bg-orange-50 border border-slate-200 text-slate-700 hover:text-orange-600 shadow-md flex items-center justify-center transition-all cursor-pointer backdrop-blur-xs"
+            title="Scroll menu left"
+          >
+            <ChevronLeft className="w-4 h-4 stroke-[2.5]" />
+          </button>
+        )}
 
-        <button
-          onClick={() => setActiveSubTab('hero')}
-          className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all ${
-            activeSubTab === 'hero'
-              ? 'bg-[#FF5A00] text-white shadow-xs shadow-orange-500/30'
-              : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
+        {/* Left Gradient Fade Mask */}
+        <div
+          className={`pointer-events-none absolute left-0 top-0 bottom-0 w-12 bg-gradient-to-r from-white via-white/80 to-transparent z-10 rounded-l-2xl transition-opacity duration-300 ${
+            canScrollLeft ? 'opacity-100' : 'opacity-0'
           }`}
-        >
-          <LayoutTemplate className="w-3.5 h-3.5" />
-          <span>Hero & Promotional Banners</span>
-        </button>
+        />
 
-        <button
-          onClick={() => setActiveSubTab('sections')}
-          className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all ${
-            activeSubTab === 'sections'
-              ? 'bg-[#FF5A00] text-white shadow-xs shadow-orange-500/30'
-              : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
+        {/* Right Scroll Chevron Button */}
+        {canScrollRight && (
+          <button
+            type="button"
+            onClick={() => handleSubnavScroll('right')}
+            className="absolute right-2 top-1/2 -translate-y-1/2 z-20 w-8 h-8 rounded-full bg-white/95 hover:bg-orange-50 border border-slate-200 text-slate-700 hover:text-orange-600 shadow-md flex items-center justify-center transition-all cursor-pointer backdrop-blur-xs"
+            title="Scroll menu right"
+          >
+            <ChevronRight className="w-4 h-4 stroke-[2.5]" />
+          </button>
+        )}
+
+        {/* Right Gradient Fade Mask */}
+        <div
+          className={`pointer-events-none absolute right-0 top-0 bottom-0 w-12 bg-gradient-to-l from-white via-white/80 to-transparent z-10 rounded-r-2xl transition-opacity duration-300 ${
+            canScrollRight ? 'opacity-100' : 'opacity-0'
           }`}
+        />
+
+        {/* Smooth Slidable Menu Tabs List */}
+        <div
+          ref={subnavScrollRef}
+          onScroll={checkScrollPosition}
+          className="flex items-center gap-2 overflow-x-auto scrollbar-none scroll-smooth px-1 py-1 w-full select-none"
         >
-          <Layers className="w-3.5 h-3.5" />
-          <span>Homepage Sections & Cards</span>
-        </button>
+          {[
+            {
+              id: 'branding' as const,
+              label: 'Branding Management & Logos',
+              icon: Palette,
+              tag: 'Identity & Logos'
+            },
+            {
+              id: 'menus' as const,
+              label: 'Navigation & Menu Management',
+              icon: Compass,
+              tag: 'Site Menus'
+            },
+            {
+              id: 'hero' as const,
+              label: 'Hero & Promotional Banners',
+              icon: LayoutTemplate,
+              tag: 'Banners & CTA'
+            },
+            {
+              id: 'sections' as const,
+              label: 'Homepage Sections & Cards',
+              icon: Layers,
+              tag: 'Cards & Grids'
+            },
+            {
+              id: 'fonts' as const,
+              label: 'Stylish Typography Font Library',
+              icon: Type,
+              tag: '110+ Pro Fonts'
+            },
+            {
+              id: 'pages' as const,
+              label: 'Storefront Pages & Custom Routes',
+              icon: FileText,
+              tag: 'Pages & URLs'
+            },
+            {
+              id: 'footer' as const,
+              label: 'Footer Branding & Quick Links',
+              icon: Footprints,
+              tag: 'Footer Setup'
+            }
+          ].map((tab) => {
+            const isActive = activeSubTab === tab.id;
+            const IconComponent = tab.icon;
+
+            return (
+              <button
+                key={tab.id}
+                type="button"
+                onClick={(e) => {
+                  setActiveSubTab(tab.id);
+                  e.currentTarget.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+                }}
+                className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold transition-all shrink-0 cursor-pointer ${
+                  isActive
+                    ? 'bg-gradient-to-r from-[#FF5A00] to-[#e04f00] text-white shadow-md shadow-orange-500/25 ring-2 ring-orange-500/20'
+                    : 'text-slate-700 hover:text-slate-900 bg-slate-50/80 hover:bg-slate-100 border border-slate-200/80 hover:border-slate-300'
+                }`}
+              >
+                <IconComponent className={`w-3.5 h-3.5 shrink-0 ${isActive ? 'text-white' : 'text-orange-600'}`} />
+                <span className="whitespace-nowrap">{tab.label}</span>
+                <span
+                  className={`text-[10px] font-semibold px-2 py-0.5 rounded-md shrink-0 ${
+                    isActive
+                      ? 'bg-white/20 text-white'
+                      : 'bg-white text-slate-500 border border-slate-200/80'
+                  }`}
+                >
+                  {tab.tag}
+                </span>
+              </button>
+            );
+          })}
+        </div>
       </div>
 
       {/* ========================================================================= */}
@@ -1170,7 +1295,14 @@ export const HomepageControlsTab: React.FC<HomepageControlsTabProps> = ({ token 
       )}
 
       {/* ========================================================================= */}
-      {/* 2. HERO & PROMOTIONAL BANNERS SUB-TAB                                      */}
+      {/* 2. NAVIGATION & MENU MANAGEMENT SUB-TAB                                    */}
+      {/* ========================================================================= */}
+      {activeSubTab === 'menus' && (
+        <MenuManagementSection token={token} />
+      )}
+
+      {/* ========================================================================= */}
+      {/* 3. HERO & PROMOTIONAL BANNERS SUB-TAB                                      */}
       {/* ========================================================================= */}
       {activeSubTab === 'hero' && (
         <div className="bg-white rounded-2xl border border-slate-200/80 p-6 shadow-xs space-y-6">
@@ -1247,6 +1379,301 @@ export const HomepageControlsTab: React.FC<HomepageControlsTabProps> = ({ token 
                 </span>
               </div>
             ))}
+          </div>
+        </div>
+      )}
+
+      {/* ========================================================================= */}
+      {/* 5. STYLISH TYPOGRAPHY FONT LIBRARY (110+ MODERN & PROFESSIONAL FONTS)     */}
+      {/* ========================================================================= */}
+      {activeSubTab === 'fonts' && (
+        <div className="bg-white rounded-2xl border border-slate-200/80 p-6 shadow-xs space-y-6 animate-in fade-in">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-100 pb-4">
+            <div>
+              <h3 className="text-sm font-black text-slate-900 tracking-tight flex items-center gap-2">
+                <Type className="w-4 h-4 text-orange-600" />
+                Stylish Typography Font Library
+                <span className="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-orange-100 text-orange-700">
+                  {AVAILABLE_FONTS.length}+ Fonts
+                </span>
+              </h3>
+              <p className="text-xs text-slate-500 mt-1">
+                Curated collection of professional, modern, and stylish typography. Click any font to preview and apply it to your storefront branding.
+              </p>
+            </div>
+
+            <div className="text-xs text-slate-500 bg-slate-50 border border-slate-200/80 px-3.5 py-2 rounded-xl">
+              Active Font: <strong className="text-orange-600 font-extrabold">{AVAILABLE_FONTS.find(f => f.cssFamily === branding.fontFamily)?.name || 'Plus Jakarta Sans'}</strong>
+            </div>
+          </div>
+
+          {/* Search & Filter Bar */}
+          <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3">
+            <div className="relative flex-1 max-w-md">
+              <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+              <input
+                type="text"
+                value={fontSearch}
+                onChange={(e) => setFontSearch(e.target.value)}
+                placeholder="Search by font name, style, or feeling..."
+                className="w-full pl-9 pr-8 py-2 text-xs font-semibold border border-slate-200 rounded-xl bg-slate-50/60 focus:bg-white focus:border-orange-500 focus:outline-none"
+              />
+              {fontSearch && (
+                <button
+                  type="button"
+                  onClick={() => setFontSearch('')}
+                  className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+                >
+                  <X className="w-3.5 h-3.5" />
+                </button>
+              )}
+            </div>
+
+            {/* Category Filter Pills */}
+            <div className="flex items-center gap-1.5 overflow-x-auto scrollbar-none py-1">
+              {fontCategories.map((cat) => {
+                const count = cat === 'All'
+                  ? AVAILABLE_FONTS.length
+                  : AVAILABLE_FONTS.filter(f => f.category === cat).length;
+                const isSelected = selectedFontCategory === cat;
+
+                return (
+                  <button
+                    key={cat}
+                    type="button"
+                    onClick={() => setSelectedFontCategory(cat)}
+                    className={`shrink-0 px-3 py-1.5 rounded-xl text-xs font-bold transition-all ${
+                      isSelected
+                        ? 'bg-[#FF5A00] text-white shadow-xs'
+                        : 'bg-slate-100 text-slate-600 hover:bg-slate-200 hover:text-slate-900'
+                    }`}
+                  >
+                    <span>{cat}</span>
+                    <span className={`ml-1 text-[10px] ${isSelected ? 'text-orange-200' : 'text-slate-400'}`}>
+                      ({count})
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Font Cards Grid */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3.5 max-h-[620px] overflow-y-auto pr-1 border border-slate-100 rounded-2xl p-2 bg-slate-50/30">
+            {filteredFonts.length === 0 ? (
+              <div className="col-span-full p-12 text-center text-xs text-slate-400 bg-white rounded-xl border border-dashed border-slate-200 space-y-2">
+                <p>No stylish fonts found matching "{fontSearch}"</p>
+                <button
+                  type="button"
+                  onClick={() => { setFontSearch(''); setSelectedFontCategory('All'); }}
+                  className="text-xs font-bold text-orange-600 hover:underline"
+                >
+                  View all {AVAILABLE_FONTS.length}+ fonts
+                </button>
+              </div>
+            ) : (
+              filteredFonts.map((font) => {
+                const isSelected = branding.fontFamily === font.cssFamily;
+
+                return (
+                  <div
+                    key={font.id}
+                    onMouseEnter={() => loadGoogleFont(font.name)}
+                    className={`p-4 rounded-xl border transition-all flex flex-col justify-between space-y-3 bg-white relative group ${
+                      isSelected
+                        ? 'border-orange-500 ring-2 ring-orange-500/20 shadow-xs bg-orange-50/20'
+                        : 'border-slate-200 hover:border-orange-300 hover:shadow-xs'
+                    }`}
+                  >
+                    <div>
+                      <div className="flex items-center justify-between mb-1.5 gap-2">
+                        <span className="text-xs font-black text-slate-900 truncate">{font.name}</span>
+                        <span className="text-[9px] font-semibold text-slate-500 px-2 py-0.5 bg-slate-100 rounded-md shrink-0">
+                          {font.category}
+                        </span>
+                      </div>
+
+                      {/* Live Font Sample */}
+                      <div
+                        className="text-lg font-black text-slate-900 truncate leading-snug tracking-tight my-2"
+                        style={{ fontFamily: font.cssFamily }}
+                      >
+                        {branding.siteName || 'OMYRA MALL'}
+                      </div>
+
+                      <div className="text-[11px] text-slate-400 leading-tight">
+                        {font.sample}
+                      </div>
+                    </div>
+
+                    <div className="pt-2 border-t border-slate-100 flex items-center justify-between">
+                      {isSelected ? (
+                        <span className="text-[11px] font-bold text-emerald-600 flex items-center gap-1">
+                          <CheckCircle2 className="w-3.5 h-3.5" />
+                          <span>Active Brand Font</span>
+                        </span>
+                      ) : (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            loadGoogleFont(font.name);
+                            updateBrandingState({ fontFamily: font.cssFamily });
+                            setSaveSuccessMessage(`Applied "${font.name}" to storefront branding!`);
+                            setTimeout(() => setSaveSuccessMessage(null), 3500);
+                          }}
+                          className="w-full py-1.5 text-xs font-bold text-slate-700 group-hover:text-white bg-slate-100 group-hover:bg-[#FF5A00] rounded-lg transition-all text-center"
+                        >
+                          Apply to Storefront
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                );
+              })
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* ========================================================================= */}
+      {/* 6. STOREFRONT PAGES & CUSTOM ROUTES                                       */}
+      {/* ========================================================================= */}
+      {activeSubTab === 'pages' && (
+        <div className="bg-white rounded-2xl border border-slate-200/80 p-6 shadow-xs space-y-6 animate-in fade-in">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-100 pb-4">
+            <div>
+              <h3 className="text-sm font-black text-slate-900 tracking-tight flex items-center gap-2">
+                <FileText className="w-4 h-4 text-orange-600" />
+                Storefront Pages & Custom Routes
+              </h3>
+              <p className="text-xs text-slate-500 mt-1">
+                Manage all registered storefront view routes, legal pages, and instantly convert any page into a navigation menu item.
+              </p>
+            </div>
+
+            <button
+              type="button"
+              onClick={() => setActiveSubTab('menus')}
+              className="px-4 py-2 text-xs font-bold text-white bg-slate-900 hover:bg-[#FF5A00] rounded-xl transition-all shadow-xs flex items-center gap-2 shrink-0"
+            >
+              <Compass className="w-3.5 h-3.5" />
+              <span>Open Menu Builder</span>
+            </button>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {SYSTEM_PAGES.map((page) => (
+              <div
+                key={page.id}
+                className="p-4 rounded-xl border border-slate-200 hover:border-orange-300 bg-slate-50/50 hover:bg-white transition-all space-y-3 flex flex-col justify-between"
+              >
+                <div>
+                  <div className="flex items-center justify-between gap-2 mb-1.5">
+                    <span className="text-xs font-extrabold text-slate-900 truncate">
+                      {page.title}
+                    </span>
+                    {page.badge && (
+                      <span className="text-[9px] font-bold px-1.5 py-0.2 rounded bg-orange-100 text-orange-700">
+                        {page.badge}
+                      </span>
+                    )}
+                  </div>
+                  <div className="text-[11px] font-mono text-slate-400 bg-white px-2 py-0.5 rounded border border-slate-200/60 inline-block mb-1.5">
+                    {page.url}
+                  </div>
+                  <p className="text-xs text-slate-500 leading-relaxed">
+                    {page.description}
+                  </p>
+                </div>
+
+                <div className="pt-2 border-t border-slate-200/60 flex items-center justify-between">
+                  <span className="text-[10px] text-emerald-600 font-semibold flex items-center gap-1">
+                    <CheckCircle2 className="w-3 h-3" />
+                    <span>Live Page</span>
+                  </span>
+
+                  <button
+                    type="button"
+                    onClick={() => setActiveSubTab('menus')}
+                    className="text-xs font-bold text-orange-600 hover:text-orange-700 hover:underline flex items-center gap-1"
+                  >
+                    <span>+ Make into Menu</span>
+                    <ArrowRight className="w-3 h-3" />
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* ========================================================================= */}
+      {/* 7. FOOTER BRANDING & QUICK LINKS                                          */}
+      {/* ========================================================================= */}
+      {activeSubTab === 'footer' && (
+        <div className="bg-white rounded-2xl border border-slate-200/80 p-6 shadow-xs space-y-6 animate-in fade-in">
+          <div>
+            <h3 className="text-sm font-black text-slate-900 tracking-tight flex items-center gap-2">
+              <Footprints className="w-4 h-4 text-orange-600" />
+              Footer Branding & Quick Links Configuration
+            </h3>
+            <p className="text-xs text-slate-500 mt-1">
+              Control the footer brand column, custom footer logo, tagline, and navigation column links.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="border border-slate-200 rounded-xl p-5 bg-slate-50/50 space-y-4">
+              <div className="text-xs font-black text-slate-900 flex items-center gap-1.5">
+                <Globe className="w-3.5 h-3.5 text-orange-600" />
+                <span>Footer Brand Column Preview</span>
+              </div>
+
+              <div className="bg-white border border-slate-200 rounded-xl p-4 shadow-2xs space-y-3">
+                {branding.footerLogoUrl ? (
+                  <img src={branding.footerLogoUrl} alt="Footer Logo" className="h-8 w-auto object-contain" />
+                ) : (
+                  <OmyraMallLogo size="sm" />
+                )}
+                <div className="text-xs font-bold text-[#0B2046]">
+                  {branding.showTagline && branding.tagline ? branding.tagline : 'Digital Products Marketplace'}
+                </div>
+                <div className="text-[11px] text-[#58769F] leading-relaxed">
+                  Discover premium digital products, software, templates, plugins and verified developer resources.
+                </div>
+              </div>
+
+              <div className="flex items-center justify-between text-xs pt-1">
+                <span className="text-slate-500 font-medium">To upload a custom footer logo:</span>
+                <button
+                  type="button"
+                  onClick={() => setActiveSubTab('branding')}
+                  className="font-bold text-orange-600 hover:underline"
+                >
+                  Go to Branding Management & Logos →
+                </button>
+              </div>
+            </div>
+
+            <div className="border border-slate-200 rounded-xl p-5 bg-slate-50/50 space-y-4">
+              <div className="text-xs font-black text-slate-900 flex items-center gap-1.5">
+                <Compass className="w-3.5 h-3.5 text-blue-600" />
+                <span>Footer Quick Links Menu</span>
+              </div>
+
+              <p className="text-xs text-slate-500 leading-relaxed">
+                Footer navigation links are centrally managed via the <strong>Navigation & Menu Management</strong> suite. You can reorder, add, or delete any footer link with one click.
+              </p>
+
+              <button
+                type="button"
+                onClick={() => setActiveSubTab('menus')}
+                className="w-full py-2.5 text-xs font-bold text-white bg-[#FF5A00] hover:bg-[#e04f00] rounded-xl transition-all shadow-xs flex items-center justify-center gap-2"
+              >
+                <Compass className="w-3.5 h-3.5" />
+                <span>Manage Footer Navigation Menus</span>
+              </button>
+            </div>
           </div>
         </div>
       )}

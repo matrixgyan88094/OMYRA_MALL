@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { ShoppingBag, Search, User, ChevronDown } from 'lucide-react';
 import { useStore } from '../context/StoreContext';
+import { useMenu } from '../context/MenuContext';
+import { MenuItem } from '../types/menu';
 import { OmyraMallLogo } from './OmyraMallLogo';
 
 export const Header: React.FC = () => {
@@ -14,8 +16,10 @@ export const Header: React.FC = () => {
     setSelectedCategory,
     setSelectedProduct 
   } = useStore();
+  const { activeHeaderMenu } = useMenu();
   const cartItemCount = cart.reduce((sum, item) => sum + item.quantity, 0);
-  const [activeMenuTab, setActiveMenuTab] = useState<'Home' | 'Deals' | 'Support'>('Home');
+  const [activeMenuTab, setActiveMenuTab] = useState<string>('Home');
+  const [openDropdownId, setOpenDropdownId] = useState<string | null>(null);
 
   const handleMenuClick = (tab: 'Home' | 'Deals' | 'Support') => {
     setActiveMenuTab(tab);
@@ -140,34 +144,160 @@ export const Header: React.FC = () => {
 
       {/* ================= SECONDARY SUB-MENU BAR (Hidden on checkout to match screenshot) ================= */}
       {activeView !== 'checkout' && (
-      <div className="border-t border-zinc-100 bg-white w-full overflow-hidden">
+      <div className="border-t border-zinc-100 bg-white w-full overflow-visible">
         <div className="mx-auto max-w-7xl px-3 sm:px-6 lg:px-8">
           <div className="flex h-11 items-center text-xs sm:text-sm overflow-x-auto scrollbar-none w-full">
             {/* Horizontal menu navigation links with orange active indicator */}
             <nav className="flex items-center gap-5 sm:gap-8 overflow-x-auto scrollbar-none h-full min-w-0 flex-1">
-              {[
-                { name: 'Home', tab: 'Home' as const },
-                { name: 'Deals', tab: 'Deals' as const },
-                { name: 'Support', tab: 'Support' as const },
-              ].map((item) => {
-                const isActive = activeMenuTab === item.tab;
-                return (
-                  <button
-                    key={item.name}
-                    onClick={() => handleMenuClick(item.tab)}
-                    className={`relative h-full flex items-center text-xs sm:text-sm font-semibold transition-colors whitespace-nowrap cursor-pointer py-3 shrink-0 ${
-                      isActive 
-                        ? 'text-[#f95a12]' 
-                        : 'text-zinc-700 hover:text-zinc-950'
-                    }`}
-                  >
-                    <span>{item.name}</span>
-                    {isActive && (
-                      <span className="absolute bottom-0 left-0 right-0 h-[2.5px] bg-[#f95a12] rounded-t-full" />
-                    )}
-                  </button>
-                );
-              })}
+              {activeHeaderMenu && activeHeaderMenu.items.length > 0 ? (
+                activeHeaderMenu.items.map((item) => {
+                  const isActive = activeMenuTab === item.title;
+                  const hasChildren = Boolean(item.children && item.children.length > 0);
+
+                  if (hasChildren) {
+                    return (
+                      <div 
+                        key={item.id} 
+                        className="relative h-full flex items-center group shrink-0"
+                        onMouseLeave={() => setOpenDropdownId(null)}
+                      >
+                        <button
+                          onClick={() => setOpenDropdownId(openDropdownId === item.id ? null : item.id)}
+                          className={`relative h-full flex items-center gap-1 text-xs sm:text-sm font-semibold transition-colors whitespace-nowrap cursor-pointer py-3 ${
+                            isActive || openDropdownId === item.id
+                              ? 'text-[#f95a12]' 
+                              : 'text-zinc-700 hover:text-zinc-950'
+                          }`}
+                        >
+                          <span>{item.title}</span>
+                          {item.badge && (
+                            <span className="text-[9px] px-1.5 py-0.2 rounded font-bold bg-orange-100 text-orange-700">
+                              {item.badge}
+                            </span>
+                          )}
+                          <ChevronDown className="w-3.5 h-3.5 transition-transform group-hover:rotate-180" />
+                          {(isActive || openDropdownId === item.id) && (
+                            <span className="absolute bottom-0 left-0 right-0 h-[2.5px] bg-[#f95a12] rounded-t-full" />
+                          )}
+                        </button>
+
+                        {/* Dropdown Menu */}
+                        <div className="absolute top-full left-0 -mt-1 hidden group-hover:block min-w-[210px] bg-white rounded-xl shadow-lg border border-zinc-200/90 py-1.5 z-50 animate-in fade-in slide-in-from-top-1">
+                          {item.children!.map((child) => (
+                            <button
+                              key={child.id}
+                              onClick={() => {
+                                handleMenuClick(child.title as any);
+                                setSelectedProduct(null);
+                                setOpenDropdownId(null);
+                                if (child.url.includes('category=')) {
+                                  const parts = child.url.split('category=');
+                                  if (parts[1]) {
+                                    setSelectedCategory(decodeURIComponent(parts[1].replace(/\+/g, ' ')));
+                                    setActiveView('store');
+                                  }
+                                } else if (child.url === '/library') {
+                                  setActiveView('library');
+                                } else if (child.url === '/vendor') {
+                                  setActiveView('vendor');
+                                } else if (child.url.startsWith('#')) {
+                                  const el = document.getElementById(child.url.replace('#', ''));
+                                  if (el) el.scrollIntoView({ behavior: 'smooth' });
+                                } else {
+                                  setActiveView('store');
+                                }
+                              }}
+                              className="w-full text-left px-4 py-2 text-xs font-semibold text-zinc-700 hover:text-[#f95a12] hover:bg-orange-50/70 transition-colors flex items-center justify-between"
+                            >
+                              <span>{child.title}</span>
+                              {child.badge && (
+                                <span className="text-[9px] px-1.5 py-0.2 rounded font-bold bg-orange-100 text-orange-700">
+                                  {child.badge}
+                                </span>
+                              )}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    );
+                  }
+
+                  return (
+                    <button
+                      key={item.id}
+                      onClick={() => {
+                        setActiveMenuTab(item.title);
+                        setSelectedProduct(null);
+                        const url = (item.url || '').trim();
+
+                        if (item.target === '_blank') {
+                          window.open(url, '_blank');
+                          return;
+                        }
+
+                        if (url === '/' || url === '') {
+                          setActiveView('store');
+                          setSelectedCategory('All');
+                        } else if (url.includes('deal')) {
+                          setActiveView('store');
+                          setSearchQuery('deal');
+                        } else if (url === '/library') {
+                          setActiveView('library');
+                        } else if (url === '/vendor') {
+                          setActiveView('vendor');
+                        } else if (url === '/checkout') {
+                          setActiveView('checkout');
+                        } else if (url.startsWith('#')) {
+                          const el = document.getElementById(url.replace('#', ''));
+                          if (el) el.scrollIntoView({ behavior: 'smooth' });
+                        } else {
+                          setActiveView('store');
+                        }
+                      }}
+                      className={`relative h-full flex items-center gap-1.5 text-xs sm:text-sm font-semibold transition-colors whitespace-nowrap cursor-pointer py-3 shrink-0 ${
+                        isActive 
+                          ? 'text-[#f95a12]' 
+                          : 'text-zinc-700 hover:text-zinc-950'
+                      }`}
+                    >
+                      <span>{item.title}</span>
+                      {item.badge && (
+                        <span className="text-[9px] px-1.5 py-0.2 rounded font-bold bg-orange-100 text-orange-700">
+                          {item.badge}
+                        </span>
+                      )}
+                      {isActive && (
+                        <span className="absolute bottom-0 left-0 right-0 h-[2.5px] bg-[#f95a12] rounded-t-full" />
+                      )}
+                    </button>
+                  );
+                })
+              ) : (
+                /* Fallback if no items */
+                [
+                  { name: 'Home', tab: 'Home' as const },
+                  { name: 'Deals', tab: 'Deals' as const },
+                  { name: 'Support', tab: 'Support' as const },
+                ].map((item) => {
+                  const isActive = activeMenuTab === item.tab;
+                  return (
+                    <button
+                      key={item.name}
+                      onClick={() => handleMenuClick(item.tab)}
+                      className={`relative h-full flex items-center text-xs sm:text-sm font-semibold transition-colors whitespace-nowrap cursor-pointer py-3 shrink-0 ${
+                        isActive 
+                          ? 'text-[#f95a12]' 
+                          : 'text-zinc-700 hover:text-zinc-950'
+                      }`}
+                    >
+                      <span>{item.name}</span>
+                      {isActive && (
+                        <span className="absolute bottom-0 left-0 right-0 h-[2.5px] bg-[#f95a12] rounded-t-full" />
+                      )}
+                    </button>
+                  );
+                })
+              )}
             </nav>
           </div>
         </div>
