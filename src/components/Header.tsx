@@ -51,10 +51,9 @@ export const Header: React.FC = () => {
               setActiveMenuTab('Home');
             }}
             className="flex items-center text-left focus:outline-none cursor-pointer shrink-0"
-            title="OMYRA MALL"
+            title="Home"
           >
-            <OmyraMallLogo size="sm" className="sm:hidden" />
-            <OmyraMallLogo size="md" className="hidden sm:flex" />
+            <OmyraMallLogo size="md" />
           </button>
 
           {/* 2. Middle Search Bar: large rounded pill with subtle search icon */}

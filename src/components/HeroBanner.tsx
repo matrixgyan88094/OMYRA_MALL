@@ -1,10 +1,11 @@
-import React from 'react';
 import { ArrowRight } from 'lucide-react';
 import { useStore } from '../context/StoreContext';
+import { useBranding } from '../context/BrandingContext';
 import omyraBannerImg from '@/src/assets/images/omyra_hero_banner_1791801127812.jpg';
 
 export const HeroBanner: React.FC = () => {
   const { setSelectedProduct, products } = useStore();
+  const { branding } = useBranding();
 
   const handleExplore = () => {
     const catalogEl = document.getElementById('marketplace-catalog');
@@ -40,7 +41,7 @@ export const HeroBanner: React.FC = () => {
               
               {/* OMYRA MALL badge */}
               <div className="inline-block rounded-full bg-[#fde9de] px-2 py-0.5 sm:px-3.5 sm:py-1 text-[9px] sm:text-xs font-bold text-[#f95a12] mb-1.5 sm:mb-3 tracking-wide shadow-2xs">
-                OMYRA MALL
+                {branding.siteName || 'OMYRA MALL'}
               </div>
 
               {/* Main Headline */}

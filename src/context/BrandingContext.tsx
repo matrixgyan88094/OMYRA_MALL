@@ -20,14 +20,16 @@ const BRANDING_STORAGE_KEY = 'omyra_site_branding';
 const BrandingContext = createContext<BrandingContextType | undefined>(undefined);
 
 // Helper to ensure words array matches the words in siteName
-export function syncWordsWithName(name: string, existingWords: BrandingWordStyle[]): BrandingWordStyle[] {
-  const parts = name.trim().split(/\s+/).filter(Boolean);
+export function syncWordsWithName(name?: string, existingWords?: BrandingWordStyle[]): BrandingWordStyle[] {
+  const cleanName = (name || '').trim();
+  const parts = cleanName.split(/\s+/).filter(Boolean);
   if (parts.length === 0) {
     return [{ text: 'OMYRA', color: '#0B2046' }, { text: 'MALL', color: '#FF5A00' }];
   }
+  const safeExisting = Array.isArray(existingWords) ? existingWords : [];
   return parts.map((part, idx) => {
-    const existing = existingWords[idx];
-    if (existing) {
+    const existing = safeExisting[idx];
+    if (existing && existing.color) {
       return { text: part, color: existing.color };
     }
     // Default alternating colors if newly added word
@@ -89,6 +91,14 @@ export const BrandingProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       }
     }
   }, [branding.fontFamily]);
+
+  // Sync document title with siteName
+  useEffect(() => {
+    const siteTitle = branding.siteName?.trim();
+    if (siteTitle) {
+      document.title = `${siteTitle} — Digital Products Marketplace`;
+    }
+  }, [branding.siteName]);
 
   // Load from API on mount
   const refreshBranding = useCallback(async () => {
