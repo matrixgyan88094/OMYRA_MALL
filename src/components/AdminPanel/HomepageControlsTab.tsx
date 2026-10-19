@@ -23,8 +23,6 @@ import {
   ArrowRight,
   Search,
   X,
-  ChevronLeft,
-  ChevronRight,
   Compass,
   FileText,
   Footprints
@@ -106,35 +104,8 @@ export const HomepageControlsTab: React.FC<HomepageControlsTabProps> = ({ token 
   const [activeWordIndex, setActiveWordIndex] = useState<number>(0);
   const [previewViewport, setPreviewViewport] = useState<'desktop' | 'mobile'>('desktop');
 
-  // Horizontal smooth slidable sub-menu ref & controls
+  // Horizontal smooth slidable sub-menu ref
   const subnavScrollRef = useRef<HTMLDivElement>(null);
-  const [canScrollLeft, setCanScrollLeft] = useState(false);
-  const [canScrollRight, setCanScrollRight] = useState(true);
-
-  const checkScrollPosition = () => {
-    if (subnavScrollRef.current) {
-      const { scrollLeft, scrollWidth, clientWidth } = subnavScrollRef.current;
-      setCanScrollLeft(scrollLeft > 5);
-      setCanScrollRight(scrollLeft < scrollWidth - clientWidth - 5);
-    }
-  };
-
-  const handleSubnavScroll = (direction: 'left' | 'right') => {
-    if (subnavScrollRef.current) {
-      const scrollAmount = 240;
-      subnavScrollRef.current.scrollBy({
-        left: direction === 'left' ? -scrollAmount : scrollAmount,
-        behavior: 'smooth'
-      });
-      setTimeout(checkScrollPosition, 300);
-    }
-  };
-
-  useEffect(() => {
-    checkScrollPosition();
-    window.addEventListener('resize', checkScrollPosition);
-    return () => window.removeEventListener('resize', checkScrollPosition);
-  }, []);
 
   // Font Library search, category filter, and dynamic loading (110+ stylish fonts)
   const [fontSearch, setFontSearch] = useState<string>('');
@@ -348,50 +319,10 @@ export const HomepageControlsTab: React.FC<HomepageControlsTabProps> = ({ token 
       {/* ========================================================================= */}
       {/* BEAUTIFUL HORIZONTAL SMOOTH SLIDABLE MENU BAR                              */}
       {/* ========================================================================= */}
-      <div className="relative bg-white rounded-2xl border border-slate-200/90 p-2 shadow-xs">
-        
-        {/* Left Scroll Chevron Button */}
-        {canScrollLeft && (
-          <button
-            type="button"
-            onClick={() => handleSubnavScroll('left')}
-            className="absolute left-2 top-1/2 -translate-y-1/2 z-20 w-8 h-8 rounded-full bg-white/95 hover:bg-orange-50 border border-slate-200 text-slate-700 hover:text-orange-600 shadow-md flex items-center justify-center transition-all cursor-pointer backdrop-blur-xs"
-            title="Scroll menu left"
-          >
-            <ChevronLeft className="w-4 h-4 stroke-[2.5]" />
-          </button>
-        )}
-
-        {/* Left Gradient Fade Mask */}
-        <div
-          className={`pointer-events-none absolute left-0 top-0 bottom-0 w-12 bg-gradient-to-r from-white via-white/80 to-transparent z-10 rounded-l-2xl transition-opacity duration-300 ${
-            canScrollLeft ? 'opacity-100' : 'opacity-0'
-          }`}
-        />
-
-        {/* Right Scroll Chevron Button */}
-        {canScrollRight && (
-          <button
-            type="button"
-            onClick={() => handleSubnavScroll('right')}
-            className="absolute right-2 top-1/2 -translate-y-1/2 z-20 w-8 h-8 rounded-full bg-white/95 hover:bg-orange-50 border border-slate-200 text-slate-700 hover:text-orange-600 shadow-md flex items-center justify-center transition-all cursor-pointer backdrop-blur-xs"
-            title="Scroll menu right"
-          >
-            <ChevronRight className="w-4 h-4 stroke-[2.5]" />
-          </button>
-        )}
-
-        {/* Right Gradient Fade Mask */}
-        <div
-          className={`pointer-events-none absolute right-0 top-0 bottom-0 w-12 bg-gradient-to-l from-white via-white/80 to-transparent z-10 rounded-r-2xl transition-opacity duration-300 ${
-            canScrollRight ? 'opacity-100' : 'opacity-0'
-          }`}
-        />
-
+      <div className="bg-white rounded-2xl border border-slate-200/90 p-2 shadow-xs">
         {/* Smooth Slidable Menu Tabs List */}
         <div
           ref={subnavScrollRef}
-          onScroll={checkScrollPosition}
           className="flex items-center gap-2 overflow-x-auto scrollbar-none scroll-smooth px-1 py-1 w-full select-none"
         >
           {[

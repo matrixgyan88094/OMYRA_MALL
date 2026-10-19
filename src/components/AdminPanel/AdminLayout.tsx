@@ -8,8 +8,6 @@ import {
   Settings, 
   LogOut, 
   ExternalLink, 
-  ChevronLeft, 
-  ChevronRight,
   Database,
   ShieldCheck,
   Cloud,
@@ -66,16 +64,6 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({
     { id: 'settings', label: 'Routing & Database', icon: Settings },
   ];
 
-  const handleScroll = (direction: 'left' | 'right') => {
-    if (scrollContainerRef.current) {
-      const scrollAmount = 200;
-      scrollContainerRef.current.scrollBy({
-        left: direction === 'left' ? -scrollAmount : scrollAmount,
-        behavior: 'smooth'
-      });
-    }
-  };
-
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900 font-sans selection:bg-orange-500 selection:text-white flex flex-col">
       {/* Top Header */}
@@ -129,15 +117,6 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({
         {/* Top Smooth Horizontal Slidable Menu */}
         <div className="border-t border-slate-100 bg-white relative">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 relative flex items-center">
-            {/* Scroll Left Button */}
-            <button
-              onClick={() => handleScroll('left')}
-              className="hidden md:flex p-1.5 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded-lg transition-colors mr-2 shrink-0"
-              aria-label="Scroll menu left"
-            >
-              <ChevronLeft className="w-4 h-4" />
-            </button>
-
             {/* Scrollable Container */}
             <div
               ref={scrollContainerRef}
@@ -174,15 +153,6 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({
                 );
               })}
             </div>
-
-            {/* Scroll Right Button */}
-            <button
-              onClick={() => handleScroll('right')}
-              className="hidden md:flex p-1.5 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded-lg transition-colors ml-2 shrink-0"
-              aria-label="Scroll menu right"
-            >
-              <ChevronRight className="w-4 h-4" />
-            </button>
           </div>
         </div>
       </header>
